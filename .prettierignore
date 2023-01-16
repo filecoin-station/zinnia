@@ -1,0 +1,6 @@
+# The goal of the configuration below is to configure Prettier to lint only Markdown files.
+**/*.*
+!**/*.md
+
+# Let's keep LICENSE.md in the same formatting as we use in other PL repositories
+LICENSE.md
