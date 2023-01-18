@@ -200,7 +200,7 @@ aligned with ProtocolLab's vision of driving technical breakthroughs in the
 open. The project is community-driven and contributes to other WASM initiatives.
 
 On the technical side, it is the only engine that supports the asynchronous
-programming model (AFAICT). It also has the best documentation.
+programming model (AFAICT). It also has the most extensive documentation.
 
 ## Consequences
 
