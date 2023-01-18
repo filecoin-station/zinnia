@@ -161,7 +161,7 @@ Benefits:
 
 Issues:
 
-- No support for an asynchronous programming model & non-blocking I/A
+- No support for an asynchronous programming model & non-blocking I/O
 
 - Lack of documentation for advanced users. For example, I could not figure out
   how to configure an allow-list of directories allowed to access from WASI.
