@@ -116,7 +116,7 @@ Benefits:
 
 - It implements gas metering & limiting.
 
-- FMV is built on top of Wasmtime too. This can create synergies between our
+- FVM is built on top of Wasmtime too. This can create synergies between our
   teams.
 
 - It supports async host functions.
