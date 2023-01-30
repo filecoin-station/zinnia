@@ -82,7 +82,7 @@ implementation of different ops and builds a high-level JS API on top of that.
 Unfortunately, based on a brief investigation, it seems that `deno_runtime` is
 designed as a self-contained thing that's not open to be extended.
 
-However, the implementations of ops are packages into crates, which are easy to
+However, the implementations of ops are packaged into crates, which are easy to
 add into a `deno_core`-based project.
 
 ## Decision
