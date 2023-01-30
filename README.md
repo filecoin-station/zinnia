@@ -29,8 +29,9 @@ computers.
 
 ### Components
 
-- **JS/WASM engine:** [wasmtime](https://wasmtime.dev), see the
-  [Initial Architecture decision record](docs/architecture-decision-records/2023-01-initial-architecture.md)
+- **JS/WASM engine:** [deno_core](https://crates.io/crates/deno_core), see the
+  decision record for
+  [Switching to Deno Core](docs/architecture-decision-records/2023-01-switching-to-deno-core.md)
 - **Non-blocking I/O:** _TBD_
 - **Networking**: _TBD_
 - **IPFS:** _TBD_
