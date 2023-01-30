@@ -92,8 +92,9 @@ We decided to pivot and build Zinnia on top of `deno_core`.
 It will allow us to iterate much faster, while still having a lot of control of
 the API exposed to modules.
 
-While Deno is not perfect, we need to prioritize iteration speed at this stage
-of the project.
+While Deno is not perfect (see
+[Deno issues](../architecture-decision-records/2023-01-initial-architecture.md#deno)),
+we need to prioritize iteration speed at this stage of the project.
 
 ## Consequences
 
