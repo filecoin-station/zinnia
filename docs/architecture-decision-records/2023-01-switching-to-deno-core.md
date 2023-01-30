@@ -61,7 +61,7 @@ and exposing it for consumption from JavaScript.
 It does not provide any platform APIs like networking and filesystem access.
 
 The host provides a set of `ops` (operations) implemented as Rust functions.
-`deno_core` takes care of binding these Rust functions to v8 runtime, exposing
+`deno_core` takes care of binding these Rust functions to the v8 runtime and exposing
 them to the JavaScript world. The bindings also seamlessly convert between
 JavaScript and Rust types, e.g. `number[]` and `Vec<f64>`.
 
