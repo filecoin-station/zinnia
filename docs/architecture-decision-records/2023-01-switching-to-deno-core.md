@@ -100,7 +100,7 @@ of the project.
 - We can support JS & Rust/WASM modules from the beginning
 
 - We can leverage what the Deno team learned about Rust & v8 integration over
-  the years and follow their best practices.
+  the years and follow their best practices
 
 - We can cherry-pick functionality from Deno, either import some of their crates
   or copy parts of their code (as a last resort solution)
