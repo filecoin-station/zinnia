@@ -54,16 +54,16 @@ See e.g. their example code here:
 
 ### `deno_core`
 
-The Deno project is composed of many modules. One of them is `deno_core`,
-which is a library that implements an opinionated way of structuring Rust code
-and exposing it for consumption from JavaScript.
+The Deno project is composed of many modules. One of them is `deno_core`, which
+is a library that implements an opinionated way of structuring Rust code and
+exposing it for consumption from JavaScript.
 
 It does not provide any platform APIs like networking and filesystem access.
 
 The host provides a set of `ops` (operations) implemented as Rust functions.
-`deno_core` takes care of binding these Rust functions to the v8 runtime and exposing
-them to the JavaScript world. The bindings also seamlessly convert between
-JavaScript and Rust types, e.g. `number[]` and `Vec<f64>`.
+`deno_core` takes care of binding these Rust functions to the v8 runtime and
+exposing them to the JavaScript world. The bindings also seamlessly convert
+between JavaScript and Rust types, e.g. `number[]` and `Vec<f64>`.
 
 I wrote a small PoC where the host provides two functions (sync
 `log(msg: string)` and async `sleep(duration: number)`), runs two modules (one
@@ -80,10 +80,10 @@ Deno's next building block is `deno_runtime`, which bundles `deno_core` with the
 implementation of different ops and builds a high-level JS API on top of that.
 
 Unfortunately, based on a brief investigation, it seems that `deno_runtime` is
-designed as a self-contained thing that's not open to be extended.
+designed as a self-contained thing that's not open to being extended.
 
 However, the implementations of ops are packaged into crates, which are easy to
-add into a `deno_core`-based project.
+incorporate into a `deno_core`-based project.
 
 ## Decision
 
@@ -107,16 +107,14 @@ of the project.
 
 ### Caveats
 
-- Supporting both JS and Rust/WASM requires more work. Maybe we should pick one
-  as the first-class option with great documentation & DX, and keep the second
-  one less polished.
+- Supporting both JS and Rust/WASM requires more work.
 
-- Since Deno is a projected stewarded by a single VC-backed company, there is a
-  risk that the project may become less maintained or may change the direction
-  in a way that's not compatible with us. Because we are not building directly
-  on top of the user-facing `deno` tooling, we have several options how to
-  handle that situation. We can fork the libraries we are building on top of, or
-  even rebuild Zinnia runtime & SDK using a different technology.
+- Since Deno is a project stewarded by a single VC-backed company, there is a
+  risk that the project may become less maintained or may change direction in a
+  way that's not compatible with us. Because we are not building directly on top
+  of the user-facing `deno` tooling, we have several options for how to handle
+  that situation. We can fork the libraries we are building on top of, or even
+  rebuild Zinnia runtime & SDK using a different technology.
 
 ## Links &amp; References
 
