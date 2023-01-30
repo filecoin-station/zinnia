@@ -49,8 +49,8 @@ into APIs closer to idiomatic Rust.
 
 Unfortunately, working with v8 this way is still too cumbersome.
 
-See e.g. their example code here:
-[v8 example](https://docs.rs/v8/0.62.0/v8/#example)
+See our PoC here:
+https://github.com/filecoin-station/runtime-poc/blob/main/v8-js/src/main.rs
 
 ### `deno_core`
 
