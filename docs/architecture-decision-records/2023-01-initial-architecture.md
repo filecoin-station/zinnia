@@ -1,6 +1,7 @@
 # Initial Architecture
 
-> Status: ACCEPTED
+> Status: SUPERSEDED BY
+> [Switching to Deno Core](./2023-01-switching-to-deno-core.md)
 
 <!--
 PROPOSED, ACCEPTED, REJECTED, DEPRECATED, SUPERSEDED BY {link-to-ADR}
