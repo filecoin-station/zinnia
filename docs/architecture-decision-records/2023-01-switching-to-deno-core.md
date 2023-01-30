@@ -97,7 +97,7 @@ of the project.
 
 ## Consequences
 
-- We can support JS & Rust/WASM module from the beginning.
+- We can support JS & Rust/WASM modules from the beginning
 
 - We can leverage what the Deno team learned about Rust & v8 integration over
   the years and follow their best practices.
