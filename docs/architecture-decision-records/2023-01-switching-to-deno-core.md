@@ -103,7 +103,7 @@ of the project.
   the years and follow their best practices.
 
 - We can cherry-pick functionality from Deno, either import some of their crates
-  or copy parts of their code (as a last resort solution).
+  or copy parts of their code (as a last resort solution)
 
 ### Caveats
 
