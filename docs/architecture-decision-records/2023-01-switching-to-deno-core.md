@@ -54,7 +54,7 @@ See e.g. their example code here:
 
 ### `deno_core`
 
-The Deno project is composed from many modules. One of them is `deno_core`,
+The Deno project is composed of many modules. One of them is `deno_core`,
 which is a library that implements an opinionated way of structuring Rust code
 and exposing it for consumption from JavaScript.
 
