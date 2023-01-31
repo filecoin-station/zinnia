@@ -8,16 +8,15 @@ license.workspace = true
 repository.workspace = true
 description = "Zinnia is a runtime for Filecoin Station modules. It provides a sandboxed environment to execute untrusted code on consumer-grade computers."
 categories = ["command-line-utilities", "development-tools", "wasm"]
-include = [
-  "README.md",
-  "Cargo.toml",
-  "src/**/*.rs",
-]
 
 [[bin]]
 name = "zinnia"
 path = "main.rs"
 doc = false
+
+[dependencies]
+anyhow = "1.0.68"
+clap = { version = "4.1.4", features = ["derive"] }
 
 [package.metadata.winres]
 # This section defines the metadata that appears in the deno.exe PE header.
@@ -25,3 +24,4 @@ OriginalFilename = "zinnia.exe"
 LegalCopyright = "© Protocol Labs & Zinnia contributors. Permissive License Stack (Apache-2.0 or MIT)."
 ProductName = "Filecoin Station"
 FileDescription = "Zinnia: Secure sandboxed runtime for Filecoin Station modules."
+
