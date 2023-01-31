@@ -1,18 +1,20 @@
-[package]
+[workspace]
+resolver = "2"
+members = [
+  "cli",
+]
+
+[workspace.package]
 name = "zinnia"
-version = "0.0.1"
 edition = "2021"
-description = "Zinnia is a runtime for Filecoin Station modules. It provides a sandboxed environment to execute untrusted code on consumer-grade computers."
 license = "MIT OR Apache-2.0"
 authors = ["Protocol Labs"]
 repository = "https://github.com/filecoin-station/zinnia"
-categories = ["command-line-utilities", "development-tools", "wasm"]
-include = [
-  "README.md",
-  "Cargo.toml",
-  "src/**/*.rs",
-]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[dependencies]
+[profile.release]
+codegen-units = 1
+incremental = true
+lto = true
+opt-level = 3
