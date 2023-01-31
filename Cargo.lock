@@ -3958,7 +3958,7 @@ dependencies = [
 name = "zinnia"
 version = "0.0.1"
 dependencies = [
- "anyhow",
  "clap",
  "deno_runtime",
+ "tokio",
 ]

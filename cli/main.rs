@@ -1,9 +1,16 @@
+mod runtime;
+mod utils;
+
+use std::path::Path;
+
 use clap::{command, Parser, Subcommand};
 use deno_runtime::{
   colors, deno_core::error::JsError, fmt_errors::format_js_error,
 };
 
-type AnyError = anyhow::Error;
+use runtime::AnyError;
+
+use crate::runtime::run_js_module;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -20,21 +27,23 @@ pub enum Commands {
   },
 }
 
-pub fn main() {
+#[tokio::main(flavor = "current_thread")]
+async fn main() {
   #[cfg(windows)]
   colors::enable_ansi(); // For Windows 10
 
-  match main_impl() {
+  match main_impl().await {
     Ok(_) => (),
     Err(err) => exit_with_error(err),
   }
 }
 
-fn main_impl() -> Result<(), AnyError> {
+async fn main_impl() -> Result<(), AnyError> {
   let cli_args = CliArgs::parse_from(std::env::args());
   match cli_args.command {
     Commands::Run { file } => {
-      println!("{} execute {file}", colors::green("TODO"));
+      println!("{} {file}", colors::green("EXECUTE"));
+      run_js_module(Path::new(&file)).await?;
       Ok(())
     }
   }
