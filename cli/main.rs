@@ -24,14 +24,24 @@ pub fn main() {
   #[cfg(windows)]
   colors::enable_ansi(); // For Windows 10
 
-  let result = main_impl();
-  if result.is_ok() {
-    return;
+  match main_impl() {
+    Ok(_) => (),
+    Err(err) => exit_with_error(err),
   }
-  let error = result.unwrap_err();
+}
 
+fn main_impl() -> Result<(), AnyError> {
+  let cli_args = CliArgs::parse_from(std::env::args());
+  match cli_args.command {
+    Commands::Run { file } => {
+      println!("{} execute {file}", colors::green("TODO"));
+      Ok(())
+    }
+  }
+}
+
+fn exit_with_error(error: AnyError) {
   // Inspired by unwrap_or_exit<T> from https://github.com/denoland/deno/blob/main/cli/main.rs
-
   let mut error_string = format!("{error:?}");
   let error_code = 1;
 
@@ -45,26 +55,4 @@ pub fn main() {
     error_string.trim_start_matches("error: ")
   );
   std::process::exit(error_code);
-}
-
-fn main_impl() -> Result<(), AnyError> {
-  let cli_args = match CliArgs::try_parse_from(std::env::args()) {
-    Ok(args) => args,
-    Err(err @ clap::Error { .. })
-      if err.kind() == clap::error::ErrorKind::DisplayHelp
-        || err.kind() == clap::error::ErrorKind::DisplayVersion =>
-    {
-      err.print().unwrap();
-      return Ok(());
-    }
-    Err(err) => return Err(AnyError::from(err)),
-  };
-
-  match cli_args.command {
-    Commands::Run { file } => {
-      println!("{} execute {file}", colors::green("TODO"));
-    }
-  }
-
-  Ok(())
 }
