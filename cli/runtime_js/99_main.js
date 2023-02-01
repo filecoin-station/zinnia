@@ -1,6 +1,8 @@
-"use strict";
-
+// ZINNIA VERSION: Copyright 2023 Protocol Labs. All rights reserved. MIT OR Apache-2.0 license.
+// ORIGINAL WORK: Copyright 2018-2023 the Deno authors. All rights reserved. MIT license.
 // See https://github.com/denoland/deno/blob/main/runtime/js/99_main.js
+
+"use strict";
 
 // Removes the `__proto__` for security reasons.
 // https://tc39.es/ecma262/#sec-get-object.prototype.__proto__
