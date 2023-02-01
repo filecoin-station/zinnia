@@ -1,6 +1,6 @@
 # Switching to Deno Core
 
-> Status: PROPOSED
+> Status: ACCEPTED
 
 <!--
 PROPOSED, ACCEPTED, REJECTED, DEPRECATED, SUPERSEDED BY {link-to-ADR}
