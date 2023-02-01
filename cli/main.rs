@@ -1,12 +1,11 @@
 mod runtime;
-mod utils;
-
-use std::path::Path;
 
 use clap::{command, Parser, Subcommand};
-use deno_runtime::{
-  colors, deno_core::error::JsError, fmt_errors::format_js_error,
-};
+use deno_runtime::colors;
+use deno_runtime::deno_core;
+use deno_runtime::fmt_errors::format_js_error;
+
+use deno_core::error::JsError;
 
 use runtime::AnyError;
 
@@ -43,7 +42,8 @@ async fn main_impl() -> Result<(), AnyError> {
   match cli_args.command {
     Commands::Run { file } => {
       println!("{} {file}", colors::green("EXECUTE"));
-      run_js_module(Path::new(&file)).await?;
+      let main_module = deno_core::resolve_path(&file)?;
+      run_js_module(&main_module, &Default::default()).await?;
       Ok(())
     }
   }

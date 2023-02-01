@@ -1,15 +1,15 @@
 // TODO: extract this into a standalone crate
 
-use std::cell::RefCell;
 use std::path::Path;
 use std::rc::Rc;
-use std::time::Duration;
 
+use deno_runtime::colors;
 use deno_runtime::deno_core::anyhow::anyhow;
+use deno_runtime::deno_core::error::type_error;
 use deno_runtime::deno_core::futures::FutureExt;
-use deno_runtime::deno_core::op;
-use deno_runtime::deno_core::url::Url;
-use deno_runtime::deno_core::ByteString;
+use deno_runtime::deno_core::include_js_files;
+use deno_runtime::deno_core::located_script_name;
+use deno_runtime::deno_core::resolve_import;
 use deno_runtime::deno_core::Extension;
 use deno_runtime::deno_core::JsRuntime;
 use deno_runtime::deno_core::ModuleLoader;
@@ -17,45 +17,75 @@ use deno_runtime::deno_core::ModuleSource;
 use deno_runtime::deno_core::ModuleSourceFuture;
 use deno_runtime::deno_core::ModuleSpecifier;
 use deno_runtime::deno_core::ModuleType;
-use deno_runtime::deno_core::OpState;
 use deno_runtime::deno_core::ResolutionKind;
 use deno_runtime::deno_core::RuntimeOptions;
 
+use deno_runtime::deno_core::serde_json;
+use deno_runtime::deno_core::serde_json::json;
 use tokio::fs::File;
-use tokio::io::{self, AsyncReadExt};
+use tokio::io::AsyncReadExt;
 
 pub type AnyError = deno_runtime::deno_core::anyhow::Error;
 
-use crate::utils::canonicalize_path;
+/// Common bootstrap options for MainWorker & WebWorker
+#[derive(Clone)]
+pub struct BootstrapOptions {
+  pub no_color: bool,
+  pub is_tty: bool,
+}
 
-pub async fn run_js_module(path: &Path) -> Result<(), AnyError> {
+impl Default for BootstrapOptions {
+  fn default() -> Self {
+    Self {
+      no_color: !colors::use_color(),
+      is_tty: colors::is_tty(),
+    }
+  }
+}
+
+impl BootstrapOptions {
+  pub fn as_json(&self) -> String {
+    let payload = json!({
+      "noColor": self.no_color,
+      "isTty": self.is_tty,
+    });
+    serde_json::to_string_pretty(&payload).unwrap()
+  }
+}
+
+pub async fn run_js_module(
+  module_specifier: &ModuleSpecifier,
+  bootstrap_options: &BootstrapOptions,
+) -> Result<(), AnyError> {
   // Initialize a runtime instance
   let mut runtime = JsRuntime::new(RuntimeOptions {
-    extensions: vec![
+    extensions_with_js: vec![
       // Web Platform APIs implemented by Deno
       deno_runtime::deno_console::init(),
       // Zinnia-specific APIs
       // (to be done)
+      Extension::builder("zinnia_runtime")
+        .js(include_js_files!(
+          prefix "zinnia:runtime",
+          "runtime_js/98_global_scope.js",
+          "runtime_js/99_main.js",
+        ))
+        .build(),
     ],
     will_snapshot: false,
     inspector: false,
     module_loader: Some(Rc::new(ZinniaModuleLoader {
-      main_js_module: String::from(path.to_str().unwrap()),
+      main_js_module: module_specifier.clone(),
     })),
     ..Default::default()
   });
 
-  // Enable Async Ops
-  runtime.execute_script(
-    "internal://enable-async-ops.js",
-    "Deno.core.initializeAsyncOps()",
-  )?;
+  let script =
+    format!("bootstrap.mainRuntime({})", bootstrap_options.as_json());
+  runtime.execute_script(&located_script_name!(), &script)?;
 
   // Load and run the module
-  let abs_path = canonicalize_path(Path::new(path))?;
-  // This could fail only when the abs_path is not absolute
-  let url = ModuleSpecifier::from_file_path(abs_path).unwrap();
-  let main_module_id = runtime.load_main_module(&url, None).await?;
+  let main_module_id = runtime.load_main_module(module_specifier, None).await?;
   let res = runtime.mod_evaluate(main_module_id);
   runtime.run_event_loop(false).await?;
   res.await??;
@@ -65,31 +95,18 @@ pub async fn run_js_module(path: &Path) -> Result<(), AnyError> {
 
 /// Our custom module loader.
 pub struct ZinniaModuleLoader {
-  main_js_module: String,
+  main_js_module: ModuleSpecifier,
 }
 
 impl ModuleLoader for ZinniaModuleLoader {
   fn resolve(
     &self,
     specifier: &str,
-    _referrer: &str,
+    referrer: &str,
     _kind: ResolutionKind,
   ) -> Result<ModuleSpecifier, AnyError> {
-    println!("Resolving specifier: {:#?}", specifier);
-    println!("Main js module: {:#?}", self.main_js_module);
-    match specifier {
-      str if str.eq(self.main_js_module.as_str()) => {
-        let abs_path = canonicalize_path(Path::new(str))?;
-        // This could fail only when the abs_path is not absolute
-        let url = ModuleSpecifier::from_file_path(abs_path).unwrap();
-        Ok(url)
-      }
-
-      _ => Err(anyhow!(
-        "Zinnia does not support module resolution (while loading {})",
-        specifier
-      )),
-    }
+    let resolved = resolve_import(specifier, referrer)?;
+    Ok(resolved)
   }
 
   fn load(
@@ -99,10 +116,21 @@ impl ModuleLoader for ZinniaModuleLoader {
     is_dyn_import: bool,
   ) -> std::pin::Pin<Box<ModuleSourceFuture>> {
     let specifier = module_specifier.clone();
+    let main_js_module = self.main_js_module.clone();
     async move {
       if is_dyn_import {
         return Err(anyhow!(
           "Zinnia does not support dynamic imports. (URL: {})",
+          specifier
+        ));
+      }
+
+      if !specifier
+        .as_str()
+        .eq_ignore_ascii_case(main_js_module.as_str())
+      {
+        return Err(anyhow!(
+          "Zinnia does not support modules yet. (URL: {})",
           specifier
         ));
       }
@@ -124,10 +152,16 @@ impl ModuleLoader for ZinniaModuleLoader {
 async fn read_file_to_string(
   path: impl AsRef<Path>,
 ) -> Result<String, AnyError> {
-  let mut f = File::open(path).await?;
-  let mut buffer = Vec::new();
+  let mut f = File::open(&path).await.map_err(|err| {
+    type_error(format!(
+      "Module not found: {}. {}",
+      err,
+      path.as_ref().display()
+    ))
+  })?;
 
   // read the whole file
+  let mut buffer = Vec::new();
   f.read_to_end(&mut buffer).await?;
 
   Ok(String::from_utf8_lossy(&buffer).to_string())
