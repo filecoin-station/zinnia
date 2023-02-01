@@ -112,7 +112,7 @@ impl ModuleLoader for ZinniaModuleLoader {
   fn load(
     &self,
     module_specifier: &ModuleSpecifier,
-    _maybe_referrer: Option<ModuleSpecifier>,
+    maybe_referrer: Option<ModuleSpecifier>,
     is_dyn_import: bool,
   ) -> std::pin::Pin<Box<ModuleSourceFuture>> {
     let specifier = module_specifier.clone();
@@ -129,10 +129,15 @@ impl ModuleLoader for ZinniaModuleLoader {
         .as_str()
         .eq_ignore_ascii_case(main_js_module.as_str())
       {
-        return Err(anyhow!(
-          "Zinnia does not support modules yet. (URL: {})",
-          specifier
-        ));
+        let mut msg =
+          "Zinnia does not support importing from other modules yet. "
+            .to_string();
+        msg.push_str(&specifier.as_str());
+        if let Some(referrer) = &maybe_referrer {
+          msg.push_str(" imported from ");
+          msg.push_str(referrer.as_str());
+        }
+        return Err(anyhow!(msg));
       }
 
       let code = read_file_to_string(specifier.to_file_path().unwrap()).await?;
