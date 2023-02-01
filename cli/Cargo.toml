@@ -1,0 +1,28 @@
+[package]
+name = "zinnia"
+version = "0.0.1"
+authors.workspace = true
+default-run = "zinnia"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Zinnia is a runtime for Filecoin Station modules. It provides a sandboxed environment to execute untrusted code on consumer-grade computers."
+categories = ["command-line-utilities", "development-tools", "wasm"]
+
+[[bin]]
+name = "zinnia"
+path = "main.rs"
+doc = false
+
+[dependencies]
+clap = { version = "4.1.4", features = ["derive"] }
+deno_runtime = "0.94.0"
+tokio = { version = "1.24.1", features = ["fs", "rt", "macros"] }
+
+[package.metadata.winres]
+# This section defines the metadata that appears in the deno.exe PE header.
+OriginalFilename = "zinnia.exe"
+LegalCopyright = "© Protocol Labs & Zinnia contributors. Permissive License Stack (Apache-2.0 or MIT)."
+ProductName = "Filecoin Station"
+FileDescription = "Zinnia: Secure sandboxed runtime for Filecoin Station modules."
+

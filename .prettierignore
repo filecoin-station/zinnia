@@ -1,6 +1,7 @@
-# The goal of the configuration below is to configure Prettier to lint only Markdown files.
+# The goal of the configuration below is to configure Prettier to lint Markdown and JavaScript files.
 **/*.*
 !**/*.md
+!**/*.js
 
 # Let's keep LICENSE.md in the same formatting as we use in other PL repositories
 LICENSE.md
