@@ -20,6 +20,8 @@ deno_runtime = "0.94.0"
 tokio = { version = "1.24.1", features = ["fs", "rt", "macros"] }
 
 [dev-dependencies]
+assert_cmd = "2.0.8"
+assert_fs = "1.0.10"
 pretty_assertions = "1.3.0"
 
 [package.metadata.winres]

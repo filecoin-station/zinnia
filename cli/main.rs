@@ -28,7 +28,6 @@ async fn main_impl() -> Result<(), AnyError> {
   let cli_args = CliArgs::parse_from(std::env::args());
   match cli_args.command {
     Commands::Run { file } => {
-      println!("{} {file}", colors::green("EXECUTE"));
       let main_module = deno_core::resolve_path(&file)?;
       run_js_module(&main_module, &Default::default()).await?;
       Ok(())
