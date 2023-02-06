@@ -1,6 +1,6 @@
 // ZINNIA VERSION: Copyright 2023 Protocol Labs. All rights reserved. MIT OR Apache-2.0 license.
 // ORIGINAL WORK: Copyright 2018-2023 the Deno authors. All rights reserved. MIT license.
-// See https://github.com/denoland/deno/blob/main/runtime/js/98_global_scope.js
+// https://github.com/denoland/deno/blob/34bfa2cb2c1f0f74a94ced8fc164e81cc91cb9f4/runtime/js/98_global_scope.js
 
 "use strict";
 
