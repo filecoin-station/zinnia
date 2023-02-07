@@ -49,10 +49,9 @@ function fail() {
   error: Uncaught Error: boom!
   throw new Error("boom!");
         ^
-    at fail (file://{0}:5:9)
-    at file://{0}:2:1
-"#,
-    mod_js_str
+    at fail (file://{mod_js_str}:5:9)
+    at file://{mod_js_str}:2:1
+"#
   )
   .trim_start()
   .to_string();
