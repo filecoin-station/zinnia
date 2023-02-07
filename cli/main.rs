@@ -1,6 +1,8 @@
+mod args;
 mod runtime;
 
-use clap::{command, Parser, Subcommand};
+use args::{CliArgs, Commands};
+use clap::Parser;
 use deno_runtime::colors;
 use deno_runtime::deno_core;
 use deno_runtime::fmt_errors::format_js_error;
@@ -10,21 +12,6 @@ use deno_core::error::JsError;
 use runtime::AnyError;
 
 use crate::runtime::run_js_module;
-
-#[derive(Parser)]
-#[command(author, version, about, long_about = None)]
-pub struct CliArgs {
-  #[command(subcommand)]
-  command: Commands,
-}
-
-#[derive(Subcommand)]
-pub enum Commands {
-  Run {
-    /// JavaScript file containing the Station Module to run
-    file: String,
-  },
-}
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
@@ -41,7 +28,6 @@ async fn main_impl() -> Result<(), AnyError> {
   let cli_args = CliArgs::parse_from(std::env::args());
   match cli_args.command {
     Commands::Run { file } => {
-      println!("{} {file}", colors::green("EXECUTE"));
       let main_module = deno_core::resolve_path(&file)?;
       run_js_module(&main_module, &Default::default()).await?;
       Ok(())
