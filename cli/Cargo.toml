@@ -3,6 +3,7 @@ name = "zinnia"
 version = "0.0.1"
 authors.workspace = true
 default-run = "zinnia"
+rust-version.workspace = true
 edition.workspace = true
 license.workspace = true
 repository.workspace = true
