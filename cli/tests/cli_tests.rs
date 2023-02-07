@@ -10,7 +10,7 @@ fn run_js_module() -> Result<(), Box<dyn std::error::Error>> {
   mod_js.write_str("console.log('Hello world!')")?;
 
   let output = Command::cargo_bin("zinnia")?
-    .args(&["run", &mod_js.path().display().to_string()])
+    .args(["run", &mod_js.path().display().to_string()])
     .output()?;
 
   assert_eq!(
@@ -41,7 +41,7 @@ function fail() {
 
   let output = Command::cargo_bin("zinnia")?
     .env("NO_COLOR", "1")
-    .args(&["run", &mod_js_str])
+    .args(["run", &mod_js_str])
     .output()?;
 
   let expected_stderr = format!(
@@ -49,10 +49,9 @@ function fail() {
   error: Uncaught Error: boom!
   throw new Error("boom!");
         ^
-    at fail (file://{0}:5:9)
-    at file://{0}:2:1
-"#,
-    mod_js_str
+    at fail (file://{mod_js_str}:5:9)
+    at file://{mod_js_str}:2:1
+"#
   )
   .trim_start()
   .to_string();

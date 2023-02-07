@@ -5,8 +5,8 @@ members = [
 ]
 
 [workspace.package]
-name = "zinnia"
 edition = "2021"
+rust-version = "1.66.0"
 license = "MIT OR Apache-2.0"
 authors = ["Protocol Labs"]
 repository = "https://github.com/filecoin-station/zinnia"
