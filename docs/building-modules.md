@@ -15,7 +15,7 @@ platform quickly.
 ## Getting started
 
 If you haven't done so, then install `zinnia` CLI per
-[our instructions](../README.md#installation).
+[our instructions](../cli/README.md#installation).
 
 Using your favourite text editor, create a file called `module.js` with the
 following content:
