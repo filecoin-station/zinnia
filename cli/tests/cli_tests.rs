@@ -10,7 +10,7 @@ fn run_js_module() -> Result<(), Box<dyn std::error::Error>> {
   mod_js.write_str("console.log('Hello world!')")?;
 
   let output = Command::cargo_bin("zinnia")?
-    .args(&["run", &mod_js.path().display().to_string()])
+    .args(["run", &mod_js.path().display().to_string()])
     .output()?;
 
   assert_eq!(
@@ -41,7 +41,7 @@ function fail() {
 
   let output = Command::cargo_bin("zinnia")?
     .env("NO_COLOR", "1")
-    .args(&["run", &mod_js_str])
+    .args(["run", &mod_js_str])
     .output()?;
 
   let expected_stderr = format!(

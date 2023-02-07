@@ -132,7 +132,7 @@ impl ModuleLoader for ZinniaModuleLoader {
         let mut msg =
           "Zinnia does not support importing from other modules yet. "
             .to_string();
-        msg.push_str(&specifier.as_str());
+        msg.push_str(specifier.as_str());
         if let Some(referrer) = &maybe_referrer {
           msg.push_str(" imported from ");
           msg.push_str(referrer.as_str());
