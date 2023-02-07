@@ -50,7 +50,8 @@ async fn main_impl() -> Result<(), AnyError> {
 }
 
 fn exit_with_error(error: AnyError) {
-  // Inspired by unwrap_or_exit<T> from https://github.com/denoland/deno/blob/main/cli/main.rs
+  // Inspired by unwrap_or_exit<T> from Deno's `cli/main.rs`
+  // https://github.com/denoland/deno/blob/34bfa2cb2c1f0f74a94ced8fc164e81cc91cb9f4/cli/main.rs
   let mut error_string = format!("{error:?}");
   let error_code = 1;
 
