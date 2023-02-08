@@ -1,5 +1,3 @@
-// TODO: extract this into a standalone crate
-
 use std::path::Path;
 use std::rc::Rc;
 
@@ -67,8 +65,8 @@ pub async fn run_js_module(
       Extension::builder("zinnia_runtime")
         .js(include_js_files!(
           prefix "zinnia:runtime",
-          "runtime_js/98_global_scope.js",
-          "runtime_js/99_main.js",
+          "js/98_global_scope.js",
+          "js/99_main.js",
         ))
         .build(),
     ],

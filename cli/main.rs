@@ -1,17 +1,14 @@
 mod args;
-mod runtime;
 
 use args::{CliArgs, Commands};
 use clap::Parser;
-use deno_runtime::colors;
-use deno_runtime::deno_core;
-use deno_runtime::fmt_errors::format_js_error;
+
+use zinnia_runtime::colors;
+use zinnia_runtime::deno_core;
+use zinnia_runtime::fmt_errors::format_js_error;
+use zinnia_runtime::{run_js_module, AnyError};
 
 use deno_core::error::JsError;
-
-use runtime::AnyError;
-
-use crate::runtime::run_js_module;
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() {

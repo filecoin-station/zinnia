@@ -4160,7 +4160,15 @@ dependencies = [
  "assert_cmd",
  "assert_fs",
  "clap",
- "deno_runtime",
  "pretty_assertions",
+ "tokio",
+ "zinnia_runtime",
+]
+
+[[package]]
+name = "zinnia_runtime"
+version = "0.0.0"
+dependencies = [
+ "deno_runtime",
  "tokio",
 ]

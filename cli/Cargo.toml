@@ -17,8 +17,8 @@ doc = false
 
 [dependencies]
 clap = { version = "4.1.4", features = ["derive"] }
-deno_runtime = "0.97.0"
-tokio = { version = "1.24.1", features = ["fs", "rt", "macros"] }
+tokio = { workspace = true }
+zinnia_runtime = { path = "../runtime" }
 
 [dev-dependencies]
 assert_cmd = "2.0.8"
