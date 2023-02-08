@@ -25,8 +25,8 @@ Then you can install Zinnia using `cargo`:
 $ cargo install zinnia
 ```
 
-This will build Zinnia and all its dependencies from the sources, it can take
-awhile. In the future, we want to simplify the installation process, see
+This will build Zinnia and all its dependencies from source, which can take
+a while. In the future, we want to simplify the installation process, see
 [#23](https://github.com/filecoin-station/zinnia/issues/23).
 
 ## Basic use
