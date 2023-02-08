@@ -38,12 +38,144 @@ Hello universe!
 Zinnia provides all standard JavaScript APIs, you can find the full list in
 [MDN web docs](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects).
 
-### console
+### Web APIs
+
+The following entities are defined in the global scope (`globalThis`).
+
+#### Console Standard
 
 Zinnia implements most of the `console` Web APIs like `console.log`. You can
 find the full list of supported methods in
 [Deno docs](https://deno.land/api@v1.30.3?s=Console) and more details about
 individual methods in
-[MDN web docs](https://developer.mozilla.org/en-US/docs/Web/API/console.)
+[MDN web docs](https://developer.mozilla.org/en-US/docs/Web/API/console)
 
-### More APIs are coming
+- [console](https://developer.mozilla.org/en-US/docs/Web/API/console)
+
+#### DOM Standard
+
+- [AbortController](https://developer.mozilla.org/en-US/docs/Web/API/AbortController)
+- [AbortSignal](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal)
+- [CustomEvent](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent)
+- [Event](https://developer.mozilla.org/en-US/docs/Web/API/Event)
+- [EventTarget](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget)
+
+#### Encoding Standard
+
+- [TextDecoder](https://developer.mozilla.org/en-US/docs/Web/API/TextDecoder)
+- [TextEncoder](https://developer.mozilla.org/en-US/docs/Web/API/TextEncoder)
+- [TextDecoderStream](https://developer.mozilla.org/en-US/docs/Web/API/TextDecoderStream)
+- [TextEncoderStream](https://developer.mozilla.org/en-US/docs/Web/API/TextEncoderStream)
+
+#### File API
+
+- [Blob](https://developer.mozilla.org/en-US/docs/Web/API/blob)
+- [File](https://developer.mozilla.org/en-US/docs/Web/API/File)
+- [FileReader](https://developer.mozilla.org/en-US/docs/Web/API/FileReader)
+
+#### HTML Standard
+
+- [ErrorEvent](https://developer.mozilla.org/en-US/docs/Web/API/ErrorEvent)
+- [MessageChannel](https://developer.mozilla.org/en-US/docs/Web/API/MessageChannel)
+- [MessageEvent](https://developer.mozilla.org/en-US/docs/Web/API/MessageEvent)
+- [MessagePort](https://developer.mozilla.org/en-US/docs/Web/API/MessagePort)
+- [PromiseRejectionEvent](https://developer.mozilla.org/en-US/docs/Web/API/PromiseRejectionEvent)
+- [atob](https://developer.mozilla.org/en-US/docs/Web/API/atob)
+- [btoa](https://developer.mozilla.org/en-US/docs/Web/API/btoa)
+- [clearInterval](https://developer.mozilla.org/en-US/docs/Web/API/clearInterval)
+- [clearTimeout](https://developer.mozilla.org/en-US/docs/Web/API/clearTimeout)
+- [reportError](https://developer.mozilla.org/en-US/docs/Web/API/reportError)
+- [setInterval](https://developer.mozilla.org/en-US/docs/Web/API/setInterval)
+- [setTimeout](https://developer.mozilla.org/en-US/docs/Web/API/setTimeout)
+- [structuredClone](https://developer.mozilla.org/en-US/docs/Web/API/structuredClone)
+
+#### Performance & User Timing
+
+- [Performance](https://developer.mozilla.org/en-US/docs/Web/API/Performance)
+- [PerformanceEntry](https://developer.mozilla.org/en-US/docs/Web/API/PerformanceEntry)
+- [PerformanceMark](https://developer.mozilla.org/en-US/docs/Web/API/PerformanceMark)
+- [PerformanceMeasure](https://developer.mozilla.org/en-US/docs/Web/API/PerformanceMeasure)
+- [performance](https://developer.mozilla.org/en-US/docs/Web/API/performance)
+
+#### Streams Standard
+
+- [ByteLengthQueuingStrategy](https://developer.mozilla.org/en-US/docs/Web/API/ByteLengthQueuingStrategy)
+- [CompressionStream](https://developer.mozilla.org/en-US/docs/Web/API/CompressionStream)
+- [CountQueuingStrategy](https://developer.mozilla.org/en-US/docs/Web/API/CountQueuingStrategy)
+- [DecompressionStream](https://developer.mozilla.org/en-US/docs/Web/API/DecompressionStream)
+- [ReadableByteStreamController](https://developer.mozilla.org/en-US/docs/Web/API/ReadableByteStreamController)
+- [ReadableStreamBYOBReader](https://developer.mozilla.org/en-US/docs/Web/API/ReadableStreamBYOBReader)
+- [ReadableStreamBYOBRequest](https://developer.mozilla.org/en-US/docs/Web/API/ReadableStreamBYOBRequest)
+- [ReadableStreamDefaultController](https://developer.mozilla.org/en-US/docs/Web/API/ReadableStreamDefaultController)
+- [ReadableStreamDefaultReader](https://developer.mozilla.org/en-US/docs/Web/API/ReadableStreamDefaultReader)
+- [ReadableStream](https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream)
+- [TransformStreamDefaultController](https://developer.mozilla.org/en-US/docs/Web/API/TransformStreamDefaultController)
+- [TransformStream](https://developer.mozilla.org/en-US/docs/Web/API/TransformStream)
+- [WritableStreamDefaultController](https://developer.mozilla.org/en-US/docs/Web/API/WritableStreamDefaultController)
+- [WritableStreamDefaultWriter](https://developer.mozilla.org/en-US/docs/Web/API/WritableStreamDefaultWriter)
+- [WritableStream](https://developer.mozilla.org/en-US/docs/Web/API/WritableStream)
+
+#### URL Standard
+
+- [URL](https://developer.mozilla.org/en-US/docs/Web/API/URL)
+- [URLSearchParams](https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams)
+- [URLPattern](https://developer.mozilla.org/en-US/docs/Web/API/URLPattern)
+
+#### WebSockets Standard (partial support)
+
+- [CloseEvent](https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent)
+
+#### Web IDL Standard
+
+- [DOMException](https://developer.mozilla.org/en-US/docs/Web/API/DOMException)
+
+#### XMLHttpRequest Standard (partial support)
+
+- [ProgressEvent](https://developer.mozilla.org/en-US/docs/Web/API/ProgressEvent)
+
+<!--
+UNSUPPORTED
+-->
+
+## Unsupported Web APIs
+
+The following Web APIs are not supported yet.
+
+#### Fetch Standard
+
+Tracking issue: https://github.com/filecoin-station/zinnia/issues/25
+
+- [Headers](https://developer.mozilla.org/en-US/docs/Web/API/Headers)
+- [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request)
+- [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response)
+- [fetch](https://developer.mozilla.org/en-US/docs/Web/API/fetch)
+
+#### Service Workers & Web Workers
+
+Tracking issue: n/a
+
+- [CacheStorage](https://developer.mozilla.org/en-US/docs/Web/API/CacheStorage)
+- [Cache](https://developer.mozilla.org/en-US/docs/Web/API/Cache)
+- [Worker](https://developer.mozilla.org/en-US/docs/Web/API/Worker)
+- [caches](https://developer.mozilla.org/en-US/docs/Web/API/caches)
+
+#### Web Cryptography API
+
+Tracking issue: https://github.com/filecoin-station/zinnia/issues/33
+
+- [CryptoKey](https://developer.mozilla.org/en-US/docs/Web/API/CryptoKey)
+- [Crypto](https://developer.mozilla.org/en-US/docs/Web/API/Crypto)
+- [SubtleCrypto](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto)
+- [crypto](https://developer.mozilla.org/en-US/docs/Web/API/crypto)
+
+#### WebSockets Standard
+
+Tracking issue: n/a
+
+- [WebSocket](https://developer.mozilla.org/en-US/docs/Web/API/WebSocket)
+
+#### XMLHttpRequest Standard
+
+Tracking issue: n/a
+
+- [FormData](https://developer.mozilla.org/en-US/docs/Web/API/FormData)

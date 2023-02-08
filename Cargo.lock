@@ -4199,6 +4199,8 @@ dependencies = [
 name = "zinnia_runtime"
 version = "0.0.0"
 dependencies = [
+ "assert_fs",
  "deno_runtime",
+ "pretty_assertions",
  "tokio",
 ]

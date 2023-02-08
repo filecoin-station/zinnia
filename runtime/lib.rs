@@ -4,3 +4,5 @@ pub use deno_runtime::fmt_errors;
 
 pub mod runtime;
 pub use runtime::*;
+
+pub use deno_core::resolve_path;

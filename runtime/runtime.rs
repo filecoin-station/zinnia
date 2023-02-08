@@ -1,7 +1,6 @@
 use std::path::Path;
 use std::rc::Rc;
 
-use deno_runtime::colors;
 use deno_runtime::deno_core::anyhow::anyhow;
 use deno_runtime::deno_core::error::type_error;
 use deno_runtime::deno_core::futures::FutureExt;
@@ -17,9 +16,11 @@ use deno_runtime::deno_core::ModuleSpecifier;
 use deno_runtime::deno_core::ModuleType;
 use deno_runtime::deno_core::ResolutionKind;
 use deno_runtime::deno_core::RuntimeOptions;
+use deno_runtime::{colors, deno_core};
 
 use deno_runtime::deno_core::serde_json;
 use deno_runtime::deno_core::serde_json::json;
+use deno_runtime::deno_web::{BlobStore, TimersPermission};
 use tokio::fs::File;
 use tokio::io::AsyncReadExt;
 
@@ -51,20 +52,44 @@ impl BootstrapOptions {
   }
 }
 
+/// Hard-coded permissions
+struct ZinniaPermissions;
+
+impl TimersPermission for ZinniaPermissions {
+  fn allow_hrtime(&mut self) -> bool {
+    true
+  }
+  fn check_unstable(
+    &self,
+    _state: &deno_core::OpState,
+    _api_name: &'static str,
+  ) {
+  }
+}
+
 pub async fn run_js_module(
   module_specifier: &ModuleSpecifier,
   bootstrap_options: &BootstrapOptions,
 ) -> Result<(), AnyError> {
+  let blob_store = BlobStore::default();
+
   // Initialize a runtime instance
   let mut runtime = JsRuntime::new(RuntimeOptions {
     extensions_with_js: vec![
       // Web Platform APIs implemented by Deno
       deno_runtime::deno_console::init(),
+      deno_runtime::deno_webidl::init(),
+      deno_runtime::deno_url::init(),
+      deno_runtime::deno_web::init::<ZinniaPermissions>(
+        blob_store,
+        Some(module_specifier.clone()),
+      ),
       // Zinnia-specific APIs
       // (to be done)
       Extension::builder("zinnia_runtime")
         .js(include_js_files!(
           prefix "zinnia:runtime",
+          "js/06_util.js",
           "js/98_global_scope.js",
           "js/99_main.js",
         ))
