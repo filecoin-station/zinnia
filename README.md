@@ -36,3 +36,7 @@ computers.
 - **Networking**: _TBD_
 - **IPFS:** _TBD_
 - **Block (K/V) storage:** _TBD_
+
+## Basic use
+
+See [CLI](./cli/README.md).

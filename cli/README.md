@@ -16,7 +16,18 @@ Zinnia is a runtime for Filecoin Station modules. This crate provides the actual
 
 ## Installation
 
-_TBD_
+To install Zinnia, you need to have Rust tooling installed on your machine. See
+[Install Rust](https://www.rust-lang.org/tools/install).
+
+Then you can install Zinnia using `cargo`:
+
+```sh
+$ cargo install zinnia
+```
+
+This will build Zinnia and all its dependencies from source, which can take
+a while. In the future, we want to simplify the installation process, see
+[#23](https://github.com/filecoin-station/zinnia/issues/23).
 
 ## Basic use
 
@@ -26,6 +37,9 @@ _TBD_
 zinnia run my-module.js
 ```
 
+See [Building Modules](./docs/building-modules.md) for how to write new modules
+for Filecoin Station.
+
 ### Run a Rust module
 
-_TBD_
+We have decided to put Rust/WASM modules on hold for now.
