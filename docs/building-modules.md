@@ -33,6 +33,11 @@ Hello universe!
 
 ## Platform APIs
 
+### Standard JavaScript APIs
+
+Zinnia provides all standard JavaScript APIs, you can find the full list in
+[MDN web docs](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects).
+
 ### console
 
 Zinnia implements most of the `console` Web APIs like `console.log`. You can
