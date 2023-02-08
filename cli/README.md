@@ -19,7 +19,7 @@ Zinnia is a runtime for Filecoin Station modules. This crate provides the actual
 To install Zinnia, you need to have Rust tooling installed on your machine. See
 [Install Rust](https://www.rust-lang.org/tools/install).
 
-Then you can install Zinnia using the `cargo`:
+Then you can install Zinnia using `cargo`:
 
 ```sh
 $ cargo install zinnia
