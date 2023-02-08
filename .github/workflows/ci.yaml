@@ -38,8 +38,8 @@ jobs:
 
       - uses: Swatinem/rust-cache@359a70e43a0bb8a13953b04a90f76428b4959bb6 # v2.2.0
         with:
-          shared-key: msrv-cache
-          save-if: false
+          shared-key: msrv-${{ matrix.crate }}
+          save-if: ${{ github.ref == 'refs/heads/main' }}
 
       - name: Check if ${{ matrix.crate }} compiles on MSRV (Rust ${{ steps.parse-msrv.outputs.version }})
         run: cargo +${{ steps.parse-msrv.outputs.version }} build --package ${{ matrix.crate }} --all-features
@@ -50,8 +50,8 @@ jobs:
 
       - uses: Swatinem/rust-cache@359a70e43a0bb8a13953b04a90f76428b4959bb6 # v2.2.0
         with:
-          shared-key: stable-cache
-          save-if: false
+          shared-key: stable-${{ matrix.crate }}
+          save-if: ${{ github.ref == 'refs/heads/main' }}
 
       - name: Run all tests
         run: cargo test --package ${{ matrix.crate }} --all-features
