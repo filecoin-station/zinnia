@@ -47,9 +47,8 @@
     EventTarget: util.nonEnumerable(eventTarget.EventTarget),
     File: util.nonEnumerable(file.File),
     FileReader: util.nonEnumerable(fileReader.FileReader),
-    // Not supported API from XMLHttpRequest
-    // FormData: util.nonEnumerable(formData.FormData),
     // TODO:  https://github.com/filecoin-station/zinnia/issues/25
+    // FormData: util.nonEnumerable(formData.FormData),
     // Headers: util.nonEnumerable(headers.Headers),
     MessageEvent: util.nonEnumerable(event.MessageEvent),
     Performance: util.nonEnumerable(performance.Performance),
@@ -57,7 +56,8 @@
     PerformanceMark: util.nonEnumerable(performance.PerformanceMark),
     PerformanceMeasure: util.nonEnumerable(performance.PerformanceMeasure),
     PromiseRejectionEvent: util.nonEnumerable(event.PromiseRejectionEvent),
-    ProgressEvent: util.nonEnumerable(event.ProgressEvent),
+    // TODO:  https://github.com/filecoin-station/zinnia/issues/25
+    // ProgressEvent: util.nonEnumerable(event.ProgressEvent),
     ReadableStream: util.nonEnumerable(streams.ReadableStream),
     ReadableStreamDefaultReader: util.nonEnumerable(
       streams.ReadableStreamDefaultReader,

@@ -129,10 +129,6 @@ individual methods in
 
 - [DOMException](https://developer.mozilla.org/en-US/docs/Web/API/DOMException)
 
-#### XMLHttpRequest Standard (partial support)
-
-- [ProgressEvent](https://developer.mozilla.org/en-US/docs/Web/API/ProgressEvent)
-
 <!--
 UNSUPPORTED
 -->
@@ -145,7 +141,9 @@ The following Web APIs are not supported yet.
 
 Tracking issue: https://github.com/filecoin-station/zinnia/issues/25
 
+- [FormData](https://developer.mozilla.org/en-US/docs/Web/API/FormData)
 - [Headers](https://developer.mozilla.org/en-US/docs/Web/API/Headers)
+- [ProgressEvent](https://developer.mozilla.org/en-US/docs/Web/API/ProgressEvent)
 - [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request)
 - [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response)
 - [fetch](https://developer.mozilla.org/en-US/docs/Web/API/fetch)
@@ -174,8 +172,6 @@ Tracking issue: n/a
 
 - [WebSocket](https://developer.mozilla.org/en-US/docs/Web/API/WebSocket)
 
-#### XMLHttpRequest Standard
+#### Other
 
-Tracking issue: n/a
-
-- [FormData](https://developer.mozilla.org/en-US/docs/Web/API/FormData)
+- `XMLHttpRequest` Standard

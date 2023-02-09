@@ -57,7 +57,12 @@ struct ZinniaPermissions;
 
 impl TimersPermission for ZinniaPermissions {
   fn allow_hrtime(&mut self) -> bool {
-    true
+    // TODO: should we allow APIs depending in high-resultion time?
+    // Quoting https://deno.land/manual@v1.30.3/basics/permissions#permissions-list
+    //   --allow-hrtime
+    //   Allow high-resolution time measurement. High-resolution time can be used in timing attacks
+    //   and fingerprinting.
+    false
   }
   fn check_unstable(
     &self,
