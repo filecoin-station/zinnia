@@ -14,14 +14,54 @@ env:
   SEGMENT_DOWNLOAD_TIMEOUT_MINS: 2 # Fail cache download after 2 minutes.
 
 jobs:
+  build:
+    name: Build on ${{ matrix.target }}
+    strategy:
+      matrix:
+        include:
+          - target: "x86_64-apple-darwin"
+            os: macos-latest
+          - target: "x86_64-pc-windows-msvc"
+            os: windows-latest
+          - target: "x86_64-unknown-linux-gnu"
+            os: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: dtolnay/rust-toolchain@9cd00a88a73addc8617065438eff914dd08d0955 # v1
+        with:
+          toolchain: stable
+          target: ${{ matrix.target }}
+
+      - uses: Swatinem/rust-cache@359a70e43a0bb8a13953b04a90f76428b4959bb6 # v2.2.0
+        with:
+          shared-key: ${{ matrix.target }}
+          # Always save the build artifacts to the cache to speed up builds of additional
+          # commits added to an already-opened pull request.
+          # save-if: ${{ github.ref == 'refs/heads/main' }}
+
+
+      - run: cargo build --workspace --all-features --target=${{ matrix.target }}
+
   test:
     name: Test ${{ matrix.crate }}
     runs-on: ubuntu-latest
-    needs: gather_published_crates
+    needs:
+      - gather_published_crates
+      - build
     strategy:
       fail-fast: false
       matrix:
         crate: ${{ fromJSON(needs.gather_published_crates.outputs.members) }}
+        include:
+          # Should we run the tests on Windows and macOS too?
+          # - target: "x86_64-apple-darwin"
+          #   os: macos-latest
+          # - target: "x86_64-pc-windows-msvc"
+          #   os: windows-latest
+          - target: "x86_64-unknown-linux-gnu"
+            os: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
 
@@ -31,8 +71,8 @@ jobs:
 
       - uses: Swatinem/rust-cache@359a70e43a0bb8a13953b04a90f76428b4959bb6 # v2.2.0
         with:
-          shared-key: stable-${{ matrix.crate }}
-          save-if: ${{ github.ref == 'refs/heads/main' }}
+          shared-key: ${{ matrix.target }}
+          save-if: false
 
       - name: Run all tests
         run: cargo test --package ${{ matrix.crate }} --all-features
@@ -53,34 +93,10 @@ jobs:
       #     wget -q -O- https://github.com/obi1kenobi/cargo-semver-checks/releases/download/v0.17.1/cargo-semver-checks-x86_64-unknown-linux-gnu.tar.gz | tar -xz -C ~/.cargo/bin
       #     cargo semver-checks check-release -p ${{ matrix.crate }}
 
-  cross:
-    name: Compile on ${{ matrix.target }}
-    strategy:
-      matrix:
-        include:
-          - target: "x86_64-apple-darwin"
-            os: macos-latest
-          - target: "x86_64-pc-windows-msvc"
-            os: windows-latest
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v3
-
-      - uses: dtolnay/rust-toolchain@9cd00a88a73addc8617065438eff914dd08d0955 # v1
-        with:
-          toolchain: stable
-          target: ${{ matrix.target }}
-
-      - uses: Swatinem/rust-cache@359a70e43a0bb8a13953b04a90f76428b4959bb6 # v2.2.0
-        with:
-          key: ${{ matrix.target }}
-          save-if: ${{ github.ref == 'refs/heads/main' }}
-
-      - run: cargo check --workspace --all-features --target=${{ matrix.target }}
-
   check-rustdoc-links:
     name: Check rustdoc intra-doc links
     runs-on: ubuntu-latest
+    needs: build
     steps:
       - uses: actions/checkout@v3
 
@@ -90,13 +106,15 @@ jobs:
 
       - uses: Swatinem/rust-cache@359a70e43a0bb8a13953b04a90f76428b4959bb6 # v2.2.0
         with:
-          save-if: ${{ github.ref == 'refs/heads/main' }}
+          shared-key: "x86_64-unknown-linux-gnu"
+          save-if: false
 
       - name: Check rustdoc links
         run: RUSTDOCFLAGS="--deny rustdoc::broken_intra_doc_links --deny warnings" cargo doc --verbose --workspace --no-deps --all-features --document-private-items
 
   clippy:
     runs-on: ubuntu-latest
+    needs: build
     steps:
       - uses: actions/checkout@v3
 
@@ -107,7 +125,8 @@ jobs:
 
       - uses: Swatinem/rust-cache@359a70e43a0bb8a13953b04a90f76428b4959bb6 # v2.2.0
         with:
-          save-if: ${{ github.ref == 'refs/heads/main' }}
+          shared-key: "x86_64-unknown-linux-gnu"
+          save-if: false
 
       - name: Run cargo clippy
         uses: actions-rs/cargo@844f36862e911db73fe0815f00a4a2602c279505 # v1.0.3
@@ -116,6 +135,7 @@ jobs:
 
   rustfmt:
     runs-on: ubuntu-latest
+    needs: build
     steps:
       - uses: actions/checkout@v3
 
