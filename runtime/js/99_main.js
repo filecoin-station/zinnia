@@ -19,11 +19,14 @@ delete Intl.v8BreakIterator;
     ErrorPrototype,
     ObjectDefineProperties,
     ObjectPrototypeIsPrototypeOf,
+    ObjectSetPrototypeOf,
   } = window.__bootstrap.primordials;
+  const eventTarget = window.__bootstrap.eventTarget;
   const colors = window.__bootstrap.colors;
   const inspectArgs = window.__bootstrap.console.inspectArgs;
   const quoteString = window.__bootstrap.console.quoteString;
-  const { windowOrWorkerGlobalScope } = window.__bootstrap.globalScope;
+  const { windowOrWorkerGlobalScope, mainRuntimeGlobalProperties } =
+    window.__bootstrap.globalScope;
 
   function formatException(error) {
     if (ObjectPrototypeIsPrototypeOf(ErrorPrototype, error)) {
@@ -64,11 +67,15 @@ delete Intl.v8BreakIterator;
     hasBootstrapped = true;
 
     ObjectDefineProperties(globalThis, windowOrWorkerGlobalScope);
+    ObjectDefineProperties(globalThis, mainRuntimeGlobalProperties);
+    ObjectSetPrototypeOf(globalThis, Window.prototype);
 
     if (runtimeOptions.inspectFlag) {
       const consoleFromDeno = globalThis.console;
       wrapConsole(consoleFromDeno, consoleFromV8);
     }
+
+    eventTarget.setEventTargetData(globalThis);
 
     runtimeStart(runtimeOptions);
 

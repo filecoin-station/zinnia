@@ -8,3 +8,6 @@
 
 #[path = "timers_tests.rs"]
 mod timers;
+
+#[path = "globals_tests.rs"]
+mod globals;

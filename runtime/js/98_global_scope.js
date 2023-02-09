@@ -25,6 +25,7 @@
   const webidl = window.__bootstrap.webidl;
   const domException = window.__bootstrap.domException;
   const abortSignal = window.__bootstrap.abortSignal;
+  const globalInterfaces = window.__bootstrap.globalInterfaces;
 
   // https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope
   const windowOrWorkerGlobalScope = {
@@ -131,7 +132,24 @@
     [webidl.brand]: util.nonEnumerable(webidl.brand),
   };
 
+  const mainRuntimeGlobalProperties = {
+    // Location: location.locationConstructorDescriptor,
+    // location: location.locationDescriptor,
+    Window: globalInterfaces.windowConstructorDescriptor,
+    window: util.getterOnly(() => globalThis),
+    self: util.getterOnly(() => globalThis),
+    // Navigator: util.nonEnumerable(Navigator),
+    // navigator: util.getterOnly(() => navigator),
+    // alert: util.writable(prompt.alert),
+    // confirm: util.writable(prompt.confirm),
+    // prompt: util.writable(prompt.prompt),
+    // localStorage: util.getterOnly(webStorage.localStorage),
+    // sessionStorage: util.getterOnly(webStorage.sessionStorage),
+    // Storage: util.nonEnumerable(webStorage.Storage),
+  };
+
   window.__bootstrap.globalScope = {
     windowOrWorkerGlobalScope,
+    mainRuntimeGlobalProperties,
   };
 })(this);
