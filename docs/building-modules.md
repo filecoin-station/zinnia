@@ -67,12 +67,6 @@ individual methods in
 - [TextDecoderStream](https://developer.mozilla.org/en-US/docs/Web/API/TextDecoderStream)
 - [TextEncoderStream](https://developer.mozilla.org/en-US/docs/Web/API/TextEncoderStream)
 
-#### File API
-
-- [Blob](https://developer.mozilla.org/en-US/docs/Web/API/blob)
-- [File](https://developer.mozilla.org/en-US/docs/Web/API/File)
-- [FileReader](https://developer.mozilla.org/en-US/docs/Web/API/FileReader)
-
 #### HTML Standard
 
 - [ErrorEvent](https://developer.mozilla.org/en-US/docs/Web/API/ErrorEvent)
@@ -147,6 +141,14 @@ Tracking issue: https://github.com/filecoin-station/zinnia/issues/25
 - [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request)
 - [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response)
 - [fetch](https://developer.mozilla.org/en-US/docs/Web/API/fetch)
+
+#### File API
+
+Tracking issue: n/a
+
+- [Blob](https://developer.mozilla.org/en-US/docs/Web/API/blob)
+- [File](https://developer.mozilla.org/en-US/docs/Web/API/File)
+- [FileReader](https://developer.mozilla.org/en-US/docs/Web/API/FileReader)
 
 #### Service Workers & Web Workers
 

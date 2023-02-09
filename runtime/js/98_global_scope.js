@@ -31,7 +31,8 @@
   const windowOrWorkerGlobalScope = {
     AbortController: util.nonEnumerable(abortSignal.AbortController),
     AbortSignal: util.nonEnumerable(abortSignal.AbortSignal),
-    Blob: util.nonEnumerable(file.Blob),
+    // Intentionally disabled until we need this.
+    // Blob: util.nonEnumerable(file.Blob),
     ByteLengthQueuingStrategy: util.nonEnumerable(
       streams.ByteLengthQueuingStrategy,
     ),
@@ -46,8 +47,9 @@
     ErrorEvent: util.nonEnumerable(event.ErrorEvent),
     Event: util.nonEnumerable(event.Event),
     EventTarget: util.nonEnumerable(eventTarget.EventTarget),
-    File: util.nonEnumerable(file.File),
-    FileReader: util.nonEnumerable(fileReader.FileReader),
+    // Intentionally disabled until we need this.
+    // File: util.nonEnumerable(file.File),
+    // FileReader: util.nonEnumerable(fileReader.FileReader),
     // TODO:  https://github.com/filecoin-station/zinnia/issues/25
     // FormData: util.nonEnumerable(formData.FormData),
     // Headers: util.nonEnumerable(headers.Headers),
