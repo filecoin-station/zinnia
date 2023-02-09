@@ -17,12 +17,12 @@ doc = false
 [dependencies]
 clap = { version = "4.1.4", features = ["derive"] }
 tokio = { workspace = true }
-zinnia_runtime = { path = "../runtime" }
+zinnia_runtime = { workspace = true }
 
 [dev-dependencies]
 assert_cmd = "2.0.8"
-assert_fs = "1.0.10"
-pretty_assertions = "1.3.0"
+assert_fs = { workspace = true }
+pretty_assertions = { workspace = true }
 
 [package.metadata.winres]
 # This section defines the metadata that appears in the deno.exe PE header.
