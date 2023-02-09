@@ -178,7 +178,7 @@ jobs:
             test
             ci
             refactor
-          require_scope: false
+          requireScope: false
 
       - name: Check PR title length
         env:
