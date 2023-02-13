@@ -42,7 +42,7 @@ jobs:
           # save-if: ${{ github.ref == 'refs/heads/main' }}
 
 
-      - run: cargo build --workspace --all-features --target=${{ matrix.target }}
+      - run: cargo build --workspace --all-features --all-targets --target=${{ matrix.target }}
 
   test:
     name: Test ${{ matrix.crate }}
