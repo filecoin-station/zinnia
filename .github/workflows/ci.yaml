@@ -75,7 +75,7 @@ jobs:
           save-if: false
 
       - name: Run all tests
-        run: cargo test --package ${{ matrix.crate }} --all-features
+        run: cargo test --package ${{ matrix.crate }} --all-features --target=${{ matrix.target }}
 
       # - name: Check if we compile without any features activated
       #   run: cargo build --package ${{ matrix.crate }} --no-default-features
