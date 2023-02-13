@@ -153,22 +153,28 @@ impl ModuleLoader for ZinniaModuleLoader {
         ));
       }
 
-      if !specifier
-        .as_str()
-        .eq_ignore_ascii_case(main_js_module.as_str())
-      {
-        let mut msg =
-          "Zinnia does not support importing from other modules yet. "
-            .to_string();
-        msg.push_str(specifier.as_str());
-        if let Some(referrer) = &maybe_referrer {
-          msg.push_str(" imported from ");
-          msg.push_str(referrer.as_str());
-        }
-        return Err(anyhow!(msg));
-      }
+      let spec_str = specifier.as_str();
 
-      let code = read_file_to_string(specifier.to_file_path().unwrap()).await?;
+      let code = {
+        if spec_str.eq_ignore_ascii_case(main_js_module.as_str()) {
+          read_file_to_string(specifier.to_file_path().unwrap()).await?
+        } else if spec_str == "https://deno.land/std@0.177.0/testing/asserts.ts"
+        {
+          // Temporary workaround until we implement ES Modules
+          // https://github.com/filecoin-station/zinnia/issues/43
+          include_str!("./vendored/asserts.bundle.js").to_string()
+        } else {
+          let mut msg =
+            "Zinnia does not support importing from other modules yet. "
+              .to_string();
+          msg.push_str(specifier.as_str());
+          if let Some(referrer) = &maybe_referrer {
+            msg.push_str(" imported from ");
+            msg.push_str(referrer.as_str());
+          }
+          return Err(anyhow!(msg));
+        }
+      };
 
       let module = ModuleSource {
         code: Box::from(code.as_bytes()),
