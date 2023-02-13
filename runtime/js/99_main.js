@@ -22,6 +22,7 @@ delete Intl.v8BreakIterator;
     ObjectSetPrototypeOf,
   } = window.__bootstrap.primordials;
   const eventTarget = window.__bootstrap.eventTarget;
+  const timers = window.__bootstrap.timers;
   const colors = window.__bootstrap.colors;
   const inspectArgs = window.__bootstrap.console.inspectArgs;
   const quoteString = window.__bootstrap.console.quoteString;
@@ -43,10 +44,22 @@ delete Intl.v8BreakIterator;
   }
 
   function runtimeStart(runtimeOptions) {
+    core.setMacrotaskCallback(timers.handleTimerMacrotask);
+    // core.setMacrotaskCallback(promiseRejectMacrotaskCallback);
+    // core.setWasmStreamingCallback(fetch.handleWasmStreaming);
+    // core.setReportExceptionCallback(reportException);
     ops.op_set_format_exception_callback(formatException);
+    // version.setVersions(
+    //   runtimeOptions.denoVersion,
+    //   runtimeOptions.v8Version,
+    //   runtimeOptions.tsVersion
+    // );
+    // build.setBuildInfo(runtimeOptions.target);
+    // util.setLogDebug(runtimeOptions.debugFlag, source);
     colors.setNoColor(runtimeOptions.noColor || !runtimeOptions.isTty);
     // deno-lint-ignore prefer-primordials
     Error.prepareStackTrace = core.prepareStackTrace;
+    // registerErrors();
   }
 
   let hasBootstrapped = false;
