@@ -14,7 +14,3 @@ path = "lib.rs"
 [dependencies]
 deno_runtime = "0.97.0"
 tokio = { workspace = true, features = ["fs"] }
-
-[dev-dependencies]
-assert_fs = { workspace = true }
-pretty_assertions = { workspace = true }
