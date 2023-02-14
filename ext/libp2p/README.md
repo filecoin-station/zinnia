@@ -1,8 +1,6 @@
 <h1 align="center">
 	<br>
-  <div style="display: flex; align-items: center; justify-content: center;">
-	 🌼 &nbsp; ❤️ &nbsp; <img src="https://libp2p.io/img/favicon.png" alt="libp2p icon" style="height: 1em"/>
-  </div>
+	🌼 &nbsp; ❤️ &nbsp; <img src="https://libp2p.io/img/favicon.png" alt="libp2p icon" style="height: 1.5em; vertical-align: middle"/>
 	<br>
 	<br>
 	Zinnia libp2p
