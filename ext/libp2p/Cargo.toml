@@ -1,0 +1,12 @@
+[package]
+name = "zinnia_libp2p"
+version = "0.0.3"
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "A libp2p extension for Zinnia. This crate provides JS APIs wrapping rust-libp2p. It should be compatible with any engine building on top of deno_core."
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
