@@ -123,8 +123,89 @@ individual methods in
 
 - [DOMException](https://developer.mozilla.org/en-US/docs/Web/API/DOMException)
 
+### libp2p
+
+Zinnia comes with a built-in libp2p node based on
+[rust-libp2p](https://github.com/libp2p/rust-libp2p). The node is shared by all
+Station Modules running on Zinnia. This way we can keep the number of open
+connections lower and avoid duplicate entries in routing tables.
+
+The initial version comes with a limited subset of features. We will be adding
+more features based on feedback from our users (Station Module builders).
+
+#### Networking stack
+
+- Transport: `tcp` using system DNS resolver
+- Multistream-select V1
+- Authentication: `noise` with `XX` handshake pattern using X25519 DH keys
+- Stream multiplexing: both `yamux` and `mplex`
+
+#### `Zinnia.dialProtocol(multiaddr, protoName)`
+
+Dial a remote peer identified by the `multiaddr` and open a new substream for
+the protocol identified by `protoName`. The peer address must include both the
+network address and peer id.
+
+```js
+const stream = Zinnia.dialProtocol(
+  // peer address + peer id
+  "/dns/example.com/tcp/3030/p2p/12D3KooWRH7asdJasdr136asXdasd723MasdasdX3qiasda8sasd",
+  // protocol name
+  "/ipfs/ping/1.0.0",
+);
+```
+
+**TBD: How should the Stream API look like?**
+
+Ideally, we want to use Web Streams:
+
+- [ReadableStream](https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream)
+- [WritableStream](https://developer.mozilla.org/en-US/docs/Web/API/WritableStream)
+
+```js
+// Stream implements both Readable and Writable stream APIs
+// (Is that possible with Web Streams? MDN does not describe any DupleStream.)
+// The closest example is WebTransportDatagramDuplexStream
+// https://developer.mozilla.org/en-US/docs/Web/API/WebTransportDatagramDuplexStream
+// Which provides `readable` and `writable` properties to access the read/write stream.
+const stream = await node.dialProtocol(targetPeer, "/ipfs/ping/1.0.0");
+// write the request
+const writableStream = stream.writable;
+const writer = writableStream.getWriter();
+await writer.write(Buffer.from("some string"));
+await writer.close();
+
+// read back the response in chunks
+const readableStream = stream.readable;
+for await (const chunk of readableStream) {
+  const byteArray = chunk;
+  // process the chunk
+}
+```
+
+However, it would be great to be compatible with js-libp2p too.
+
+```js
+const stream = await node.dialProtocol(targetPeer, "/ipfs/ping/1.0.0");
+// write the request
+await stream.sink([Buffer.from("some string")]);
+// read back the response in chunks
+for await (const chunk of stream.source) {
+  const byteArray = chunk.subarray();
+  // process the chunk
+}
+```
+
+In either case, we need to implement the follow Deno ops:
+
+- **dial protocol**: this should return something like Deno duplex stream
+  resource identified by resource id (RID)
+- **write bytes to RID**: returns number of bytes written?
+- **close the writable side of RID**
+- **read bytes from RID**: must indicate EOF
+
 <!--
-UNSUPPORTED
+UNSUPPORTED APIs
 -->
 
 ## Unsupported Web APIs
