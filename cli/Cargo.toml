@@ -15,7 +15,7 @@ path = "main.rs"
 doc = false
 
 [dependencies]
-clap = { version = "4.1.4", features = ["derive"] }
+clap = { version = "4.1.6", features = ["derive"] }
 tokio = { workspace = true }
 zinnia_runtime = { workspace = true }
 
