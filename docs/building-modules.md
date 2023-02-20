@@ -147,14 +147,16 @@ requestProtocol(
   multiaddr: string,
   protoName: string,
   requestPayload: Uint8Array,
-): Promise<Uint8Array>;
+): Promise<PeerResponse>;
 ```
 
 Dial a remote peer identified by the `multiaddr` and open a new substream for
 the protocol identified by `protoName`. Send `requestPayload` and read the
 response payload.
 
-The function returns a promise that resolves with the response payload.
+The function returns a promise that resolves with a readable-stream-like object.
+Exact shape will be determined during implementation of this API. We want to be
+forward compatible here.
 
 Notes:
 
