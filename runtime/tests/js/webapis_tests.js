@@ -14,7 +14,8 @@ await test("fetch", async () => {
   const res = await fetch("https://google.com/");
   assertEquals(res.status, 200);
   const text = await res.text();
-  assert(text);
+  assertEquals(typeof text, "string");
+  assert(text.includes("<body"));
 });
 
 test("FormData", async () => {
