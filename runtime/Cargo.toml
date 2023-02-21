@@ -14,4 +14,3 @@ path = "lib.rs"
 [dependencies]
 deno_runtime = "0.97.0"
 tokio = { workspace = true, features = ["fs"] }
-url = "2.3.1"
