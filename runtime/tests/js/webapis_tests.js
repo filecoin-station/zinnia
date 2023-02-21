@@ -27,6 +27,11 @@ await test("Headers", async () => {
   headers.append("name", "value");
 });
 
+await test("ProgressEvent", async () => {
+  const event = new ProgressEvent();
+  assertEquals(event.total, 0);
+});
+
 await test("TextEncoder", () => {
   const encoder = new TextEncoder();
   const bytes = encoder.encode("€");
