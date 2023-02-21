@@ -1,6 +1,6 @@
 use std::path::Path;
 use std::rc::Rc;
-use url::Url;
+use deno_runtime::deno_core::url::Url;
 
 use deno_runtime::deno_core::anyhow::anyhow;
 use deno_runtime::deno_core::error::type_error;
