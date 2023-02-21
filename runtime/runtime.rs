@@ -78,7 +78,7 @@ impl FetchPermissions for ZinniaPermissions {
   fn check_net_url(
     &mut self,
     _url: &Url,
-    _api_name: &str
+    _api_name: &str,
   ) -> Result<(), AnyError> {
     Ok(())
   }
@@ -104,9 +104,7 @@ pub async fn run_js_module(
         blob_store,
         Some(module_specifier.clone()),
       ),
-      deno_runtime::deno_fetch::init::<ZinniaPermissions>(
-        Default::default()
-      ),
+      deno_runtime::deno_fetch::init::<ZinniaPermissions>(Default::default()),
       // Zinnia-specific APIs
       // (to be done)
       Extension::builder("zinnia_runtime")
