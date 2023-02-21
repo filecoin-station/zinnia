@@ -37,6 +37,11 @@ await test("Request", async () => {
   await request.arrayBuffer();
 });
 
+await test("Response", async () => {
+  const response = new Response();
+  await response.arrayBuffer();
+});
+
 await test("TextEncoder", () => {
   const encoder = new TextEncoder();
   const bytes = encoder.encode("€");
