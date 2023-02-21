@@ -7,6 +7,97 @@ license.workspace = true
 repository.workspace = true
 description = "A libp2p extension for Zinnia. This crate provides JS APIs wrapping rust-libp2p. It should be compatible with any engine building on top of deno_core."
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "zinnia_libp2p"
+path = "lib.rs"
 
 [dependencies]
+tokio = { workspace = true, features = ["rt", "macros", "sync", "time"] }
+async-trait = "0.1.64"
+# tokio-stream = "0.1.11"
+# rand = "0.8.5"
+# void = "1.0.2"
+smallvec = "1.10.0"
+tokio-util = "0.7.4"
+
+[dependencies.libp2p]
+version = "0.50.0"
+features = [
+    # "async-std",
+    # "autonat",
+    # "dcutr",
+    # "deflate",
+    "dns",
+    # "ecdsa",
+    # "floodsub",
+    # "gossipsub",
+    # "identify",
+    # "kad",
+    # "mdns",
+    # "metrics",
+    "mplex",
+    "noise",
+    # "ping",
+    # "plaintext",
+    # "pnet",
+    # "quic",
+    "macros",
+    # "relay",
+    # "rendezvous",
+    "request-response",
+    # "rsa",
+    # "secp256k1",
+    "serde",
+    "tcp",
+    # "tls",
+    "tokio",
+    # "uds",
+    # "wasm-bindgen",
+    # "wasm-ext",
+    # "wasm-ext-websocket",
+    # "webrtc",
+    # "websocket",
+    "yamux",
+]
+
+[dev-dependencies.libp2p]
+version = "0.50.0"
+features = [
+    # "async-std",
+    # "autonat",
+    # "dcutr",
+    # "deflate",
+    # "dns",
+    # "ecdsa",
+    # "floodsub",
+    # "gossipsub",
+    # "identify",
+    # "kad",
+    # "mdns",
+    # "metrics",
+    # "mplex",
+    # "noise",
+    "ping",
+    # "plaintext",
+    # "pnet",
+    # "quic",
+    # "macros",
+    # "relay",
+    # "rendezvous",
+    # "request-response",
+    # "rsa",
+    # "secp256k1",
+    # "serde",
+    # "tcp",
+    # "tls",
+    # "tokio",
+    # "uds",
+    # "wasm-bindgen",
+    # "wasm-ext",
+    # "wasm-ext-websocket",
+    # "webrtc",
+    # "websocket",
+    # "yamux",
+]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
