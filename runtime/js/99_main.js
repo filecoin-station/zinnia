@@ -26,6 +26,7 @@ delete Intl.v8BreakIterator;
   const colors = window.__bootstrap.colors;
   const inspectArgs = window.__bootstrap.console.inspectArgs;
   const quoteString = window.__bootstrap.console.quoteString;
+  const fetch = window.__bootstrap.fetch;
   const { windowOrWorkerGlobalScope, mainRuntimeGlobalProperties } =
     window.__bootstrap.globalScope;
 
@@ -46,7 +47,7 @@ delete Intl.v8BreakIterator;
   function runtimeStart(runtimeOptions) {
     core.setMacrotaskCallback(timers.handleTimerMacrotask);
     // core.setMacrotaskCallback(promiseRejectMacrotaskCallback);
-    // core.setWasmStreamingCallback(fetch.handleWasmStreaming);
+    core.setWasmStreamingCallback(fetch.handleWasmStreaming);
     // core.setReportExceptionCallback(reportException);
     ops.op_set_format_exception_callback(formatException);
     // version.setVersions(

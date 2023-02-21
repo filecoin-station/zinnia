@@ -21,6 +21,7 @@
   const streams = window.__bootstrap.streams;
   const fileReader = window.__bootstrap.fileReader;
   const file = window.__bootstrap.file;
+  const fetch = window.__bootstrap.fetch;
   const messagePort = window.__bootstrap.messagePort;
   const webidl = window.__bootstrap.webidl;
   const domException = window.__bootstrap.domException;
@@ -65,9 +66,8 @@
     ReadableStreamDefaultReader: util.nonEnumerable(
       streams.ReadableStreamDefaultReader,
     ),
-    // TODO:  https://github.com/filecoin-station/zinnia/issues/25
-    // Request: util.nonEnumerable(fetch.Request),
-    // Response: util.nonEnumerable(fetch.Response),
+    Request: util.nonEnumerable(fetch.Request),
+    Response: util.nonEnumerable(fetch.Response),
     TextDecoder: util.nonEnumerable(encoding.TextDecoder),
     TextEncoder: util.nonEnumerable(encoding.TextEncoder),
     TextDecoderStream: util.nonEnumerable(encoding.TextDecoderStream),
@@ -123,8 +123,7 @@
     // crypto: util.readOnly(crypto.crypto),
     // Crypto: util.nonEnumerable(crypto.Crypto),
     // SubtleCrypto: util.nonEnumerable(crypto.SubtleCrypto),
-    // TODO:  https://github.com/filecoin-station/zinnia/issues/25
-    // fetch: util.writable(fetch.fetch),
+    fetch: util.writable(fetch.fetch),
     performance: util.writable(performance.performance),
     reportError: util.writable(event.reportError),
     setInterval: util.writable(timers.setInterval),
