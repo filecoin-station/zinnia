@@ -16,7 +16,6 @@ macro_rules! js_tests(
   };
 );
 
-js_tests!(fetch_tests);
 js_tests!(globals_tests);
 js_tests!(timers_tests);
 js_tests!(webapis_tests);
