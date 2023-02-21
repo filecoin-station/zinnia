@@ -32,6 +32,11 @@ await test("ProgressEvent", async () => {
   assertEquals(event.total, 0);
 });
 
+await test("Request", async () => {
+  const request = new Request("https://example.com/");
+  await request.arrayBuffer();
+});
+
 await test("TextEncoder", () => {
   const encoder = new TextEncoder();
   const bytes = encoder.encode("€");
