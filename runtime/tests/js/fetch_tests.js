@@ -12,6 +12,11 @@ await test("FormData", async () => {
   formData.append("name", "value");
 });
 
+await test("Headers", async () => {
+  const headers = new Headers();
+  headers.append("name", "value");
+});
+
 // A dummy wrapper to create isolated scopes for individual tests
 // We should eventually replace this with a proper test runner
 // See https://github.com/filecoin-station/zinnia/issues/30
