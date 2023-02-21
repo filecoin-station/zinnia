@@ -18,9 +18,11 @@
   const performance = window.__bootstrap.performance;
   const url = window.__bootstrap.url;
   const urlPattern = window.__bootstrap.urlPattern;
+  const headers = window.__bootstrap.headers;
   const streams = window.__bootstrap.streams;
   const fileReader = window.__bootstrap.fileReader;
   const file = window.__bootstrap.file;
+  const formData = window.__bootstrap.formData;
   const fetch = window.__bootstrap.fetch;
   const messagePort = window.__bootstrap.messagePort;
   const webidl = window.__bootstrap.webidl;
@@ -51,17 +53,15 @@
     // Intentionally disabled until we need this.
     // File: util.nonEnumerable(file.File),
     // FileReader: util.nonEnumerable(fileReader.FileReader),
-    // TODO:  https://github.com/filecoin-station/zinnia/issues/25
-    // FormData: util.nonEnumerable(formData.FormData),
-    // Headers: util.nonEnumerable(headers.Headers),
+    FormData: util.nonEnumerable(formData.FormData),
+    Headers: util.nonEnumerable(headers.Headers),
     MessageEvent: util.nonEnumerable(event.MessageEvent),
     Performance: util.nonEnumerable(performance.Performance),
     PerformanceEntry: util.nonEnumerable(performance.PerformanceEntry),
     PerformanceMark: util.nonEnumerable(performance.PerformanceMark),
     PerformanceMeasure: util.nonEnumerable(performance.PerformanceMeasure),
     PromiseRejectionEvent: util.nonEnumerable(event.PromiseRejectionEvent),
-    // TODO:  https://github.com/filecoin-station/zinnia/issues/25
-    // ProgressEvent: util.nonEnumerable(event.ProgressEvent),
+    ProgressEvent: util.nonEnumerable(event.ProgressEvent),
     ReadableStream: util.nonEnumerable(streams.ReadableStream),
     ReadableStreamDefaultReader: util.nonEnumerable(
       streams.ReadableStreamDefaultReader,
