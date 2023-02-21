@@ -116,6 +116,10 @@ pub async fn run_js_module(
           "js/98_global_scope.js",
           "js/99_main.js",
         ))
+        .state(move |state| {
+          state.put(ZinniaPermissions {});
+          Ok(())
+        })
         .build(),
     ],
     will_snapshot: false,
