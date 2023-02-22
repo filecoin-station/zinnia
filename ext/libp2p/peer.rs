@@ -37,9 +37,11 @@ use behaviour::{
 pub use behaviour::{RequestPayload, ResponsePayload};
 
 use deno_core::anyhow::Result;
+use deno_core::{AsyncResult, Resource};
 
 use std::collections::{hash_map, HashMap};
 use std::error::Error;
+use std::rc::Rc;
 
 use tokio::sync::{mpsc, oneshot};
 use tokio::task::JoinHandle;
@@ -61,7 +63,6 @@ pub type PeerNodeConfig = behaviour::RequestResponseConfig;
 /// A Zinnia peer node wrapping rust-libp2p and providing higher-level APIs
 /// for consumption by Deno ops.
 pub struct PeerNode {
-  id_keys: identity::Keypair,
   peer_id: PeerId,
   command_sender: mpsc::Sender<Command>,
   event_loop_task: Option<JoinHandle<()>>,
@@ -102,7 +103,6 @@ impl PeerNode {
     let event_loop_task = tokio::spawn(event_loop.run());
 
     Ok(Self {
-      id_keys,
       peer_id,
       command_sender,
       event_loop_task: event_loop_task.into(),
@@ -113,6 +113,7 @@ impl PeerNode {
     self.peer_id
   }
 
+  #[allow(dead_code)]
   pub async fn shutdown(&mut self) -> Result<(), Box<dyn Error>> {
     if let Some(handle) = self.event_loop_task.take() {
       self.command_sender.send(Command::Shutdown).await?;
@@ -165,6 +166,19 @@ impl PeerNode {
   }
 }
 
+impl Resource for PeerNode {
+  fn shutdown(self: Rc<Self>) -> AsyncResult<()> {
+    // TODO(bajtos) call PeerNode::shutdown function
+    // We will need to wrap that call with `async move {...}.boxed()`
+    todo!()
+  }
+
+  fn close(self: Rc<Self>) {
+    // TODO(bajtos) I think we should terminate the event loop running in the background?
+    todo!()
+  }
+}
+
 pub fn create_transport(
   id_keys: &identity::Keypair,
 ) -> Result<transport::Boxed<(PeerId, StreamMuxerBox)>, noise::NoiseError> {
@@ -176,14 +190,14 @@ pub fn create_transport(
     libp2p::tcp::tokio::Transport::new(libp2p::tcp::Config::new()),
   )?
   .upgrade(upgrade::Version::V1)
-  .authenticate(noise::NoiseAuthenticated::xx(&id_keys)?)
+  .authenticate(noise::NoiseAuthenticated::xx(id_keys)?)
   .multiplex(upgrade::SelectUpgrade::new(
     yamux::YamuxConfig::default(),
     libp2p::mplex::MplexConfig::default(),
   ))
   .timeout(std::time::Duration::from_secs(5))
   .boxed();
-  return Ok(tcp_transport);
+  Ok(tcp_transport)
 }
 
 pub struct EventLoop {
@@ -268,8 +282,7 @@ impl EventLoop {
           //
           RequestResponseEvent::InboundFailure { peer, error } => {
             println!(
-              "Error: Cannot handle inbound request from peer {}: {}",
-              peer, error
+              "Error: Cannot handle inbound request from peer {peer}: {error}",
             );
           }
         }
@@ -466,6 +479,8 @@ mod tests {
 
     cancellation_token.cancel();
     let _ = server_task.await;
+
+    peer.shutdown().await.unwrap();
   }
 
   #[tokio::test]
@@ -514,12 +529,13 @@ mod tests {
 
         if transport_errs.len() > 1 {
           panic!(
-            "Expected exactly one transport error, found {:?}",
-            transport_errs,
+            "Expected exactly one transport error, found {transport_errs:?}",
           )
         }
       }
       _ => panic!("Unexpected DialError: {err:?}"),
     }
+
+    peer.shutdown().await.unwrap();
   }
 }

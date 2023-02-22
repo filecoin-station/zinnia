@@ -123,6 +123,10 @@ pub async fn run_js_module(
   runtime.run_event_loop(false).await?;
   res.await??;
 
+  // TODO: it would be nicer to have this exposed as another Deno op
+  // and call it from the JavaScript side as part of the regular runtime shutdown
+  zinnia_libp2p::shutdown(runtime.op_state()).await?;
+
   Ok(())
 }
 
