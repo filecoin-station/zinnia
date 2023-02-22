@@ -1,6 +1,5 @@
 use std::path::Path;
 use std::rc::Rc;
-use deno_runtime::deno_core::url::Url;
 
 use deno_runtime::deno_core::anyhow::anyhow;
 use deno_runtime::deno_core::error::type_error;
@@ -8,6 +7,7 @@ use deno_runtime::deno_core::futures::FutureExt;
 use deno_runtime::deno_core::include_js_files;
 use deno_runtime::deno_core::located_script_name;
 use deno_runtime::deno_core::resolve_import;
+use deno_runtime::deno_core::url::Url;
 use deno_runtime::deno_core::Extension;
 use deno_runtime::deno_core::JsRuntime;
 use deno_runtime::deno_core::ModuleLoader;
