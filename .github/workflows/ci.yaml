@@ -28,8 +28,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Install Protoc
-        run: sudo apt-get install protobuf-compiler
-        if: matrix.os == 'ubuntu-latest'
+        uses: arduino/setup-protoc@64c0c85 # v1.1.2
 
       - uses: actions/checkout@v3
 
@@ -68,8 +67,7 @@ jobs:
             os: ubuntu-latest
     steps:
       - name: Install Protoc
-        run: sudo apt-get install protobuf-compiler
-        if: matrix.os == 'ubuntu-latest'
+        uses: arduino/setup-protoc@64c0c85 # v1.1.2
 
       - uses: actions/checkout@v3
 
