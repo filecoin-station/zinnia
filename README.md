@@ -43,9 +43,16 @@ See [CLI](./cli/README.md).
 
 ## Contributing
 
-The [roadmap](https://www.notion.so/pl-strflt/Zinnia-Roadmap-b849d322502f4c079525cd8cc887df02) and [issue tracker](https://github.com/filecoin-station/zinnia/issues) are great places to check out for your first
-time to contribute! You can also look up some past decisions in [docs/architecture-decisions-records/](docs/architecture-decision-records/).
+The
+[roadmap](https://www.notion.so/pl-strflt/Zinnia-Roadmap-b849d322502f4c079525cd8cc887df02)
+and [issue tracker](https://github.com/filecoin-station/zinnia/issues) are great
+places to check out for your first time to contribute! You can also look up some
+past decisions in
+[docs/architecture-decisions-records/](docs/architecture-decision-records/).
 
-If you see something broken or missing, please [create a new issue](https://github.com/filecoin-station/zinnia/issues/new).
+If you see something broken or missing, please
+[create a new issue](https://github.com/filecoin-station/zinnia/issues/new).
 
-Finally, don't forget to stop by and **say hi** :wave: in #filecoin-station-module-builders-wg on [Filecoin Slack](https://filecoin.io/slack)!
+Finally, don't forget to stop by and **say hi** :wave: in
+#filecoin-station-module-builders-wg on
+[Filecoin Slack](https://filecoin.io/slack)!
