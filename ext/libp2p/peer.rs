@@ -59,6 +59,8 @@ pub type PeerNodeConfig = behaviour::RequestResponseConfig;
 /// A Zinnia peer node wrapping rust-libp2p and providing higher-level APIs
 /// for consumption by Deno ops.
 pub struct PeerNode {
+  id_keys: identity::Keypair,
+  peer_id: PeerId,
   command_sender: mpsc::Sender<Command>,
   event_loop_task: Option<JoinHandle<()>>,
 }
@@ -98,9 +100,15 @@ impl PeerNode {
     let event_loop_task = tokio::spawn(event_loop.run());
 
     Ok(Self {
+      id_keys,
+      peer_id,
       command_sender,
       event_loop_task: event_loop_task.into(),
     })
+  }
+
+  pub fn peer_id(&self) -> PeerId {
+    self.peer_id
   }
 
   pub async fn shutdown(&mut self) -> Result<(), Box<dyn Error>> {

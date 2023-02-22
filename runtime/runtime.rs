@@ -92,7 +92,10 @@ pub async fn run_js_module(
         Some(module_specifier.clone()),
       ),
       // Zinnia-specific APIs
-      zinnia_libp2p::init(),
+      zinnia_libp2p::init(
+        // TODO: do we want to tweak the default libp2p RequestResponse configuration?
+        Default::default(),
+      ),
       Extension::builder("zinnia_runtime")
         .js(include_js_files!(
           prefix "zinnia:runtime",
