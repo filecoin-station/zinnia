@@ -23,6 +23,10 @@ computers.
   </a>
 </div>
 
+## Installation
+
+See [CLI](./cli/README.md).
+
 ## Example
 
 ```js
@@ -37,12 +41,6 @@ while (true) {
 $ zinnia run example.js
 TTFB: 235ms
 ...
-```
-
-## Installation
-
-```bash
-$ cargo install zinnia
 ```
 
 ## Architecture
