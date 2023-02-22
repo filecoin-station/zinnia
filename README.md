@@ -43,6 +43,10 @@ TTFB: 235ms
 ...
 ```
 
+## API
+
+See [Building Modules](./docs/building-modules.md).
+
 ## Architecture
 
 ![](./docs/images/runtime-diagram.png)
