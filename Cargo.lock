@@ -6484,6 +6484,7 @@ name = "zinnia_libp2p"
 version = "0.0.3"
 dependencies = [
  "async-trait",
+ "deno_core",
  "libp2p",
  "smallvec",
  "tokio",
@@ -6496,4 +6497,5 @@ version = "0.0.3"
 dependencies = [
  "deno_runtime",
  "tokio",
+ "zinnia_libp2p",
 ]

@@ -140,6 +140,13 @@ more features based on feedback from our users (Station Module builders).
 - Authentication: `noise` with `XX` handshake pattern using X25519 DH keys
 - Stream multiplexing: both `yamux` and `mplex`
 
+#### `Zinnia.peerId`
+
+Type: `string`
+
+Return the peer id of Zinnia's built-in libp2p peer. The peer id is ephemeral,
+Zinnia generates a new peer id every time it starts.
+
 #### `Zinnia.requestProtocol(multiaddr, protoName, requestPayload)`
 
 ```ts

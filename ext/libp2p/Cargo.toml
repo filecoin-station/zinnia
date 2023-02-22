@@ -12,12 +12,10 @@ name = "zinnia_libp2p"
 path = "lib.rs"
 
 [dependencies]
-tokio = { workspace = true, features = ["rt", "macros", "sync", "time"] }
 async-trait = "0.1.64"
-# tokio-stream = "0.1.11"
-# rand = "0.8.5"
-# void = "1.0.2"
+deno_core.workspace = true
 smallvec = "1.10.0"
+tokio = { workspace = true, features = ["rt", "macros", "sync", "time"] }
 tokio-util = "0.7.4"
 
 [dependencies.libp2p]
