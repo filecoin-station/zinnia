@@ -26,14 +26,17 @@ computers.
 ## Example
 
 ```js
-const start = new Date();
-const res = await fetch("https://ipfs.io/ipfs/bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi/");
-console.log(`TTFB: ${new Date() - start}ms`);
+while (true) {
+	const start = new Date();
+	const res = await fetch("https://ipfs.io/ipfs/bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi/");
+	console.log(`TTFB: ${new Date() - start}ms`);
+}
 ```
 
 ```bash
 $ zinnia run example.js
 TTFB: 235ms
+...
 ```
 
 ## Installation
