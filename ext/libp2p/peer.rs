@@ -36,6 +36,8 @@ use behaviour::{
 };
 pub use behaviour::{RequestPayload, ResponsePayload};
 
+use deno_core::anyhow::Result;
+
 use std::collections::{hash_map, HashMap};
 use std::error::Error;
 
@@ -121,7 +123,7 @@ impl PeerNode {
 
   /// Dial the given peer at the given address.
   pub async fn dial(
-    &mut self,
+    &self,
     peer_id: PeerId,
     peer_addr: Multiaddr,
   ) -> Result<(), Box<dyn Error + Send>> {
@@ -141,7 +143,7 @@ impl PeerNode {
   // NEW API FOR ZINNIA
 
   pub async fn request_protocol(
-    &mut self,
+    &self,
     peer_id: PeerId,
     peer_addr: Multiaddr,
     protocol: &[u8],

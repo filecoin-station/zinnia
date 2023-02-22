@@ -151,15 +151,15 @@ Zinnia generates a new peer id every time it starts.
 
 ```ts
 requestProtocol(
-  multiaddr: string,
-  protoName: string,
+  remoteAddress: string,
+  protocolName: string,
   requestPayload: Uint8Array,
 ): Promise<PeerResponse>;
 ```
 
-Dial a remote peer identified by the `multiaddr` and open a new substream for
-the protocol identified by `protoName`. Send `requestPayload` and read the
-response payload.
+Dial a remote peer identified by the `remoteAddress` and open a new substream
+for the protocol identified by `protocolName`. Send `requestPayload` and read
+the response payload.
 
 The function returns a promise that resolves with a readable-stream-like object.
 Exact shape will be determined during implementation of this API. We want to be
@@ -172,6 +172,20 @@ Notes:
   an error.
 - We will implement stream-based API supporting unlimited request & response
   sizes in the near future.
+
+**Example**
+
+```js
+const response = await Zinnia.requestProtocol(
+  "/dns/example.com/tcp/3030/p2p/12D3okowHR71QRJe5vrPm6zZXoH4K7z5mDsWWtxXpRIG9Dk8hqxk",
+  "/ipfs/ping/1.0.0",
+  new Uint8Array(32),
+);
+
+for (const chunk of response) {
+  console.log(chunk);
+}
+```
 
 <!--
 UNSUPPORTED APIs
@@ -227,3 +241,7 @@ Tracking issue: n/a
 #### Other
 
 - `XMLHttpRequest` Standard
+
+```
+
+```
