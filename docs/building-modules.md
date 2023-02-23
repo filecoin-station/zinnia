@@ -156,7 +156,7 @@ Type: `string`
 Return the peer id of Zinnia's built-in libp2p peer. The peer id is ephemeral,
 Zinnia generates a new peer id every time it starts.
 
-#### `Zinnia.requestProtocol(multiaddr, protoName, requestPayload)`
+#### `Zinnia.requestProtocol(remoteAddress, protocolName, requestPayload)`
 
 ```ts
 requestProtocol(
@@ -201,7 +201,6 @@ UNSUPPORTED APIs
 -->
 
 ## Unsupported Web APIs
-
 
 #### File API
 
