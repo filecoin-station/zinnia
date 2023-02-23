@@ -142,9 +142,9 @@ impl std::error::Error for OutboundFailure {}
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum InboundFailure {
   /// The inbound request timed out, either while reading the
-  /// incoming request or before a response is sent, e.g. if
-  /// [`RequestResponse::send_response`] is not called in a
-  /// timely manner.
+  /// incoming request or before a response is sent.
+  /// We don't support inbound requests yet, therefore this error
+  /// should never happen in practice.
   Timeout,
   /// The local peer supports none of the protocols requested
   /// by the remote.
