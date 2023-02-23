@@ -21,7 +21,11 @@ computers.
   <a href="https://www.nasa.gov/image-feature/first-flower-grown-in-space-stations-veggie-facility">
     <em>Zinnia was the first ever flower grown in space.</em>
   </a>
+	<br>
+	<br>
 </div>
+
+> Zinnia, named after the first flower to blossom in space, is the runtime for Station modules. It allows anyone - even untrusted parties - to deploy modules to Station. Zinnia provides a sandboxed environment to execute untrusted code on home computers.
 
 ## Architecture
 
