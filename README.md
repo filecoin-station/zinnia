@@ -23,6 +23,33 @@ computers.
   </a>
 </div>
 
+## Installation
+
+See [CLI Installation](./cli/README.md#installation).
+
+## Basic use
+
+```js
+while (true) {
+  const start = new Date();
+  const res = await fetch(
+    "https://ipfs.io/ipfs/bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi/",
+  );
+  console.log(`TTFB: ${new Date() - start}ms`);
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+}
+```
+
+```bash
+$ zinnia run example.js
+TTFB: 235ms
+...
+```
+
+## API
+
+See [Building Modules](./docs/building-modules.md).
+
 ## Architecture
 
 ![](./docs/images/runtime-diagram.png)
@@ -36,10 +63,6 @@ computers.
 - **Networking**: _TBD_
 - **IPFS:** _TBD_
 - **Block (K/V) storage:** _TBD_
-
-## Basic use
-
-See [CLI](./cli/README.md).
 
 ## Contributing
 
