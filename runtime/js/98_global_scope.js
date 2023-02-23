@@ -7,6 +7,9 @@
 ((window) => {
   const core = Deno.core;
 
+  const { ObjectCreate, ObjectDefineProperties } =
+    window.__bootstrap.primordials;
+
   const util = window.__bootstrap.util;
   const event = window.__bootstrap.event;
   const eventTarget = window.__bootstrap.eventTarget;
@@ -29,6 +32,7 @@
   const domException = window.__bootstrap.domException;
   const abortSignal = window.__bootstrap.abortSignal;
   const globalInterfaces = window.__bootstrap.globalInterfaces;
+  const libp2p = window.__bootstrap.libp2p;
 
   // https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope
   const windowOrWorkerGlobalScope = {
@@ -133,6 +137,9 @@
     [webidl.brand]: util.nonEnumerable(webidl.brand),
   };
 
+  const zinniaNs = ObjectCreate(null);
+  ObjectDefineProperties(zinniaNs, libp2p.defaultPeerProps);
+
   const mainRuntimeGlobalProperties = {
     // Location: location.locationConstructorDescriptor,
     // location: location.locationDescriptor,
@@ -147,6 +154,7 @@
     // localStorage: util.getterOnly(webStorage.localStorage),
     // sessionStorage: util.getterOnly(webStorage.sessionStorage),
     // Storage: util.nonEnumerable(webStorage.Storage),
+    Zinnia: util.readOnly(zinniaNs),
   };
 
   window.__bootstrap.globalScope = {
