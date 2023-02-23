@@ -171,8 +171,10 @@ for the protocol identified by `protocolName`. Send `requestPayload` and read
 the response payload.
 
 The function returns a promise that resolves with a readable-stream-like object.
-Exact shape will be determined during implementation of this API. We want to be
-forward compatible here.
+At the moment, this object implements
+[async iterable](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols#the_async_iterator_and_async_iterable_protocols)
+protocol only, it's not a full readable stream. This is enough to allow you to
+receive response in chunks, where each chunk is an `Uint8Array` instance.
 
 Notes:
 
@@ -180,7 +182,9 @@ Notes:
 - The response size is limited to 10MB. Larger responses will be rejected with
   an error.
 - We will implement stream-based API supporting unlimited request & response
-  sizes in the near future.
+  sizes in the near future, see
+  [zinnia#56](https://github.com/filecoin-station/zinnia/issues/56) and
+  [zinnia#57](https://github.com/filecoin-station/zinnia/issues/57).
 
 **Example**
 
