@@ -50,15 +50,13 @@ jobs:
       - run: cargo build --workspace --all-features --all-targets --target=${{ matrix.target }}
 
   test:
-    name: Test ${{ matrix.crate }}
+    name: Test all crates
     runs-on: ubuntu-latest
     needs:
-      - gather_published_crates
       - build
     strategy:
       fail-fast: false
       matrix:
-        crate: ${{ fromJSON(needs.gather_published_crates.outputs.members) }}
         include:
           # Should we run the tests on Windows and macOS too?
           # - target: "x86_64-apple-darwin"
@@ -85,7 +83,7 @@ jobs:
           save-if: false
 
       - name: Run all tests
-        run: cargo test --package ${{ matrix.crate }} --all-features --target=${{ matrix.target }}
+        run: cargo test --all-features --target=${{ matrix.target }}
 
       # - name: Check if we compile without any features activated
       #   run: cargo build --package ${{ matrix.crate }} --no-default-features
@@ -165,18 +163,6 @@ jobs:
 
       - name: Check formatting
         run: cargo fmt -- --check
-
-  gather_published_crates:
-    runs-on: ubuntu-latest
-    outputs:
-      members: ${{ steps.cargo-metadata.outputs.members }}
-    steps:
-      - uses: actions/checkout@v3
-
-      - id: cargo-metadata
-        run: |
-          WORKSPACE_MEMBERS=$(cargo metadata --format-version=1 --no-deps | jq -c '.packages | .[] | select(.publish == null) | .name' | jq -s '.' | jq -c '.')
-          echo "members=${WORKSPACE_MEMBERS}" >> $GITHUB_OUTPUT
 
   validate_pr_title:
     name: Validate PR title
