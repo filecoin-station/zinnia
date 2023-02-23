@@ -34,7 +34,7 @@ while (true) {
 	const start = new Date();
 	const res = await fetch("https://ipfs.io/ipfs/bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi/");
 	console.log(`TTFB: ${new Date() - start}ms`);
-  await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 1000));
 }
 ```
 
