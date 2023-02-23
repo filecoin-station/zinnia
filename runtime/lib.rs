@@ -1,6 +1,9 @@
-pub use deno_runtime::colors;
-pub use deno_runtime::deno_core;
-pub use deno_runtime::fmt_errors;
+mod vendored;
+
+pub use deno_core;
+pub use deno_core::anyhow;
+pub use vendored::colors;
+pub use vendored::fmt_errors;
 
 pub mod runtime;
 pub use runtime::*;

@@ -3,10 +3,11 @@ mod args;
 use args::{CliArgs, Commands};
 use clap::Parser;
 
+use zinnia_runtime::anyhow::{Error as AnyError, Result};
 use zinnia_runtime::colors;
 use zinnia_runtime::deno_core;
 use zinnia_runtime::fmt_errors::format_js_error;
-use zinnia_runtime::{run_js_module, AnyError};
+use zinnia_runtime::run_js_module;
 
 use deno_core::error::JsError;
 
@@ -21,7 +22,7 @@ async fn main() {
   }
 }
 
-async fn main_impl() -> Result<(), AnyError> {
+async fn main_impl() -> Result<()> {
   let cli_args = CliArgs::parse_from(std::env::args());
   match cli_args.command {
     Commands::Run { file } => {

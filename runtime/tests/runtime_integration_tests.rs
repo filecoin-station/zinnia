@@ -5,12 +5,12 @@
 //   deno run runtime/tests/js/timers_tests.js
 use std::path::PathBuf;
 
-use zinnia_runtime::{deno_core, run_js_module, AnyError};
+use zinnia_runtime::{anyhow::Result, deno_core, run_js_module};
 
 macro_rules! js_tests(
   ( $name:ident ) => {
     #[tokio::test]
-    async fn $name() -> Result<(), AnyError> {
+    async fn $name() -> Result<()> {
       run_js_test_file(&format!("{}.js", stringify!($name))).await
   }
   };
@@ -22,7 +22,7 @@ js_tests!(webapis_tests);
 js_tests!(libp2p_tests);
 
 // Run all tests in a single JS file
-async fn run_js_test_file(name: &str) -> Result<(), AnyError> {
+async fn run_js_test_file(name: &str) -> Result<()> {
   let mut full_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
   full_path.push("tests");
   full_path.push("js");

@@ -1,34 +1,34 @@
 use std::path::Path;
 use std::rc::Rc;
 
-use deno_runtime::deno_core::anyhow::anyhow;
-use deno_runtime::deno_core::error::type_error;
-use deno_runtime::deno_core::futures::FutureExt;
-use deno_runtime::deno_core::include_js_files;
-use deno_runtime::deno_core::located_script_name;
-use deno_runtime::deno_core::resolve_import;
-use deno_runtime::deno_core::url::Url;
-use deno_runtime::deno_core::Extension;
-use deno_runtime::deno_core::JsRuntime;
-use deno_runtime::deno_core::ModuleLoader;
-use deno_runtime::deno_core::ModuleSource;
-use deno_runtime::deno_core::ModuleSourceFuture;
-use deno_runtime::deno_core::ModuleSpecifier;
-use deno_runtime::deno_core::ModuleType;
-use deno_runtime::deno_core::ResolutionKind;
-use deno_runtime::deno_core::RuntimeOptions;
-use deno_runtime::deno_fetch::FetchPermissions;
-use deno_runtime::{colors, deno_core};
+use deno_core::anyhow::{anyhow, Result};
 
-use deno_runtime::deno_core::serde_json;
-use deno_runtime::deno_core::serde_json::json;
-use deno_runtime::deno_web::{BlobStore, TimersPermission};
+use deno_core::error::type_error;
+use deno_core::futures::FutureExt;
+use deno_core::include_js_files;
+use deno_core::located_script_name;
+use deno_core::resolve_import;
+use deno_core::serde_json;
+use deno_core::serde_json::json;
+use deno_core::url::Url;
+use deno_core::Extension;
+use deno_core::JsRuntime;
+use deno_core::ModuleLoader;
+use deno_core::ModuleSource;
+use deno_core::ModuleSourceFuture;
+use deno_core::ModuleSpecifier;
+use deno_core::ModuleType;
+use deno_core::ResolutionKind;
+use deno_core::RuntimeOptions;
+
+use deno_fetch::FetchPermissions;
+use deno_web::{BlobStore, TimersPermission};
+
 use tokio::fs::File;
 use tokio::io::AsyncReadExt;
 
+use crate::colors;
 use zinnia_libp2p;
-
-pub type AnyError = deno_runtime::deno_core::anyhow::Error;
 
 /// Common bootstrap options for MainWorker & WebWorker
 #[derive(Clone)]
@@ -77,14 +77,10 @@ impl TimersPermission for ZinniaPermissions {
 }
 
 impl FetchPermissions for ZinniaPermissions {
-  fn check_net_url(
-    &mut self,
-    _url: &Url,
-    _api_name: &str,
-  ) -> Result<(), AnyError> {
+  fn check_net_url(&mut self, _url: &Url, _api_name: &str) -> Result<()> {
     Ok(())
   }
-  fn check_read(&mut self, _p: &Path, _api_name: &str) -> Result<(), AnyError> {
+  fn check_read(&mut self, _p: &Path, _api_name: &str) -> Result<()> {
     Ok(())
   }
 }
@@ -92,21 +88,21 @@ impl FetchPermissions for ZinniaPermissions {
 pub async fn run_js_module(
   module_specifier: &ModuleSpecifier,
   bootstrap_options: &BootstrapOptions,
-) -> Result<(), AnyError> {
+) -> Result<()> {
   let blob_store = BlobStore::default();
 
   // Initialize a runtime instance
   let mut runtime = JsRuntime::new(RuntimeOptions {
     extensions_with_js: vec![
       // Web Platform APIs implemented by Deno
-      deno_runtime::deno_console::init(),
-      deno_runtime::deno_webidl::init(),
-      deno_runtime::deno_url::init(),
-      deno_runtime::deno_web::init::<ZinniaPermissions>(
+      deno_console::init(),
+      deno_webidl::init(),
+      deno_url::init(),
+      deno_web::init::<ZinniaPermissions>(
         blob_store,
         Some(module_specifier.clone()),
       ),
-      deno_runtime::deno_fetch::init::<ZinniaPermissions>(Default::default()),
+      deno_fetch::init::<ZinniaPermissions>(Default::default()),
       // Zinnia-specific APIs
       zinnia_libp2p::init(
         // TODO: do we want to tweak the default libp2p RequestResponse configuration?
@@ -161,7 +157,7 @@ impl ModuleLoader for ZinniaModuleLoader {
     specifier: &str,
     referrer: &str,
     _kind: ResolutionKind,
-  ) -> Result<ModuleSpecifier, AnyError> {
+  ) -> Result<ModuleSpecifier> {
     let resolved = resolve_import(specifier, referrer)?;
     Ok(resolved)
   }
@@ -217,9 +213,7 @@ impl ModuleLoader for ZinniaModuleLoader {
   }
 }
 
-async fn read_file_to_string(
-  path: impl AsRef<Path>,
-) -> Result<String, AnyError> {
+async fn read_file_to_string(path: impl AsRef<Path>) -> Result<String> {
   let mut f = File::open(&path).await.map_err(|err| {
     type_error(format!(
       "Module not found: {}. {}",
