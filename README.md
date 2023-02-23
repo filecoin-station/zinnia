@@ -59,8 +59,10 @@ See [Building Modules](./docs/building-modules.md).
 - **JS/WASM engine:** [deno_core](https://crates.io/crates/deno_core), see the
   decision record for
   [Switching to Deno Core](docs/architecture-decision-records/2023-01-switching-to-deno-core.md)
-- **Non-blocking I/O:** _TBD_
-- **Networking**: _TBD_
+- **Non-blocking I/O:** [Async Rust](https://rust-lang.github.io/async-book/),
+  [Tokio](https://tokio.rs)
+- **Networking**: [deno_fetch](https://crates.io/crates/deno_fetch),
+  [rust-libp2p](https://github.com/libp2p/rust-libp2p)
 - **IPFS:** _TBD_
 - **Block (K/V) storage:** _TBD_
 
