@@ -25,7 +25,7 @@ computers.
 
 ## Installation
 
-See [CLI](./cli/README.md).
+See [CLI Installation](./cli/README.md#installation).
 
 ## Basic use
 
