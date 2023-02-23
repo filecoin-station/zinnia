@@ -26,7 +26,6 @@ delete Intl.v8BreakIterator;
   const colors = window.__bootstrap.colors;
   const inspectArgs = window.__bootstrap.console.inspectArgs;
   const quoteString = window.__bootstrap.console.quoteString;
-  const libp2p = window.__bootstrap.libp2p;
 
   const { windowOrWorkerGlobalScope, mainRuntimeGlobalProperties } =
     window.__bootstrap.globalScope;
