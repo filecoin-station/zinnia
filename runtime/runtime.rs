@@ -26,6 +26,8 @@ use deno_runtime::deno_web::{BlobStore, TimersPermission};
 use tokio::fs::File;
 use tokio::io::AsyncReadExt;
 
+use zinnia_libp2p;
+
 pub type AnyError = deno_runtime::deno_core::anyhow::Error;
 
 /// Common bootstrap options for MainWorker & WebWorker
@@ -106,7 +108,10 @@ pub async fn run_js_module(
       ),
       deno_runtime::deno_fetch::init::<ZinniaPermissions>(Default::default()),
       // Zinnia-specific APIs
-      // (to be done)
+      zinnia_libp2p::init(
+        // TODO: do we want to tweak the default libp2p RequestResponse configuration?
+        Default::default(),
+      ),
       Extension::builder("zinnia_runtime")
         .js(include_js_files!(
           prefix "zinnia:runtime",
@@ -137,6 +142,10 @@ pub async fn run_js_module(
   let res = runtime.mod_evaluate(main_module_id);
   runtime.run_event_loop(false).await?;
   res.await??;
+
+  // TODO: it would be nicer to have this exposed as another Deno op
+  // and call it from the JavaScript side as part of the regular runtime shutdown
+  zinnia_libp2p::shutdown(runtime.op_state()).await?;
 
   Ok(())
 }
