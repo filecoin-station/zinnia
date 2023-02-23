@@ -19,6 +19,9 @@ Zinnia is a runtime for Filecoin Station modules. This crate provides the actual
 To install Zinnia, you need to have Rust tooling installed on your machine. See
 [Install Rust](https://www.rust-lang.org/tools/install).
 
+You also need the Protocol Buffers compiler, `protoc`. See
+[Protocol Buffer Compiler Installation](https://grpc.io/docs/protoc-installation/)
+
 Then you can install Zinnia using `cargo`:
 
 ```sh

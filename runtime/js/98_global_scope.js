@@ -7,6 +7,9 @@
 ((window) => {
   const core = Deno.core;
 
+  const { ObjectCreate, ObjectDefineProperties } =
+    window.__bootstrap.primordials;
+
   const util = window.__bootstrap.util;
   const event = window.__bootstrap.event;
   const eventTarget = window.__bootstrap.eventTarget;
@@ -18,14 +21,18 @@
   const performance = window.__bootstrap.performance;
   const url = window.__bootstrap.url;
   const urlPattern = window.__bootstrap.urlPattern;
+  const headers = window.__bootstrap.headers;
   const streams = window.__bootstrap.streams;
   const fileReader = window.__bootstrap.fileReader;
   const file = window.__bootstrap.file;
+  const formData = window.__bootstrap.formData;
+  const fetch = window.__bootstrap.fetch;
   const messagePort = window.__bootstrap.messagePort;
   const webidl = window.__bootstrap.webidl;
   const domException = window.__bootstrap.domException;
   const abortSignal = window.__bootstrap.abortSignal;
   const globalInterfaces = window.__bootstrap.globalInterfaces;
+  const libp2p = window.__bootstrap.libp2p;
 
   // https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope
   const windowOrWorkerGlobalScope = {
@@ -50,24 +57,21 @@
     // Intentionally disabled until we need this.
     // File: util.nonEnumerable(file.File),
     // FileReader: util.nonEnumerable(fileReader.FileReader),
-    // TODO:  https://github.com/filecoin-station/zinnia/issues/25
-    // FormData: util.nonEnumerable(formData.FormData),
-    // Headers: util.nonEnumerable(headers.Headers),
+    FormData: util.nonEnumerable(formData.FormData),
+    Headers: util.nonEnumerable(headers.Headers),
     MessageEvent: util.nonEnumerable(event.MessageEvent),
     Performance: util.nonEnumerable(performance.Performance),
     PerformanceEntry: util.nonEnumerable(performance.PerformanceEntry),
     PerformanceMark: util.nonEnumerable(performance.PerformanceMark),
     PerformanceMeasure: util.nonEnumerable(performance.PerformanceMeasure),
     PromiseRejectionEvent: util.nonEnumerable(event.PromiseRejectionEvent),
-    // TODO:  https://github.com/filecoin-station/zinnia/issues/25
-    // ProgressEvent: util.nonEnumerable(event.ProgressEvent),
+    ProgressEvent: util.nonEnumerable(event.ProgressEvent),
     ReadableStream: util.nonEnumerable(streams.ReadableStream),
     ReadableStreamDefaultReader: util.nonEnumerable(
       streams.ReadableStreamDefaultReader,
     ),
-    // TODO:  https://github.com/filecoin-station/zinnia/issues/25
-    // Request: util.nonEnumerable(fetch.Request),
-    // Response: util.nonEnumerable(fetch.Response),
+    Request: util.nonEnumerable(fetch.Request),
+    Response: util.nonEnumerable(fetch.Response),
     TextDecoder: util.nonEnumerable(encoding.TextDecoder),
     TextEncoder: util.nonEnumerable(encoding.TextEncoder),
     TextDecoderStream: util.nonEnumerable(encoding.TextDecoderStream),
@@ -123,8 +127,7 @@
     // crypto: util.readOnly(crypto.crypto),
     // Crypto: util.nonEnumerable(crypto.Crypto),
     // SubtleCrypto: util.nonEnumerable(crypto.SubtleCrypto),
-    // TODO:  https://github.com/filecoin-station/zinnia/issues/25
-    // fetch: util.writable(fetch.fetch),
+    fetch: util.writable(fetch.fetch),
     performance: util.writable(performance.performance),
     reportError: util.writable(event.reportError),
     setInterval: util.writable(timers.setInterval),
@@ -133,6 +136,9 @@
     // Branding as a WebIDL object
     [webidl.brand]: util.nonEnumerable(webidl.brand),
   };
+
+  const zinniaNs = ObjectCreate(null);
+  ObjectDefineProperties(zinniaNs, libp2p.defaultPeerProps);
 
   const mainRuntimeGlobalProperties = {
     // Location: location.locationConstructorDescriptor,
@@ -148,6 +154,7 @@
     // localStorage: util.getterOnly(webStorage.localStorage),
     // sessionStorage: util.getterOnly(webStorage.sessionStorage),
     // Storage: util.nonEnumerable(webStorage.Storage),
+    Zinnia: util.readOnly(zinniaNs),
   };
 
   window.__bootstrap.globalScope = {

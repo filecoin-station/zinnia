@@ -7,6 +7,7 @@ use deno_runtime::deno_core::futures::FutureExt;
 use deno_runtime::deno_core::include_js_files;
 use deno_runtime::deno_core::located_script_name;
 use deno_runtime::deno_core::resolve_import;
+use deno_runtime::deno_core::url::Url;
 use deno_runtime::deno_core::Extension;
 use deno_runtime::deno_core::JsRuntime;
 use deno_runtime::deno_core::ModuleLoader;
@@ -16,6 +17,7 @@ use deno_runtime::deno_core::ModuleSpecifier;
 use deno_runtime::deno_core::ModuleType;
 use deno_runtime::deno_core::ResolutionKind;
 use deno_runtime::deno_core::RuntimeOptions;
+use deno_runtime::deno_fetch::FetchPermissions;
 use deno_runtime::{colors, deno_core};
 
 use deno_runtime::deno_core::serde_json;
@@ -23,6 +25,8 @@ use deno_runtime::deno_core::serde_json::json;
 use deno_runtime::deno_web::{BlobStore, TimersPermission};
 use tokio::fs::File;
 use tokio::io::AsyncReadExt;
+
+use zinnia_libp2p;
 
 pub type AnyError = deno_runtime::deno_core::anyhow::Error;
 
@@ -72,6 +76,19 @@ impl TimersPermission for ZinniaPermissions {
   }
 }
 
+impl FetchPermissions for ZinniaPermissions {
+  fn check_net_url(
+    &mut self,
+    _url: &Url,
+    _api_name: &str,
+  ) -> Result<(), AnyError> {
+    Ok(())
+  }
+  fn check_read(&mut self, _p: &Path, _api_name: &str) -> Result<(), AnyError> {
+    Ok(())
+  }
+}
+
 pub async fn run_js_module(
   module_specifier: &ModuleSpecifier,
   bootstrap_options: &BootstrapOptions,
@@ -89,8 +106,12 @@ pub async fn run_js_module(
         blob_store,
         Some(module_specifier.clone()),
       ),
+      deno_runtime::deno_fetch::init::<ZinniaPermissions>(Default::default()),
       // Zinnia-specific APIs
-      // (to be done)
+      zinnia_libp2p::init(
+        // TODO: do we want to tweak the default libp2p RequestResponse configuration?
+        Default::default(),
+      ),
       Extension::builder("zinnia_runtime")
         .js(include_js_files!(
           prefix "zinnia:runtime",
@@ -98,6 +119,10 @@ pub async fn run_js_module(
           "js/98_global_scope.js",
           "js/99_main.js",
         ))
+        .state(move |state| {
+          state.put(ZinniaPermissions {});
+          Ok(())
+        })
         .build(),
     ],
     will_snapshot: false,
@@ -117,6 +142,10 @@ pub async fn run_js_module(
   let res = runtime.mod_evaluate(main_module_id);
   runtime.run_event_loop(false).await?;
   res.await??;
+
+  // TODO: it would be nicer to have this exposed as another Deno op
+  // and call it from the JavaScript side as part of the regular runtime shutdown
+  zinnia_libp2p::shutdown(runtime.op_state()).await?;
 
   Ok(())
 }
