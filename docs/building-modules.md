@@ -241,7 +241,3 @@ Tracking issue: n/a
 #### Other
 
 - `XMLHttpRequest` Standard
-
-```
-
-```
