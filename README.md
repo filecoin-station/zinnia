@@ -31,10 +31,12 @@ See [CLI Installation](./cli/README.md#installation).
 
 ```js
 while (true) {
-	const start = new Date();
-	const res = await fetch("https://ipfs.io/ipfs/bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi/");
-	console.log(`TTFB: ${new Date() - start}ms`);
-    await new Promise(resolve => setTimeout(resolve, 1000));
+  const start = new Date();
+  const res = await fetch(
+    "https://ipfs.io/ipfs/bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi/",
+  );
+  console.log(`TTFB: ${new Date() - start}ms`);
+  await new Promise((resolve) => setTimeout(resolve, 1000));
 }
 ```
 
@@ -61,3 +63,19 @@ See [Building Modules](./docs/building-modules.md).
 - **Networking**: _TBD_
 - **IPFS:** _TBD_
 - **Block (K/V) storage:** _TBD_
+
+## Contributing
+
+The
+[roadmap](https://www.notion.so/pl-strflt/Zinnia-Roadmap-b849d322502f4c079525cd8cc887df02)
+and [issue tracker](https://github.com/filecoin-station/zinnia/issues) are great
+places to check out for your first time to contribute! You can also look up some
+past decisions in
+[docs/architecture-decisions-records/](docs/architecture-decision-records/).
+
+If you see something broken or missing, please
+[create a new issue](https://github.com/filecoin-station/zinnia/issues/new).
+
+Finally, don't forget to stop by and **say hi** :wave: in
+#filecoin-station-module-builders-wg on
+[Filecoin Slack](https://filecoin.io/slack)!
