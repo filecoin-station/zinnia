@@ -67,6 +67,15 @@ individual methods in
 - [TextDecoderStream](https://developer.mozilla.org/en-US/docs/Web/API/TextDecoderStream)
 - [TextEncoderStream](https://developer.mozilla.org/en-US/docs/Web/API/TextEncoderStream)
 
+#### Fetch Standard
+
+- [FormData](https://developer.mozilla.org/en-US/docs/Web/API/FormData)
+- [Headers](https://developer.mozilla.org/en-US/docs/Web/API/Headers)
+- [ProgressEvent](https://developer.mozilla.org/en-US/docs/Web/API/ProgressEvent)
+- [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request)
+- [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response)
+- [fetch](https://developer.mozilla.org/en-US/docs/Web/API/fetch)
+
 #### HTML Standard
 
 - [ErrorEvent](https://developer.mozilla.org/en-US/docs/Web/API/ErrorEvent)
@@ -123,24 +132,79 @@ individual methods in
 
 - [DOMException](https://developer.mozilla.org/en-US/docs/Web/API/DOMException)
 
+### libp2p
+
+Zinnia comes with a built-in libp2p node based on
+[rust-libp2p](https://github.com/libp2p/rust-libp2p). The node is shared by all
+Station Modules running on Zinnia. This way we can keep the number of open
+connections lower and avoid duplicate entries in routing tables.
+
+The initial version comes with a limited subset of features. We will be adding
+more features based on feedback from our users (Station Module builders).
+
+#### Networking stack
+
+- Transport: `tcp` using system DNS resolver
+- Multistream-select V1
+- Authentication: `noise` with `XX` handshake pattern using X25519 DH keys
+- Stream multiplexing: both `yamux` and `mplex`
+
+#### `Zinnia.peerId`
+
+Type: `string`
+
+Return the peer id of Zinnia's built-in libp2p peer. The peer id is ephemeral,
+Zinnia generates a new peer id every time it starts.
+
+#### `Zinnia.requestProtocol(remoteAddress, protocolName, requestPayload)`
+
+```ts
+requestProtocol(
+  remoteAddress: string,
+  protocolName: string,
+  requestPayload: Uint8Array,
+): Promise<PeerResponse>;
+```
+
+Dial a remote peer identified by the `remoteAddress` and open a new substream
+for the protocol identified by `protocolName`. Send `requestPayload` and read
+the response payload.
+
+The function returns a promise that resolves with a readable-stream-like object.
+At the moment, this object implements
+[async iterable](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols#the_async_iterator_and_async_iterable_protocols)
+protocol only, it's not a full readable stream. This is enough to allow you to
+receive response in chunks, where each chunk is an `Uint8Array` instance.
+
+Notes:
+
+- The peer address must include both the network address and peer id.
+- The response size is limited to 10MB. Larger responses will be rejected with
+  an error.
+- We will implement stream-based API supporting unlimited request & response
+  sizes in the near future, see
+  [zinnia#56](https://github.com/filecoin-station/zinnia/issues/56) and
+  [zinnia#57](https://github.com/filecoin-station/zinnia/issues/57).
+
+**Example**
+
+```js
+const response = await Zinnia.requestProtocol(
+  "/dns/example.com/tcp/3030/p2p/12D3okowHR71QRJe5vrPm6zZXoH4K7z5mDsWWtxXpRIG9Dk8hqxk",
+  "/ipfs/ping/1.0.0",
+  new Uint8Array(32),
+);
+
+for (const chunk of response) {
+  console.log(chunk);
+}
+```
+
 <!--
-UNSUPPORTED
+UNSUPPORTED APIs
 -->
 
 ## Unsupported Web APIs
-
-The following Web APIs are not supported yet.
-
-#### Fetch Standard
-
-Tracking issue: https://github.com/filecoin-station/zinnia/issues/25
-
-- [FormData](https://developer.mozilla.org/en-US/docs/Web/API/FormData)
-- [Headers](https://developer.mozilla.org/en-US/docs/Web/API/Headers)
-- [ProgressEvent](https://developer.mozilla.org/en-US/docs/Web/API/ProgressEvent)
-- [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request)
-- [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response)
-- [fetch](https://developer.mozilla.org/en-US/docs/Web/API/fetch)
 
 #### File API
 
