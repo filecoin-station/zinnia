@@ -9,18 +9,17 @@
 	<br>
 </h1>
 
-Zinnia is a runtime for Filecoin Station modules.
-
-It provides a sandboxed environment to execute untrusted code on consumer-grade
-computers.
+> Zinnia,
+> [named after the first flower to blossom in space](https://www.nasa.gov/image-feature/first-flower-grown-in-space-stations-veggie-facility),
+> is the runtime for
+> [Station](https://github.com/filecoin-station/filecoin-station) modules. It
+> allows anyone - even untrusted parties - to deploy modules to Stations
+> wordwide.
 
 <div align="center">
   <img src="https://s.yimg.com/uu/api/res/1.2/WtLPXqGgiUashZzP.J4drw--~B/Zmk9ZmlsbDtoPTU4Mzt3PTg3NTthcHBpZD15dGFjaHlvbg--/https://o.aolcdn.com/hss/storage/midas/229be0287167454b558989b2e29221d8/203272974/zinnias-success.jpg.cf.jpg" width="50%" />
-
   <br>
-  <a href="https://www.nasa.gov/image-feature/first-flower-grown-in-space-stations-veggie-facility">
-    <em>Zinnia was the first ever flower grown in space.</em>
-  </a>
+	<br>
 </div>
 
 ## Installation
