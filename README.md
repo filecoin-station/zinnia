@@ -25,7 +25,10 @@ computers.
 	<br>
 </div>
 
-> Zinnia, named after the first flower to blossom in space, is the runtime for Station modules. It allows anyone - even untrusted parties - to deploy modules to Station. Zinnia provides a sandboxed environment to execute untrusted code on home computers.
+> Zinnia, named after the first flower to blossom in space, is the runtime for
+> Station modules. It allows anyone - even untrusted parties - to deploy modules
+> to Station. Zinnia provides a sandboxed environment to execute untrusted code
+> on home computers.
 
 ## Architecture
 
