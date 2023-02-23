@@ -67,6 +67,15 @@ individual methods in
 - [TextDecoderStream](https://developer.mozilla.org/en-US/docs/Web/API/TextDecoderStream)
 - [TextEncoderStream](https://developer.mozilla.org/en-US/docs/Web/API/TextEncoderStream)
 
+#### Fetch Standard
+
+- [FormData](https://developer.mozilla.org/en-US/docs/Web/API/FormData)
+- [Headers](https://developer.mozilla.org/en-US/docs/Web/API/Headers)
+- [ProgressEvent](https://developer.mozilla.org/en-US/docs/Web/API/ProgressEvent)
+- [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request)
+- [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response)
+- [fetch](https://developer.mozilla.org/en-US/docs/Web/API/fetch)
+
 #### HTML Standard
 
 - [ErrorEvent](https://developer.mozilla.org/en-US/docs/Web/API/ErrorEvent)
@@ -129,18 +138,6 @@ UNSUPPORTED
 
 ## Unsupported Web APIs
 
-The following Web APIs are not supported yet.
-
-#### Fetch Standard
-
-Tracking issue: https://github.com/filecoin-station/zinnia/issues/25
-
-- [FormData](https://developer.mozilla.org/en-US/docs/Web/API/FormData)
-- [Headers](https://developer.mozilla.org/en-US/docs/Web/API/Headers)
-- [ProgressEvent](https://developer.mozilla.org/en-US/docs/Web/API/ProgressEvent)
-- [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request)
-- [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response)
-- [fetch](https://developer.mozilla.org/en-US/docs/Web/API/fetch)
 
 #### File API
 
