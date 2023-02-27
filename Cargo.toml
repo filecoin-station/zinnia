@@ -20,8 +20,8 @@ pretty_assertions = "1.3.0"
 deno_core = "0.171.0"
 
 # workspace-local
-zinnia_runtime = { version = "0.0.3", path = "./runtime" }
-zinnia_libp2p = { version = "0.0.3", path = "./ext/libp2p" }
+zinnia_runtime = { version = "0.1.0", path = "./runtime" }
+zinnia_libp2p = { version = "0.1.0", path = "./ext/libp2p" }
 
 [profile.release]
 codegen-units = 1
