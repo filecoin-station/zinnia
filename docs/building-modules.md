@@ -195,7 +195,7 @@ const response = await Zinnia.requestProtocol(
   new Uint8Array(32),
 );
 
-for (const chunk of response) {
+for await (const chunk of response) {
   console.log(chunk);
 }
 ```
