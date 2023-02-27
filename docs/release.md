@@ -20,7 +20,7 @@ documentation will refer to `X.Y.Z` as _major_, _minor_ and _patch_ version.
 1. Create the new release, replace `0.1.2` with the NEW version number:
 
    ```sh
-   $ cargo release --workspace --sign-tag --execute 0.1.2
+   $ cargo release --workspace --sign-tag --tag-prefix "" --execute 0.1.2
    ```
 
 1. Continue on GitHub to create a new Release:
