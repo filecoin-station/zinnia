@@ -18,7 +18,7 @@ env:
 
 jobs:
   github_build:
-    name: Build release binaries
+    name: Build ${{ matrix.name }}
     strategy:
       fail-fast: false
       matrix:
@@ -42,6 +42,11 @@ jobs:
     env:
       RUSTFLAGS: ${{ matrix.rustflags || '' }}
     steps:
+      - name: Setup | Install Protoc
+        uses: arduino/setup-protoc@ab6203da1c3118e4406048171b09238ad31ad73e # latest
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Setup | Checkout
         uses: actions/checkout@v3
 
@@ -52,6 +57,10 @@ jobs:
           override: true
           profile: minimal
           target: ${{ matrix.target }}
+
+      - uses: Swatinem/rust-cache@6fd3edff6979b79f87531400ad694fb7f2c84b1f # v2.2.1
+        with:
+          shared-key: release-${{ matrix.target }}
 
       - name: Build | Build
         uses: actions-rs/cargo@v1.0.3
@@ -79,4 +88,3 @@ jobs:
         with:
           name: ${{ matrix.name }}
           path: ${{ matrix.name }}
-
