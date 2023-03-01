@@ -3,9 +3,6 @@ name: Release
 on:
   push:
     tags:
-      - 'v[0-9]+*'
-    # TEMPORARY FOR DEBUGGING, REMOVE BEFORE MERGING THIS PR
-    branches:
       - '*'
 
 env:
@@ -56,7 +53,8 @@ jobs:
           toolchain: stable
           target: ${{ matrix.target }}
 
-      - uses: Swatinem/rust-cache@6fd3edff6979b79f87531400ad694fb7f2c84b1f # v2.2.1
+      - name: Setup | Rust Cache
+        uses: Swatinem/rust-cache@6fd3edff6979b79f87531400ad694fb7f2c84b1f # v2.2.1
         with:
           shared-key: release-${{ matrix.target }}
 
