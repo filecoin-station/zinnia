@@ -8,19 +8,12 @@
 
   async function requestProtocol(remoteAddress, protocolName, requestPayload) {
     if (typeof remoteAddress !== "string")
-      throw new TypeError(
-        `remoteAddress must be string (found: ${typeof remoteAddress})`,
-      );
+      throw new TypeError(`remoteAddress must be string (found: ${typeof remoteAddress})`);
     if (typeof protocolName !== "string")
-      throw new TypeError(
-        `protocolName must be string (found: ${typeof protocolName})`,
-      );
+      throw new TypeError(`protocolName must be string (found: ${typeof protocolName})`);
     if (requestPayload?.constructor !== Uint8Array) {
-      const actualType =
-        requestPayload?.constructor?.name ?? typeof requestPayload;
-      throw new TypeError(
-        `requestPayload must be Uint8Array (found: ${actualType})`,
-      );
+      const actualType = requestPayload?.constructor?.name ?? typeof requestPayload;
+      throw new TypeError(`requestPayload must be Uint8Array (found: ${actualType})`);
     }
 
     const responsePayload = await ops.op_p2p_request_protocol(

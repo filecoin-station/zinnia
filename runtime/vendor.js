@@ -7,10 +7,7 @@
 
 import { fromFileUrl } from "https://deno.land/std@0.177.0/path/mod.ts";
 
-await vendor(
-  "https://deno.land/std@0.177.0/testing/asserts.ts",
-  "asserts.bundle.js",
-);
+await vendor("https://deno.land/std@0.177.0/testing/asserts.ts", "asserts.bundle.js");
 
 async function vendor(url, outfile) {
   const outpath = fromFileUrl(import.meta.resolve(`./vendored/${outfile}`));
@@ -19,9 +16,7 @@ async function vendor(url, outfile) {
   const status = await child.status();
   child.close();
   if (!status.success) {
-    const reason = status.code
-      ? `code ${status.code}`
-      : `signal ${status.signal}`;
+    const reason = status.code ? `code ${status.code}` : `signal ${status.signal}`;
 
     throw new Error(`Process failed with ${reason}: ${cmd}`);
   }

@@ -1,7 +1,4 @@
-import {
-  assert,
-  assertEquals,
-} from "https://deno.land/std@0.177.0/testing/asserts.ts";
+import { assert, assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
 
 await test("get peer id", () => {
   const id = Zinnia.peerId;
@@ -19,28 +16,18 @@ await test("requestProtocol validates remoteAddress", async () => {
       throw new Error("Zinnia.requestProtocol() should have failed");
     },
     (err) => {
-      assertEquals(
-        err.toString(),
-        "TypeError: remoteAddress must be string (found: number)",
-      );
+      assertEquals(err.toString(), "TypeError: remoteAddress must be string (found: number)");
     },
   );
 });
 
 await test("requestProtocol rejects remoteAddress that's not a valid multiaddr with a peer id", async () => {
-  return Zinnia.requestProtocol(
-    "/ip4/127.0.0.1",
-    "/proto",
-    new Uint8Array(),
-  ).then(
+  return Zinnia.requestProtocol("/ip4/127.0.0.1", "/proto", new Uint8Array()).then(
     (_) => {
       throw new Error("Zinnia.requestProtocol() should have failed");
     },
     (err) => {
-      assertEquals(
-        err.toString(),
-        "Error: remote address must contain a valid peer ID",
-      );
+      assertEquals(err.toString(), "Error: remote address must contain a valid peer ID");
     },
   );
 });
@@ -51,10 +38,7 @@ await test("requestProtocol validates protocolName", async () => {
       throw new Error("Zinnia.requestProtocol() should have failed");
     },
     (err) => {
-      assertEquals(
-        err.toString(),
-        "TypeError: protocolName must be string (found: number)",
-      );
+      assertEquals(err.toString(), "TypeError: protocolName must be string (found: number)");
     },
   );
 });
@@ -65,10 +49,7 @@ await test("requestProtocol validates requestPayload", async () => {
       throw new Error("Zinnia.requestProtocol() should have failed");
     },
     (err) => {
-      assertEquals(
-        err.toString(),
-        "TypeError: requestPayload must be Uint8Array (found: String)",
-      );
+      assertEquals(err.toString(), "TypeError: requestPayload must be Uint8Array (found: String)");
     },
   );
 });
@@ -87,10 +68,7 @@ await test("ping remote peer", async () => {
     request,
   );
 
-  assert(
-    typeof response[Symbol.asyncIterator] === "function",
-    "response is an async iterator",
-  );
+  assert(typeof response[Symbol.asyncIterator] === "function", "response is an async iterator");
 
   const chunks = [];
   for await (const c of response) {
@@ -108,16 +86,11 @@ await test("ping remote peer", async () => {
 async function get32RandomBytes() {
   // The code below creates an array of 32 bytes with the last 4 items based on the current time
   const prefix = [
-    165, 48, 99, 103, 1, 164, 242, 58, 43, 138, 224, 125, 245, 150, 27, 208,
-    232, 198, 174, 177, 155, 136, 182, 8, 149, 194, 117, 11,
+    165, 48, 99, 103, 1, 164, 242, 58, 43, 138, 224, 125, 245, 150, 27, 208, 232, 198, 174, 177,
+    155, 136, 182, 8, 149, 194, 117, 11,
   ];
   const now = Date.now();
-  const timeBased = [
-    now % 0xff,
-    (now >> 8) % 0xff,
-    (now >> 16) % 0xff,
-    (now >> 24) % 0xff,
-  ];
+  const timeBased = [now % 0xff, (now >> 8) % 0xff, (now >> 16) % 0xff, (now >> 24) % 0xff];
   return [...prefix, ...timeBased];
 }
 

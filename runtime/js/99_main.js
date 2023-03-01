@@ -27,8 +27,7 @@ delete Intl.v8BreakIterator;
   const inspectArgs = window.__bootstrap.console.inspectArgs;
   const quoteString = window.__bootstrap.console.quoteString;
 
-  const { windowOrWorkerGlobalScope, mainRuntimeGlobalProperties } =
-    window.__bootstrap.globalScope;
+  const { windowOrWorkerGlobalScope, mainRuntimeGlobalProperties } = window.__bootstrap.globalScope;
 
   function formatException(error) {
     if (ObjectPrototypeIsPrototypeOf(ErrorPrototype, error)) {

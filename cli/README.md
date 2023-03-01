@@ -11,8 +11,8 @@
 
 [![crates](https://img.shields.io/crates/v/zinnia.svg)](https://crates.io/crates/zinnia)
 
-Zinnia is a runtime for Filecoin Station modules. This crate provides the actual
-`zinnia` executable.
+Zinnia is a runtime for Filecoin Station modules. This crate provides the actual `zinnia`
+executable.
 
 ## Installation
 
@@ -28,8 +28,8 @@ Then you can install Zinnia using `cargo`:
 $ cargo install zinnia
 ```
 
-This will build Zinnia and all its dependencies from source, which can take a
-while. In the future, we want to simplify the installation process, see
+This will build Zinnia and all its dependencies from source, which can take a while. In the future,
+we want to simplify the installation process, see
 [#23](https://github.com/filecoin-station/zinnia/issues/23).
 
 ## Basic use
@@ -40,8 +40,8 @@ while. In the future, we want to simplify the installation process, see
 zinnia run my-module.js
 ```
 
-See [Building Modules](./docs/building-modules.md) for how to write new modules
-for Filecoin Station.
+See [Building Modules](./docs/building-modules.md) for how to write new modules for Filecoin
+Station.
 
 ### Run a Rust module
 

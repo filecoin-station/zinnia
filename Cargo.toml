@@ -1,10 +1,10 @@
 [workspace]
 resolver = "2"
 members = [
-  "ext/libp2p",
+    "ext/libp2p",
 
-  "runtime",
-  "cli",
+    "runtime",
+    "cli",
 ]
 
 [workspace.package]
