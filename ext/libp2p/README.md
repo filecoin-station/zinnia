@@ -12,6 +12,5 @@
 [![crates](https://img.shields.io/crates/v/zinnia_libp2p.svg)](https://crates.io/crates/zinnia_libp2p)
 [![docs](https://docs.rs/zinnia_libp2p/badge.svg)](https://docs.rs/zinnia_libp2p)
 
-A libp2p extension for Zinnia. This crate provides JS APIs wrapping rust-libp2p.
-It should be compatible with any engine building on top of deno_core." runtime
-including all platform APIs.
+A libp2p extension for Zinnia. This crate provides JS APIs wrapping rust-libp2p. It should be
+compatible with any engine building on top of deno_core." runtime including all platform APIs.

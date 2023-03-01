@@ -26,53 +26,49 @@ pub type ProtocolInfo = SmallVec<[u8; 16]>;
 ///
 /// Sends a request and receives a response.
 pub struct RequestProtocol {
-  pub(crate) protocols: SmallVec<[ProtocolInfo; 2]>,
-  pub(crate) request_id: RequestId,
-  pub(crate) payload: RequestPayload,
+    pub(crate) protocols: SmallVec<[ProtocolInfo; 2]>,
+    pub(crate) request_id: RequestId,
+    pub(crate) payload: RequestPayload,
 }
 
 impl fmt::Debug for RequestProtocol {
-  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-    f.debug_struct("RequestProtocol")
-      .field("request_id", &self.request_id)
-      .field("protocols", &self.protocols)
-      .field("payload", &self.payload)
-      .finish()
-  }
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("RequestProtocol")
+            .field("request_id", &self.request_id)
+            .field("protocols", &self.protocols)
+            .field("payload", &self.payload)
+            .finish()
+    }
 }
 
 impl UpgradeInfo for RequestProtocol {
-  type Info = ProtocolInfo;
-  type InfoIter = smallvec::IntoIter<[Self::Info; 2]>;
+    type Info = ProtocolInfo;
+    type InfoIter = smallvec::IntoIter<[Self::Info; 2]>;
 
-  fn protocol_info(&self) -> Self::InfoIter {
-    self.protocols.clone().into_iter()
-  }
+    fn protocol_info(&self) -> Self::InfoIter {
+        self.protocols.clone().into_iter()
+    }
 }
 
 impl OutboundUpgrade<NegotiatedSubstream> for RequestProtocol {
-  type Output = ResponsePayload;
-  type Error = io::Error;
-  type Future = BoxFuture<'static, Result<Self::Output, Self::Error>>;
+    type Output = ResponsePayload;
+    type Error = io::Error;
+    type Future = BoxFuture<'static, Result<Self::Output, Self::Error>>;
 
-  fn upgrade_outbound(
-    self,
-    mut io: NegotiatedSubstream,
-    _protocol: Self::Info,
-  ) -> Self::Future {
-    async move {
-      // 1. Write the request payload
-      io.write_all(&self.payload).await?;
-      io.flush().await?;
+    fn upgrade_outbound(self, mut io: NegotiatedSubstream, _protocol: Self::Info) -> Self::Future {
+        async move {
+            // 1. Write the request payload
+            io.write_all(&self.payload).await?;
+            io.flush().await?;
 
-      // 2. Signal the end of request substream
-      io.close().await?;
+            // 2. Signal the end of request substream
+            io.close().await?;
 
-      // 3. Read back the response - at most 10 MB
-      let mut response: ResponsePayload = Default::default();
-      io.take(10 * 1024 * 1024).read_to_end(&mut response).await?;
-      Ok(response)
+            // 3. Read back the response - at most 10 MB
+            let mut response: ResponsePayload = Default::default();
+            io.take(10 * 1024 * 1024).read_to_end(&mut response).await?;
+            Ok(response)
+        }
+        .boxed()
     }
-    .boxed()
-  }
 }

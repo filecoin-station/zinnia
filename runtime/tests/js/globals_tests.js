@@ -1,8 +1,6 @@
 // global `window`
 if (typeof window !== "object") {
-  throw new Error(
-    `Expected \`window\` to have type "object" but found "${typeof window}"`,
-  );
+  throw new Error(`Expected \`window\` to have type "object" but found "${typeof window}"`);
 }
 
 if (window != globalThis) {
@@ -11,9 +9,7 @@ if (window != globalThis) {
 
 // global `self`
 if (typeof self !== "object") {
-  throw new Error(
-    `Expected \`self\` to have type "object" but found "${typeof self}"`,
-  );
+  throw new Error(`Expected \`self\` to have type "object" but found "${typeof self}"`);
 }
 
 if (self != globalThis) {

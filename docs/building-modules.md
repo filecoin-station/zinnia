@@ -1,24 +1,21 @@
 # Building modules
 
-A Station Module is a long-running process that's performing jobs like network
-probes, content delivery, and computation.
+A Station Module is a long-running process that's performing jobs like network probes, content
+delivery, and computation.
 
-Zinnia provides a JavaScript runtime with a set of platform APIs allowing
-modules to interact with the outside world.
+Zinnia provides a JavaScript runtime with a set of platform APIs allowing modules to interact with
+the outside world.
 
-In the long run, we want Zinnia to be aligned with the Web APIs as much as
-feasible.
+In the long run, we want Zinnia to be aligned with the Web APIs as much as feasible.
 
-For the shorter term, we are going to take shortcuts to deliver a useful
-platform quickly.
+For the shorter term, we are going to take shortcuts to deliver a useful platform quickly.
 
 ## Getting started
 
 If you haven't done so, then install `zinnia` CLI per
 [our instructions](../cli/README.md#installation).
 
-Using your favourite text editor, create a file called `module.js` with the
-following content:
+Using your favourite text editor, create a file called `module.js` with the following content:
 
 ```js
 console.log("Hello universe!");
@@ -44,11 +41,9 @@ The following entities are defined in the global scope (`globalThis`).
 
 #### Console Standard
 
-Zinnia implements most of the `console` Web APIs like `console.log`. You can
-find the full list of supported methods in
-[Deno docs](https://deno.land/api@v1.30.3?s=Console) and more details about
-individual methods in
-[MDN web docs](https://developer.mozilla.org/en-US/docs/Web/API/console)
+Zinnia implements most of the `console` Web APIs like `console.log`. You can find the full list of
+supported methods in [Deno docs](https://deno.land/api@v1.30.3?s=Console) and more details about
+individual methods in [MDN web docs](https://developer.mozilla.org/en-US/docs/Web/API/console)
 
 - [console](https://developer.mozilla.org/en-US/docs/Web/API/console)
 
@@ -135,12 +130,12 @@ individual methods in
 ### libp2p
 
 Zinnia comes with a built-in libp2p node based on
-[rust-libp2p](https://github.com/libp2p/rust-libp2p). The node is shared by all
-Station Modules running on Zinnia. This way we can keep the number of open
-connections lower and avoid duplicate entries in routing tables.
+[rust-libp2p](https://github.com/libp2p/rust-libp2p). The node is shared by all Station Modules
+running on Zinnia. This way we can keep the number of open connections lower and avoid duplicate
+entries in routing tables.
 
-The initial version comes with a limited subset of features. We will be adding
-more features based on feedback from our users (Station Module builders).
+The initial version comes with a limited subset of features. We will be adding more features based
+on feedback from our users (Station Module builders).
 
 #### Networking stack
 
@@ -153,8 +148,8 @@ more features based on feedback from our users (Station Module builders).
 
 Type: `string`
 
-Return the peer id of Zinnia's built-in libp2p peer. The peer id is ephemeral,
-Zinnia generates a new peer id every time it starts.
+Return the peer id of Zinnia's built-in libp2p peer. The peer id is ephemeral, Zinnia generates a
+new peer id every time it starts.
 
 #### `Zinnia.requestProtocol(remoteAddress, protocolName, requestPayload)`
 
@@ -166,24 +161,21 @@ requestProtocol(
 ): Promise<PeerResponse>;
 ```
 
-Dial a remote peer identified by the `remoteAddress` and open a new substream
-for the protocol identified by `protocolName`. Send `requestPayload` and read
-the response payload.
+Dial a remote peer identified by the `remoteAddress` and open a new substream for the protocol
+identified by `protocolName`. Send `requestPayload` and read the response payload.
 
-The function returns a promise that resolves with a readable-stream-like object.
-At the moment, this object implements
+The function returns a promise that resolves with a readable-stream-like object. At the moment, this
+object implements
 [async iterable](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols#the_async_iterator_and_async_iterable_protocols)
-protocol only, it's not a full readable stream. This is enough to allow you to
-receive response in chunks, where each chunk is an `Uint8Array` instance.
+protocol only, it's not a full readable stream. This is enough to allow you to receive response in
+chunks, where each chunk is an `Uint8Array` instance.
 
 Notes:
 
 - The peer address must include both the network address and peer id.
-- The response size is limited to 10MB. Larger responses will be rejected with
-  an error.
-- We will implement stream-based API supporting unlimited request & response
-  sizes in the near future, see
-  [zinnia#56](https://github.com/filecoin-station/zinnia/issues/56) and
+- The response size is limited to 10MB. Larger responses will be rejected with an error.
+- We will implement stream-based API supporting unlimited request & response sizes in the near
+  future, see [zinnia#56](https://github.com/filecoin-station/zinnia/issues/56) and
   [zinnia#57](https://github.com/filecoin-station/zinnia/issues/57).
 
 **Example**

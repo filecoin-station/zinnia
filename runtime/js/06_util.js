@@ -19,10 +19,7 @@
     if (logDebug) {
       // if we destructure `console` off `globalThis` too early, we don't bind to
       // the right console, therefore we don't log anything out.
-      globalThis.console.log(
-        `DEBUG ${logSource} -`,
-        ...new SafeArrayIterator(args),
-      );
+      globalThis.console.log(`DEBUG ${logSource} -`, ...new SafeArrayIterator(args));
     }
   }
 

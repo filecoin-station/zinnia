@@ -1,7 +1,7 @@
 # Release process
 
-This project follows [semantic versioning](https://semver.org/). The following
-documentation will refer to `X.Y.Z` as _major_, _minor_ and _patch_ version.
+This project follows [semantic versioning](https://semver.org/). The following documentation will
+refer to `X.Y.Z` as _major_, _minor_ and _patch_ version.
 
 ## Releasing one or more crates
 

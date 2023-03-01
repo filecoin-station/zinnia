@@ -7,8 +7,7 @@
 ((window) => {
   const core = Deno.core;
 
-  const { ObjectCreate, ObjectDefineProperties } =
-    window.__bootstrap.primordials;
+  const { ObjectCreate, ObjectDefineProperties } = window.__bootstrap.primordials;
 
   const util = window.__bootstrap.util;
   const event = window.__bootstrap.event;
@@ -40,9 +39,7 @@
     AbortSignal: util.nonEnumerable(abortSignal.AbortSignal),
     // Intentionally disabled until we need this.
     // Blob: util.nonEnumerable(file.Blob),
-    ByteLengthQueuingStrategy: util.nonEnumerable(
-      streams.ByteLengthQueuingStrategy,
-    ),
+    ByteLengthQueuingStrategy: util.nonEnumerable(streams.ByteLengthQueuingStrategy),
     CloseEvent: util.nonEnumerable(event.CloseEvent),
     CompressionStream: util.nonEnumerable(compression.CompressionStream),
     CountQueuingStrategy: util.nonEnumerable(streams.CountQueuingStrategy),
@@ -67,9 +64,7 @@
     PromiseRejectionEvent: util.nonEnumerable(event.PromiseRejectionEvent),
     ProgressEvent: util.nonEnumerable(event.ProgressEvent),
     ReadableStream: util.nonEnumerable(streams.ReadableStream),
-    ReadableStreamDefaultReader: util.nonEnumerable(
-      streams.ReadableStreamDefaultReader,
-    ),
+    ReadableStreamDefaultReader: util.nonEnumerable(streams.ReadableStreamDefaultReader),
     Request: util.nonEnumerable(fetch.Request),
     Response: util.nonEnumerable(fetch.Response),
     TextDecoder: util.nonEnumerable(encoding.TextDecoder),
@@ -87,27 +82,13 @@
     // TODO(?): Service & Web Workers
     // Worker: util.nonEnumerable(worker.Worker),
     WritableStream: util.nonEnumerable(streams.WritableStream),
-    WritableStreamDefaultWriter: util.nonEnumerable(
-      streams.WritableStreamDefaultWriter,
-    ),
-    WritableStreamDefaultController: util.nonEnumerable(
-      streams.WritableStreamDefaultController,
-    ),
-    ReadableByteStreamController: util.nonEnumerable(
-      streams.ReadableByteStreamController,
-    ),
-    ReadableStreamBYOBReader: util.nonEnumerable(
-      streams.ReadableStreamBYOBReader,
-    ),
-    ReadableStreamBYOBRequest: util.nonEnumerable(
-      streams.ReadableStreamBYOBRequest,
-    ),
-    ReadableStreamDefaultController: util.nonEnumerable(
-      streams.ReadableStreamDefaultController,
-    ),
-    TransformStreamDefaultController: util.nonEnumerable(
-      streams.TransformStreamDefaultController,
-    ),
+    WritableStreamDefaultWriter: util.nonEnumerable(streams.WritableStreamDefaultWriter),
+    WritableStreamDefaultController: util.nonEnumerable(streams.WritableStreamDefaultController),
+    ReadableByteStreamController: util.nonEnumerable(streams.ReadableByteStreamController),
+    ReadableStreamBYOBReader: util.nonEnumerable(streams.ReadableStreamBYOBReader),
+    ReadableStreamBYOBRequest: util.nonEnumerable(streams.ReadableStreamBYOBRequest),
+    ReadableStreamDefaultController: util.nonEnumerable(streams.ReadableStreamDefaultController),
+    TransformStreamDefaultController: util.nonEnumerable(streams.TransformStreamDefaultController),
     atob: util.writable(base64.atob),
     btoa: util.writable(base64.btoa),
     clearInterval: util.writable(timers.clearInterval),
@@ -120,9 +101,7 @@
     // },
     // CacheStorage: util.nonEnumerable(caches.CacheStorage),
     // Cache: util.nonEnumerable(caches.Cache),
-    console: util.nonEnumerable(
-      new Console((msg, level) => core.print(msg, level > 1)),
-    ),
+    console: util.nonEnumerable(new Console((msg, level) => core.print(msg, level > 1))),
     // TODO: https://github.com/filecoin-station/zinnia/issues/33
     // crypto: util.readOnly(crypto.crypto),
     // Crypto: util.nonEnumerable(crypto.Crypto),
