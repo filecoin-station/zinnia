@@ -88,7 +88,7 @@ impl PeerNode {
         // higher layer network behaviour logic.
         let swarm = Swarm::with_tokio_executor(
             tcp_transport,
-            ComposedBehaviour {
+            NodeBehaviour {
                 zinnia: RequestResponse::new(config),
             },
             peer_id,
@@ -196,7 +196,7 @@ pub fn create_transport(
 }
 
 pub struct EventLoop {
-    swarm: Swarm<ComposedBehaviour>,
+    swarm: Swarm<NodeBehaviour>,
     command_receiver: mpsc::Receiver<Command>,
     pending_dial: HashMap<PeerId, oneshot::Sender<Result<(), Box<dyn Error + Send>>>>,
     pending_requests: HashMap<RequestId, PendingRequest>,
@@ -207,7 +207,7 @@ pub struct PendingRequest {
 }
 
 impl EventLoop {
-    fn new(swarm: Swarm<ComposedBehaviour>, command_receiver: mpsc::Receiver<Command>) -> Self {
+    fn new(swarm: Swarm<NodeBehaviour>, command_receiver: mpsc::Receiver<Command>) -> Self {
         Self {
             swarm,
             command_receiver,
@@ -231,10 +231,10 @@ impl EventLoop {
 
     async fn handle_event(
         &mut self,
-        event: SwarmEvent<ComposedEvent, ConnectionHandlerUpgrErr<std::io::Error>>,
+        event: SwarmEvent<NodeBehaviourEvent, ConnectionHandlerUpgrErr<std::io::Error>>,
     ) {
         match event {
-            SwarmEvent::Behaviour(ComposedEvent::Zinnia(result)) => {
+            SwarmEvent::Behaviour(NodeBehaviourEvent::Zinnia(result)) => {
                 match result {
                     RequestResponseEvent::OutboundFailure {
                         request_id,
@@ -364,23 +364,10 @@ impl EventLoop {
 }
 
 #[derive(NetworkBehaviour)]
-#[behaviour(out_event = "ComposedEvent")]
-struct ComposedBehaviour {
+struct NodeBehaviour {
     pub zinnia: RequestResponse,
     // We can add more behaviours later.
     // request_response: request_response::Behaviour<FileExchangeCodec>,
-}
-
-#[derive(Debug)]
-enum ComposedEvent {
-    Zinnia(RequestResponseEvent),
-    // We can add more events later.
-}
-
-impl From<RequestResponseEvent> for ComposedEvent {
-    fn from(event: RequestResponseEvent) -> Self {
-        ComposedEvent::Zinnia(event)
-    }
 }
 
 #[derive(Debug)]
