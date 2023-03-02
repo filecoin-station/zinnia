@@ -27,6 +27,7 @@
 // https://github.com/bajtos/rust-libp2p-ping-poc/blob/v1/src/peer.rs
 
 mod behaviour;
+mod config;
 mod handler;
 mod protocol;
 
@@ -34,6 +35,7 @@ use behaviour::{
     ProtocolInfo, RequestId, RequestResponse, RequestResponseEvent, RequestResponseMessage,
 };
 pub use behaviour::{RequestPayload, ResponsePayload};
+pub use config::PeerNodeConfig;
 
 use deno_core::anyhow::Result;
 use deno_core::{AsyncResult, Resource};
@@ -52,8 +54,6 @@ use libp2p::futures::StreamExt;
 use libp2p::multiaddr::Protocol;
 use libp2p::swarm::{ConnectionHandlerUpgrErr, NetworkBehaviour, Swarm, SwarmEvent};
 use libp2p::{identity, noise, ping, yamux, Transport};
-
-pub type PeerNodeConfig = behaviour::RequestResponseConfig;
 
 /// A Zinnia peer node wrapping rust-libp2p and providing higher-level APIs
 /// for consumption by Deno ops.
@@ -87,8 +87,8 @@ impl PeerNode {
         let swarm = Swarm::with_tokio_executor(
             tcp_transport,
             NodeBehaviour {
-                zinnia: RequestResponse::new(config),
-                ping: libp2p::ping::Behaviour::new(libp2p::ping::Config::new()),
+                zinnia: RequestResponse::new(config.request_response_config()),
+                ping: libp2p::ping::Behaviour::new(config.ping_config()),
             },
             peer_id,
         );
@@ -441,10 +441,13 @@ mod tests {
 
     use super::*;
 
-    const DEFAULT_TEST_CONFIG: PeerNodeConfig = PeerNodeConfig {
-        connection_keep_alive: Duration::from_secs(1),
-        request_timeout: Duration::from_secs(1),
-    };
+    fn default_test_config() -> PeerNodeConfig {
+        PeerNodeConfig {
+            connection_keep_alive: Duration::from_secs(1),
+            request_timeout: Duration::from_secs(1),
+            ping: Default::default(),
+        }
+    }
 
     fn init() {
         let _ = env_logger::builder().is_test(true).try_init();
@@ -492,7 +495,7 @@ mod tests {
             })
         };
 
-        let mut peer = PeerNode::spawn(DEFAULT_TEST_CONFIG.clone()).unwrap();
+        let mut peer = PeerNode::spawn(default_test_config()).unwrap();
         peer.dial(listener_peer_id, listener_addr.clone())
             .await
             .expect("Should be able to dial a remote peer.");
@@ -535,7 +538,7 @@ mod tests {
 
         log::debug!("Going to dial peer addr={peer_addr:?} id={peer_id:?}");
 
-        let mut peer = PeerNode::spawn(DEFAULT_TEST_CONFIG.clone()).unwrap();
+        let mut peer = PeerNode::spawn(default_test_config()).unwrap();
         let result = peer.dial(peer_id, peer_addr).await;
         let err = result
             .expect_err("Dial should have failed with an error")
