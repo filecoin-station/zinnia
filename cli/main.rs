@@ -12,6 +12,8 @@ use deno_core::error::JsError;
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
+    env_logger::init();
+
     #[cfg(windows)]
     colors::enable_ansi(); // For Windows 10
 
