@@ -43,7 +43,7 @@ features = [
     # "relay",
     # "rendezvous",
     "request-response",
-    # "rsa",
+    "rsa",
     # "secp256k1",
     "serde",
     "tcp",
