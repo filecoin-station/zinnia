@@ -194,6 +194,28 @@ pub fn create_transport(
     Ok(tcp_transport)
 }
 
+#[derive(NetworkBehaviour)]
+struct NodeBehaviour {
+    pub ping: libp2p::ping::Behaviour,
+    pub zinnia: RequestResponse,
+}
+
+#[derive(Debug)]
+enum Command {
+    Dial {
+        peer_id: PeerId,
+        peer_addr: Multiaddr,
+        sender: oneshot::Sender<Result<(), Box<dyn Error + Send>>>,
+    },
+    Request {
+        peer_id: PeerId,
+        protocol: ProtocolInfo,
+        payload: RequestPayload,
+        sender: oneshot::Sender<Result<ResponsePayload, Box<dyn Error + Send>>>,
+    },
+    Shutdown,
+}
+
 pub struct EventLoop {
     swarm: Swarm<NodeBehaviour>,
     command_receiver: mpsc::Receiver<Command>,
@@ -407,28 +429,6 @@ impl EventLoop {
             }
         }
     }
-}
-
-#[derive(NetworkBehaviour)]
-struct NodeBehaviour {
-    pub ping: libp2p::ping::Behaviour,
-    pub zinnia: RequestResponse,
-}
-
-#[derive(Debug)]
-enum Command {
-    Dial {
-        peer_id: PeerId,
-        peer_addr: Multiaddr,
-        sender: oneshot::Sender<Result<(), Box<dyn Error + Send>>>,
-    },
-    Request {
-        peer_id: PeerId,
-        protocol: ProtocolInfo,
-        payload: RequestPayload,
-        sender: oneshot::Sender<Result<ResponsePayload, Box<dyn Error + Send>>>,
-    },
-    Shutdown,
 }
 
 #[cfg(test)]
