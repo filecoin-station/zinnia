@@ -49,7 +49,7 @@ impl PeerNodeConfig {
     }
 
     pub fn id_config(&self, local_public_key: PublicKey) -> identify::Config {
-        identify::Config::new("ipfs/1.0.0".into(), local_public_key.clone())
+        identify::Config::new("ipfs/1.0.0".into(), local_public_key)
             .with_agent_version(self.agent_version.clone())
     }
 }
