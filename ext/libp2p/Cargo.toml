@@ -30,7 +30,7 @@ features = [
     # "ecdsa",
     # "floodsub",
     # "gossipsub",
-    # "identify",
+    "identify",
     # "kad",
     # "mdns",
     # "metrics",

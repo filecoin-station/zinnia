@@ -53,7 +53,7 @@ use libp2p::core::{transport, upgrade, Multiaddr, PeerId};
 use libp2p::futures::StreamExt;
 use libp2p::multiaddr::Protocol;
 use libp2p::swarm::{ConnectionHandlerUpgrErr, NetworkBehaviour, Swarm, SwarmEvent};
-use libp2p::{identity, noise, ping, yamux, Transport};
+use libp2p::{identify, identity, noise, ping, yamux, Transport};
 
 /// A Zinnia peer node wrapping rust-libp2p and providing higher-level APIs
 /// for consumption by Deno ops.
@@ -88,7 +88,8 @@ impl PeerNode {
             tcp_transport,
             NodeBehaviour {
                 zinnia: RequestResponse::new(config.request_response_config()),
-                ping: libp2p::ping::Behaviour::new(config.ping_config()),
+                ping: ping::Behaviour::new(config.ping_config()),
+                id: identify::Behaviour::new(config.id_config(id_keys.public())),
             },
             peer_id,
         );
@@ -198,6 +199,7 @@ pub fn create_transport(
 struct NodeBehaviour {
     pub ping: libp2p::ping::Behaviour,
     pub zinnia: RequestResponse,
+    pub id: identify::Behaviour,
 }
 
 #[derive(Debug)]
@@ -254,7 +256,10 @@ impl EventLoop {
         &mut self,
         event: SwarmEvent<
             NodeBehaviourEvent,
-            EitherError<ping::Failure, ConnectionHandlerUpgrErr<std::io::Error>>,
+            EitherError<
+                EitherError<ping::Failure, ConnectionHandlerUpgrErr<std::io::Error>>,
+                std::io::Error,
+            >,
         >,
     ) {
         match event {
@@ -301,6 +306,10 @@ impl EventLoop {
 
             SwarmEvent::Behaviour(NodeBehaviourEvent::Ping(event)) => {
                 log::debug!("Ping event {event:?}");
+            }
+
+            SwarmEvent::Behaviour(NodeBehaviourEvent::Id(event)) => {
+                log::debug!("Identify event {event:?}");
             }
 
             SwarmEvent::NewListenAddr {
@@ -443,6 +452,7 @@ mod tests {
 
     fn default_test_config() -> PeerNodeConfig {
         PeerNodeConfig {
+            agent_version: format!("zinnia-libp2p-tests/{}", env!("CARGO_PKG_VERSION")),
             connection_keep_alive: Duration::from_secs(1),
             request_timeout: Duration::from_secs(1),
             ping: Default::default(),

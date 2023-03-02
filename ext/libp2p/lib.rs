@@ -15,7 +15,7 @@ mod peer;
 #[derive(Clone, Debug, Default)]
 pub struct Options {
     /// Configuration options for the built-in (default) peer node
-    default_peer: PeerNodeConfig,
+    pub default_peer: PeerNodeConfig,
 }
 
 #[derive(Debug, Clone, Copy)]

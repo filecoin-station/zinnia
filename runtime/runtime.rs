@@ -35,6 +35,9 @@ pub type AnyError = deno_runtime::deno_core::anyhow::Error;
 pub struct BootstrapOptions {
     pub no_color: bool,
     pub is_tty: bool,
+
+    /// The user agent version string to use for Fetch API requests and libp2p Identify protocol
+    pub agent_version: String,
 }
 
 impl Default for BootstrapOptions {
@@ -42,6 +45,7 @@ impl Default for BootstrapOptions {
         Self {
             no_color: !colors::use_color(),
             is_tty: colors::is_tty(),
+            agent_version: format!("zinnia_runtime/{}", env!("CARGO_PKG_VERSION")),
         }
     }
 }
@@ -99,10 +103,12 @@ pub async fn run_js_module(
             ),
             deno_runtime::deno_fetch::init::<ZinniaPermissions>(Default::default()),
             // Zinnia-specific APIs
-            zinnia_libp2p::init(
-                // TODO: do we want to tweak the default libp2p RequestResponse configuration?
-                Default::default(),
-            ),
+            zinnia_libp2p::init(zinnia_libp2p::Options {
+                default_peer: zinnia_libp2p::PeerNodeConfig {
+                    agent_version: bootstrap_options.agent_version.clone(),
+                    ..Default::default()
+                },
+            }),
             Extension::builder("zinnia_runtime")
                 .js(include_js_files!(
                   prefix "zinnia:runtime",
