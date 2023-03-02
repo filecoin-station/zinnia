@@ -239,9 +239,9 @@ impl EventLoop {
                     RequestResponseEvent::OutboundFailure {
                         request_id,
                         error,
-                        peer: _,
+                        peer,
                     } => {
-                        // println!("Cannot request {}: {}", peer, error);
+                        log::debug!("Cannot request {}: {}", peer, error);
                         let pending_request = self
                             .pending_requests
                             .remove(&request_id)
@@ -274,7 +274,7 @@ impl EventLoop {
                     // incoming requests - we don't support that!
                     //
                     RequestResponseEvent::InboundFailure { peer, error } => {
-                        println!("Error: Cannot handle inbound request from peer {peer}: {error}",);
+                        log::warn!("Cannot handle inbound request from peer {peer}: {error}",);
                     }
                 }
             }
@@ -299,8 +299,8 @@ impl EventLoop {
                 }
             }
             SwarmEvent::IncomingConnectionError { .. } => {}
-            SwarmEvent::Dialing(_) => {
-                // eprintln!("Dialing {peer_id}");
+            SwarmEvent::Dialing(peer_id) => {
+                log::debug!("Dialing {peer_id}");
             }
             e => panic!("{e:?}"),
         }
@@ -356,7 +356,7 @@ impl EventLoop {
             }
 
             Command::Shutdown => {
-                // println!("shutting down the event loop");
+                log::debug!("Shutting down the event loop");
                 self.command_receiver.close();
             }
         }
@@ -413,8 +413,13 @@ mod tests {
         request_timeout: Duration::from_secs(1),
     };
 
+    fn init() {
+        let _ = env_logger::builder().is_test(true).try_init();
+    }
+
     #[tokio::test]
     async fn requests_ping_protocol() {
+        init();
         let cancellation_token = CancellationToken::new();
 
         let server_id_keys = identity::Keypair::generate_ed25519();
@@ -439,11 +444,11 @@ mod tests {
             tokio::spawn(async move {
                 loop {
                     tokio::select! {
-                        event = server_swarm.next() => println!("Server swarm event: {event:?}"),
+                        event = server_swarm.next() => log::debug!("Server swarm event: {event:?}"),
                         _ = token.cancelled() => break,
                     }
                 }
-                println!("Server shutdown");
+                log::debug!("Server shutdown");
             })
         };
 
@@ -473,6 +478,8 @@ mod tests {
 
     #[tokio::test]
     async fn reports_dial_error() {
+        init();
+
         // invalid address (port number 10) with a valid peer id
         let unreachable_addr = "/ip4/127.0.0.1/tcp/10/p2p/12D3KooWRH71QRJe5vrMp6zZXoH4K7z5MDSWwTXXPriG9dK8HQXk/p2p/12D3KooWRH71QRJe5vrMp6zZXoH4K7z5MDSWwTXXPriG9dK8HQXk";
 
@@ -487,8 +494,7 @@ mod tests {
             }
         };
 
-        println!("peer_addr: {peer_addr:?}");
-        println!("peer id: {peer_id:?}");
+        log::debug!("Going to dial peer addr={peer_addr:?} id={peer_id:?}");
 
         let mut peer = PeerNode::spawn(DEFAULT_TEST_CONFIG.clone()).unwrap();
         let result = peer.dial(peer_id, peer_addr).await;
