@@ -37,6 +37,7 @@ pub use behaviour::{RequestPayload, ResponsePayload};
 
 use deno_core::anyhow::Result;
 use deno_core::{AsyncResult, Resource};
+use libp2p::core::either::EitherError;
 
 use std::collections::{hash_map, HashMap};
 use std::error::Error;
@@ -48,12 +49,9 @@ use tokio::task::JoinHandle;
 use libp2p::core::muxing::StreamMuxerBox;
 use libp2p::core::{transport, upgrade, Multiaddr, PeerId};
 use libp2p::futures::StreamExt;
-use libp2p::identity;
 use libp2p::multiaddr::Protocol;
-use libp2p::noise;
 use libp2p::swarm::{ConnectionHandlerUpgrErr, NetworkBehaviour, Swarm, SwarmEvent};
-use libp2p::yamux;
-use libp2p::Transport;
+use libp2p::{identity, noise, ping, yamux, Transport};
 
 pub type PeerNodeConfig = behaviour::RequestResponseConfig;
 
@@ -90,6 +88,7 @@ impl PeerNode {
             tcp_transport,
             NodeBehaviour {
                 zinnia: RequestResponse::new(config),
+                ping: libp2p::ping::Behaviour::new(libp2p::ping::Config::new()),
             },
             peer_id,
         );
@@ -231,56 +230,68 @@ impl EventLoop {
 
     async fn handle_event(
         &mut self,
-        event: SwarmEvent<NodeBehaviourEvent, ConnectionHandlerUpgrErr<std::io::Error>>,
+        event: SwarmEvent<
+            NodeBehaviourEvent,
+            EitherError<ping::Failure, ConnectionHandlerUpgrErr<std::io::Error>>,
+        >,
     ) {
         match event {
-            SwarmEvent::Behaviour(NodeBehaviourEvent::Zinnia(result)) => {
-                match result {
-                    RequestResponseEvent::OutboundFailure {
-                        request_id,
-                        error,
-                        peer,
-                    } => {
-                        log::debug!("Cannot request {}: {}", peer, error);
-                        let pending_request = self
-                            .pending_requests
-                            .remove(&request_id)
-                            .expect("Request should be still be pending.");
-                        pending_request
-                            .sender
-                            .send(Err(Box::new(error)))
-                            .expect("Request should have an active sender to receive the result.");
-                    }
-
-                    RequestResponseEvent::Message {
-                        peer: _,
-                        message:
-                            RequestResponseMessage::Response {
-                                request_id,
-                                response,
-                            },
-                    } => {
-                        let pending_request = self
-                            .pending_requests
-                            .remove(&request_id)
-                            .expect("Request should be still be pending.");
-
-                        pending_request
-                            .sender
-                            .send(Ok(response))
-                            .expect("Request should have an active sender to receive the result.");
-                    }
-
-                    // incoming requests - we don't support that!
-                    //
-                    RequestResponseEvent::InboundFailure { peer, error } => {
-                        log::warn!("Cannot handle inbound request from peer {peer}: {error}",);
-                    }
+            SwarmEvent::Behaviour(NodeBehaviourEvent::Zinnia(result)) => match result {
+                RequestResponseEvent::OutboundFailure {
+                    request_id,
+                    error,
+                    peer,
+                } => {
+                    log::debug!("Cannot request {}: {}", peer, error);
+                    let pending_request = self
+                        .pending_requests
+                        .remove(&request_id)
+                        .expect("Request should be still be pending.");
+                    pending_request
+                        .sender
+                        .send(Err(Box::new(error)))
+                        .expect("Request should have an active sender to receive the result.");
                 }
+
+                RequestResponseEvent::Message {
+                    peer: _,
+                    message:
+                        RequestResponseMessage::Response {
+                            request_id,
+                            response,
+                        },
+                } => {
+                    let pending_request = self
+                        .pending_requests
+                        .remove(&request_id)
+                        .expect("Request should be still be pending.");
+
+                    pending_request
+                        .sender
+                        .send(Ok(response))
+                        .expect("Request should have an active sender to receive the result.");
+                }
+
+                RequestResponseEvent::InboundFailure { peer, error } => {
+                    log::warn!("Cannot handle inbound request from peer {peer}: {error}",);
+                }
+            },
+
+            SwarmEvent::Behaviour(NodeBehaviourEvent::Ping(event)) => {
+                log::debug!("Ping event {event:?}");
             }
 
-            SwarmEvent::NewListenAddr { .. } => {}
-            SwarmEvent::IncomingConnection { .. } => {}
+            SwarmEvent::NewListenAddr {
+                listener_id,
+                address,
+            } => {
+                log::debug!("Listener id={listener_id:?} is listening on {address}");
+            }
+
+            SwarmEvent::IncomingConnection { send_back_addr, .. } => {
+                log::debug!("Incoming connection from {send_back_addr}");
+            }
+
             SwarmEvent::ConnectionEstablished {
                 peer_id, endpoint, ..
             } => {
@@ -290,7 +301,11 @@ impl EventLoop {
                     }
                 }
             }
-            SwarmEvent::ConnectionClosed { .. } => {}
+
+            SwarmEvent::ConnectionClosed { peer_id, cause, .. } => {
+                log::debug!("Connection to peer id {peer_id} was closed: {cause:?}");
+            }
+
             SwarmEvent::OutgoingConnectionError { peer_id, error, .. } => {
                 if let Some(peer_id) = peer_id {
                     if let Some(sender) = self.pending_dial.remove(&peer_id) {
@@ -298,11 +313,42 @@ impl EventLoop {
                     }
                 }
             }
-            SwarmEvent::IncomingConnectionError { .. } => {}
+            SwarmEvent::IncomingConnectionError {
+                local_addr: _,
+                send_back_addr,
+                error,
+            } => {
+                log::warn!("Error handling incoming connection from {send_back_addr:?}. {error}");
+            }
+
             SwarmEvent::Dialing(peer_id) => {
                 log::debug!("Dialing {peer_id}");
             }
-            e => panic!("{e:?}"),
+
+            SwarmEvent::BannedPeer { peer_id, .. } => {
+                log::debug!("Banned peer {peer_id}");
+            }
+
+            SwarmEvent::ExpiredListenAddr {
+                listener_id,
+                address,
+            } => {
+                log::debug!("Expired listener id={listener_id:?} address {address}");
+            }
+
+            SwarmEvent::ListenerClosed {
+                listener_id,
+                addresses,
+                reason,
+            } => {
+                log::debug!(
+                    "Closed listener id={listener_id:?} addresses {addresses:?} with reason: {reason:?}"
+                );
+            }
+
+            SwarmEvent::ListenerError { listener_id, error } => {
+                log::debug!("Listener {listener_id:?} error: {error}");
+            }
         }
     }
 
@@ -365,9 +411,8 @@ impl EventLoop {
 
 #[derive(NetworkBehaviour)]
 struct NodeBehaviour {
+    pub ping: libp2p::ping::Behaviour,
     pub zinnia: RequestResponse,
-    // We can add more behaviours later.
-    // request_response: request_response::Behaviour<FileExchangeCodec>,
 }
 
 #[derive(Debug)]
@@ -390,6 +435,7 @@ enum Command {
 mod tests {
     use libp2p::swarm::DialError;
     use libp2p::TransportError;
+    use rand::{distributions, thread_rng, Rng};
     use std::time::Duration;
     use tokio_util::sync::CancellationToken;
 
@@ -409,29 +455,36 @@ mod tests {
         init();
         let cancellation_token = CancellationToken::new();
 
-        let server_id_keys = identity::Keypair::generate_ed25519();
-        let server_peer_id = server_id_keys.public().to_peer_id();
-        let mut server_transport = create_transport(&server_id_keys).unwrap();
+        let listener_id_keys = identity::Keypair::generate_ed25519();
+        let listener_peer_id = listener_id_keys.public().to_peer_id();
+        let listener_transport = create_transport(&listener_id_keys).unwrap();
+
+        let listener_behavior = {
+            #[derive(NetworkBehaviour)]
+            struct ListenerBehaviour {
+                pub ping: libp2p::ping::Behaviour,
+                pub keep_alive: libp2p::swarm::keep_alive::Behaviour,
+            }
+            ListenerBehaviour {
+                ping: libp2p::ping::Behaviour::new(libp2p::ping::Config::new()),
+                keep_alive: libp2p::swarm::keep_alive::Behaviour,
+            }
+        };
+
+        let mut listener_swarm =
+            Swarm::with_tokio_executor(listener_transport, listener_behavior, listener_peer_id);
 
         // FIXME: Use an ephemeral port number here.
         // Listen on port 0, read back the port assigned by the OS
-        let server_addr: Multiaddr = "/ip4/127.0.0.1/tcp/10458".parse().unwrap();
-        server_transport.listen_on(server_addr.clone()).unwrap();
+        let listener_addr: Multiaddr = "/ip4/127.0.0.1/tcp/10458".parse().unwrap();
+        listener_swarm.listen_on(listener_addr.clone()).unwrap();
 
-        let mut server_swarm = Swarm::with_tokio_executor(
-            server_transport,
-            libp2p::ping::Behaviour::new(
-                libp2p::ping::Config::new()
-                    .with_max_failures(std::num::NonZeroU32::new(10).unwrap()),
-            ),
-            server_peer_id,
-        );
-        let server_task = {
+        let listener_task = {
             let token = cancellation_token.clone();
             tokio::spawn(async move {
                 loop {
                     tokio::select! {
-                        event = server_swarm.next() => log::debug!("Server swarm event: {event:?}"),
+                        event = listener_swarm.next() => log::debug!("Listener swarm event: {event:?}"),
                         _ = token.cancelled() => break,
                     }
                 }
@@ -440,25 +493,24 @@ mod tests {
         };
 
         let mut peer = PeerNode::spawn(DEFAULT_TEST_CONFIG.clone()).unwrap();
-        peer.dial(server_peer_id, server_addr.clone())
+        peer.dial(listener_peer_id, listener_addr.clone())
             .await
             .expect("Should be able to dial a remote peer.");
 
-        // TODO: find out why the server does not respond to our ping request with Err(Unsupported)
-        // let request = crate::ping::new_request_payload();
-        // let response = peer
-        //     .request_protocol(
-        //         server_peer_id,
-        //         server_addr.clone(),
-        //         libp2p::ping::PROTOCOL_NAME,
-        //         request.clone(),
-        //     )
-        //     .await
-        //     .expect("Should be able to send PING request");
-        // assert_eq!(response, request, "PING response should match the request");
+        let request: [u8; 32] = thread_rng().sample(distributions::Standard);
+        let response = peer
+            .request_protocol(
+                listener_peer_id,
+                listener_addr.clone(),
+                libp2p::ping::PROTOCOL_NAME,
+                request.into(),
+            )
+            .await
+            .expect("Should be able to send PING request");
+        assert_eq!(response, request, "PING response should match the request");
 
         cancellation_token.cancel();
-        let _ = server_task.await;
+        let _ = listener_task.await;
 
         peer.shutdown().await.unwrap();
     }

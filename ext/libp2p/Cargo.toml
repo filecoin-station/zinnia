@@ -61,6 +61,7 @@ features = [
 
 [dev-dependencies]
 env_logger.workspace = true
+rand = "0.8.5"
 
 [dev-dependencies.libp2p]
 version = "0.50.0"
