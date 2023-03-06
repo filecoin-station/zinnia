@@ -36,8 +36,8 @@ jobs:
           - target: x86_64-pc-windows-msvc
             os: windows-latest
             name: zinnia-windows-x64.zip
-            rustflags: -C lto=off
-            #          ^^^^^^^^^^
+            rustflags: -C target-feature=+crt-static -C lto=off
+            #                                        ^^^^^^^^^^
             # LTO is temporarily disabled, see https://github.com/rust-lang/rust/issues/107781
 
     runs-on: ${{ matrix.os }}
