@@ -4,6 +4,9 @@ on:
   push:
     tags:
       - '*'
+    # TODO remove this before landing!
+    branches:
+      - '*'
 
 env:
   CARGO_INCREMENTAL: 0
@@ -21,9 +24,9 @@ jobs:
       matrix:
         include:
           # List of platforms, this must be in sync with the list of platforms in ci.yaml
-          - target: x86_64-unknown-linux-gnu
-            os: ubuntu-latest
-            name: zinnia-linux-x64.tar.gz
+          # - target: x86_64-unknown-linux-gnu
+          #   os: ubuntu-latest
+          #   name: zinnia-linux-x64.tar.gz
 
           - target: x86_64-apple-darwin
             os: macos-latest
@@ -33,12 +36,12 @@ jobs:
             os: macos-latest
             name: zinnia-macos-arm64.tar.gz
 
-          - target: x86_64-pc-windows-msvc
-            os: windows-latest
-            name: zinnia-windows-x64.zip
-            rustflags: -C target-feature=+crt-static -C lto=off
-            #                                        ^^^^^^^^^^
-            # LTO is temporarily disabled, see https://github.com/rust-lang/rust/issues/107781
+          # - target: x86_64-pc-windows-msvc
+          #   os: windows-latest
+          #   name: zinnia-windows-x64.zip
+          #   rustflags: -C target-feature=+crt-static -C lto=off
+          #   #                                        ^^^^^^^^^^
+          #   # LTO is temporarily disabled, see https://github.com/rust-lang/rust/issues/107781
 
     runs-on: ${{ matrix.os }}
     continue-on-error: true
@@ -76,9 +79,16 @@ jobs:
           tar czvf ../../../${{ matrix.name }} zinnia
           cd -
 
-      - name: Release | Upload artifacts
-        uses: softprops/action-gh-release@d4e8205d7e959a9107da6396278b2f1f07af0f9b
+      # - name: Release | Upload artifacts
+      #   uses: softprops/action-gh-release@d4e8205d7e959a9107da6396278b2f1f07af0f9b
+      #   with:
+      #     draft: true
+      #     files: ${{ matrix.name }}
+      #     fail_on_unmatched_files: true
+
+      - name: Upload artifacts for debugging
+        uses: actions/upload-artifact@v3
         with:
-          draft: true
-          files: ${{ matrix.name }}
-          fail_on_unmatched_files: true
+          name: ${{ matrix.name }}
+          path: ${{ matrix.name }}
+
