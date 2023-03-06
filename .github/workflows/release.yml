@@ -67,6 +67,7 @@ jobs:
         if: ${{ !startsWith(github.ref, 'refs/tags/') }}
         with:
           shared-key: release-${{ matrix.target }}
+          cache-on-failure: true
 
       - name: Build | Build
         run: cargo build --release --locked --target ${{ matrix.target }}
