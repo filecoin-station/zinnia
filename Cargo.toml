@@ -27,7 +27,6 @@ zinnia_libp2p = { version = "0.2.0", path = "./ext/libp2p" }
 
 [profile.release]
 codegen-units = 1
-incremental = true
 lto = true
 opt-level = 3
 
