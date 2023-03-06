@@ -30,13 +30,13 @@ features = [
     # "ecdsa",
     # "floodsub",
     # "gossipsub",
-    # "identify",
+    "identify",
     # "kad",
     # "mdns",
     # "metrics",
     "mplex",
     "noise",
-    # "ping",
+    "ping",
     # "plaintext",
     # "pnet",
     # "quic",
@@ -61,45 +61,6 @@ features = [
 
 [dev-dependencies]
 env_logger.workspace = true
-
-[dev-dependencies.libp2p]
-version = "0.50.1"
-features = [
-    # "async-std",
-    # "autonat",
-    # "dcutr",
-    # "deflate",
-    # "dns",
-    # "ecdsa",
-    # "floodsub",
-    # "gossipsub",
-    # "identify",
-    # "kad",
-    # "mdns",
-    # "metrics",
-    # "mplex",
-    # "noise",
-    "ping",
-    # "plaintext",
-    # "pnet",
-    # "quic",
-    # "macros",
-    # "relay",
-    # "rendezvous",
-    # "request-response",
-    # "rsa",
-    # "secp256k1",
-    # "serde",
-    # "tcp",
-    # "tls",
-    # "tokio",
-    # "uds",
-    # "wasm-bindgen",
-    # "wasm-ext",
-    # "wasm-ext-websocket",
-    # "webrtc",
-    # "websocket",
-    # "yamux",
-]
+rand = "0.8.5"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

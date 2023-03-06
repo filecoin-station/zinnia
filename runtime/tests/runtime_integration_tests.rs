@@ -5,7 +5,7 @@
 //   deno run runtime/tests/js/timers_tests.js
 use std::path::PathBuf;
 
-use zinnia_runtime::{deno_core, run_js_module, AnyError};
+use zinnia_runtime::{deno_core, run_js_module, AnyError, BootstrapOptions};
 
 macro_rules! js_tests(
   ( $name:ident ) => {
@@ -29,7 +29,11 @@ async fn run_js_test_file(name: &str) -> Result<(), AnyError> {
     full_path.push(name);
 
     let main_module = deno_core::resolve_path(&full_path.to_string_lossy())?;
-    run_js_module(&main_module, &Default::default()).await?;
+    let config = BootstrapOptions {
+        agent_version: format!("zinnia_runtime_tests/{}", env!("CARGO_PKG_VERSION")),
+        ..Default::default()
+    };
+    run_js_module(&main_module, &config).await?;
 
     Ok(())
 }

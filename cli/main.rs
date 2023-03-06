@@ -3,9 +3,9 @@ mod args;
 use args::{CliArgs, Commands};
 use clap::Parser;
 
-use zinnia_runtime::colors;
 use zinnia_runtime::deno_core;
 use zinnia_runtime::fmt_errors::format_js_error;
+use zinnia_runtime::{colors, BootstrapOptions};
 use zinnia_runtime::{run_js_module, AnyError};
 
 use deno_core::error::JsError;
@@ -28,7 +28,11 @@ async fn main_impl() -> Result<(), AnyError> {
     match cli_args.command {
         Commands::Run { file } => {
             let main_module = deno_core::resolve_path(&file)?;
-            run_js_module(&main_module, &Default::default()).await?;
+            let config = BootstrapOptions {
+                agent_version: format!("zinnia/{}", env!("CARGO_PKG_VERSION")),
+                ..Default::default()
+            };
+            run_js_module(&main_module, &config).await?;
             Ok(())
         }
     }

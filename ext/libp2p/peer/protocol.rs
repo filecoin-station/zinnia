@@ -56,17 +56,23 @@ impl OutboundUpgrade<NegotiatedSubstream> for RequestProtocol {
     type Future = BoxFuture<'static, Result<Self::Output, Self::Error>>;
 
     fn upgrade_outbound(self, mut io: NegotiatedSubstream, _protocol: Self::Info) -> Self::Future {
+        log::debug!("Outbound connection was upgraded");
         async move {
             // 1. Write the request payload
+            log::debug!("Writing {} bytes of request payload", self.payload.len());
             io.write_all(&self.payload).await?;
+            log::debug!("Flushing the outbound stream");
             io.flush().await?;
 
             // 2. Signal the end of request substream
+            log::debug!("Closing the outbound stream");
             io.close().await?;
 
             // 3. Read back the response - at most 10 MB
+            log::debug!("Reading back the response payload");
             let mut response: ResponsePayload = Default::default();
             io.take(10 * 1024 * 1024).read_to_end(&mut response).await?;
+            log::debug!("Received {} bytes", response.len());
             Ok(response)
         }
         .boxed()

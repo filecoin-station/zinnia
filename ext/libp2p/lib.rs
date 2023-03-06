@@ -6,14 +6,16 @@ use deno_core::error::AnyError;
 use deno_core::{include_js_files, op, Extension, OpState, ZeroCopyBuf};
 use libp2p::multiaddr::Protocol;
 use libp2p::{Multiaddr, PeerId};
-use peer::{PeerNode, PeerNodeConfig};
+use peer::PeerNode;
+
+pub use peer::PeerNodeConfig;
 
 mod peer;
 
 #[derive(Clone, Debug, Default)]
 pub struct Options {
     /// Configuration options for the built-in (default) peer node
-    default_peer: PeerNodeConfig,
+    pub default_peer: PeerNodeConfig,
 }
 
 #[derive(Debug, Clone, Copy)]
