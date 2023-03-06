@@ -77,8 +77,8 @@ jobs:
           cd -
 
       - name: Release | Upload artifacts
-        uses: svenstaro/upload-release-action@7319e4733ec7a184d739a6f412c40ffc339b69c7 # 2.5.0
+        uses: softprops/action-gh-release@d4e8205d7e959a9107da6396278b2f1f07af0f9b
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ matrix.name }}
-          prerelease: true
+          draft: true
+          files: ${{ matrix.name }}
