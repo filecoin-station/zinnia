@@ -80,7 +80,8 @@ jobs:
           cd -
 
       - name: Release | Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: svenstaro/upload-release-action@7319e4733ec7a184d739a6f412c40ffc339b69c7 # 2.5.0
         with:
-          name: ${{ matrix.name }}
-          path: ${{ matrix.name }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ${{ matrix.name }}
+          prerelease: true
