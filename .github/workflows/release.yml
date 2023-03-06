@@ -79,6 +79,22 @@ jobs:
           tar czvf ../../../${{ matrix.name }} zinnia
           cd -
 
+      - name: Post Build | Sign the executable [macOS]
+        if: matrix.os == 'macos-latest'
+        env:
+          MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
+          MACOS_CERTIFICATE_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
+          LOCAL_KEYCHAIN_PASSWORD: ${{ secrets.LOCAL_KEYCHAIN_PASSWORD }}
+          MACOS_SIGNING_IDENTITY: ${{ secrets.MACOS_SIGNING_IDENTITY }}
+        run: |
+          echo $MACOS_CERTIFICATE | base64 —decode > certificate.p12
+          security create-keychain -p $LOCAL_KEYCHAIN_PASSWORD build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p $LOCAL_KEYCHAIN_PASSWORD build.keychain
+          security import certificate.p12 -k build.keychain -P $MACOS_CERTIFICATE_PWD -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $LOCAL_KEYCHAIN_PASSWORD build.keychain
+          /usr/bin/codesign --force -v -s "$MACOS_SIGNING_IDENTITY" target/${{ matrix.target }}/release/zinnia
+
       - name: Post Build | Prepare artifacts [macOS]
         if: matrix.os == 'macos-latest'
         run: |
