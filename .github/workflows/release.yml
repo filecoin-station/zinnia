@@ -62,6 +62,12 @@ jobs:
           toolchain: stable
           target: ${{ matrix.target }}
 
+      - name: Setup | Cache Rust deps when debugging
+        uses: Swatinem/rust-cache@6fd3edff6979b79f87531400ad694fb7f2c84b1f # v2.2.1
+        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+        with:
+          shared-key: release-${{ matrix.target }}
+
       - name: Build | Build
         run: cargo build --release --locked --target ${{ matrix.target }}
 
