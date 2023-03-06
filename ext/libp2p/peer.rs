@@ -184,7 +184,7 @@ pub fn create_transport(
     let tcp_transport = libp2p::dns::TokioDnsConfig::system(libp2p::tcp::tokio::Transport::new(
         libp2p::tcp::Config::new(),
     ))?
-    .upgrade(upgrade::Version::V1)
+    .upgrade(upgrade::Version::V1Lazy)
     .authenticate(noise::NoiseAuthenticated::xx(id_keys)?)
     .multiplex(upgrade::SelectUpgrade::new(
         yamux::YamuxConfig::default(),
