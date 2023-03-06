@@ -23,20 +23,22 @@ jobs:
           # List of platforms, this must be in sync with the list of platforms in ci.yaml
           - target: x86_64-unknown-linux-gnu
             os: ubuntu-latest
-            name: zinnia-x86_64-unknown-linux-gnu.tar.gz
+            name: zinnia-linux-x64.tar.gz
 
           - target: x86_64-apple-darwin
             os: macos-latest
-            name: zinnia-x86_64-apple-darwin.tar.gz
+            name: zinnia-macos-x64.tar.gz
 
           - target: aarch64-apple-darwin
             os: macos-latest
-            name: zinnia-aarch64-apple-darwin.tar.gz
+            name: zinnia-macos-arm64.tar.gz
 
           - target: x86_64-pc-windows-msvc
             os: windows-latest
-            name: zinnia-x86_64-pc-windows-msvc.zip
-            rustflags: -C target-feature=+crt-static
+            name: zinnia-windows-x64.zip
+            rustflags: -C target-feature=+crt-static -C lto=off
+            #                                        ^^^^^^^^^^
+            # LTO is temporarily disabled, see https://github.com/rust-lang/rust/issues/107781
 
     runs-on: ${{ matrix.os }}
     continue-on-error: true
@@ -57,11 +59,6 @@ jobs:
           toolchain: stable
           target: ${{ matrix.target }}
 
-      - name: Setup | Rust Cache
-        uses: Swatinem/rust-cache@6fd3edff6979b79f87531400ad694fb7f2c84b1f # v2.2.1
-        with:
-          shared-key: release-${{ matrix.target }}
-
       - name: Build | Build
         run: cargo build --release --locked --target ${{ matrix.target }}
 
@@ -80,7 +77,8 @@ jobs:
           cd -
 
       - name: Release | Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: softprops/action-gh-release@d4e8205d7e959a9107da6396278b2f1f07af0f9b
         with:
-          name: ${{ matrix.name }}
-          path: ${{ matrix.name }}
+          draft: true
+          files: ${{ matrix.name }}
+          fail_on_unmatched_files: true
