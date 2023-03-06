@@ -23,19 +23,19 @@ jobs:
           # List of platforms, this must be in sync with the list of platforms in ci.yaml
           - target: x86_64-unknown-linux-gnu
             os: ubuntu-latest
-            name: zinnia-x86_64-unknown-linux-gnu.tar.gz
+            name: zinnia-linux-x64.tar.gz
 
           - target: x86_64-apple-darwin
             os: macos-latest
-            name: zinnia-x86_64-apple-darwin.tar.gz
+            name: zinnia-macos-x64.tar.gz
 
           - target: aarch64-apple-darwin
             os: macos-latest
-            name: zinnia-aarch64-apple-darwin.tar.gz
+            name: zinnia-macos-arm64.tar.gz
 
           - target: x86_64-pc-windows-msvc
             os: windows-latest
-            name: zinnia-x86_64-pc-windows-msvc.zip
+            name: zinnia-windows-x64.zip
             rustflags: -C lto=off
             #          ^^^^^^^^^^
             # LTO is temporarily disabled, see https://github.com/rust-lang/rust/issues/107781
