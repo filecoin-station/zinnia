@@ -88,9 +88,9 @@ jobs:
       - name: Post Build | Sign the executable [macOS]
         if: matrix.os == 'macos-latest'
         env:
+          LOCAL_KEYCHAIN_PASSWORD: ${{ secrets.LOCAL_KEYCHAIN_PASSWORD }}
           MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
           MACOS_CERTIFICATE_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
-          LOCAL_KEYCHAIN_PASSWORD: ${{ secrets.LOCAL_KEYCHAIN_PASSWORD }}
           MACOS_SIGNING_IDENTITY: ${{ secrets.MACOS_SIGNING_IDENTITY }}
         run: |
           echo $MACOS_CERTIFICATE | base64 —decode > certificate.p12
@@ -108,14 +108,17 @@ jobs:
           zip ../../../${{ matrix.name }} zinnia
           cd -
 
-      # - name: Release | Upload artifacts
-      #   uses: softprops/action-gh-release@d4e8205d7e959a9107da6396278b2f1f07af0f9b
-      #   with:
-      #     draft: true
-      #     files: ${{ matrix.name }}
-      #     fail_on_unmatched_files: true
+      - name: Release | Upload artifacts
+        if: startsWith(github.ref, 'refs/tags/') # Don't create releases when debugging
+        uses: softprops/action-gh-release@d4e8205d7e959a9107da6396278b2f1f07af0f9b
+        with:
+          draft: true
+          files: ${{ matrix.name }}
+          fail_on_unmatched_files: true
 
-      - name: Upload artifacts for debugging
+      # When debugging this workflow, attach the artifacts to the workflow run
+      - name: Upload artifacts when debugging
+        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
         uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.name }}
