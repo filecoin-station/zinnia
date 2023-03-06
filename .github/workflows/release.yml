@@ -92,6 +92,7 @@ jobs:
           MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
           MACOS_CERTIFICATE_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
           MACOS_SIGNING_IDENTITY: ${{ secrets.MACOS_SIGNING_IDENTITY }}
+          MACOS_APP_ID: io.filstation.zinnia
         run: |
           echo $MACOS_CERTIFICATE | base64 —decode > certificate.p12
           security create-keychain -p $LOCAL_KEYCHAIN_PASSWORD build.keychain
@@ -99,7 +100,7 @@ jobs:
           security unlock-keychain -p $LOCAL_KEYCHAIN_PASSWORD build.keychain
           security import certificate.p12 -k build.keychain -P $MACOS_CERTIFICATE_PWD -T /usr/bin/codesign
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $LOCAL_KEYCHAIN_PASSWORD build.keychain
-          /usr/bin/codesign --force -v -s "$MACOS_SIGNING_IDENTITY" target/${{ matrix.target }}/release/zinnia
+          /usr/bin/codesign --force -v -s "$MACOS_SIGNING_IDENTITY" -i "$MACOS_APP_ID" target/${{ matrix.target }}/release/zinnia
 
       - name: Post Build | Prepare artifacts [macOS]
         if: matrix.os == 'macos-latest'
