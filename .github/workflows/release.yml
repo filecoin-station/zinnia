@@ -32,9 +32,9 @@ jobs:
             os: macos-latest
             name: zinnia-macos-x64.zip
 
-          - target: aarch64-apple-darwin
-            os: macos-latest
-            name: zinnia-macos-arm64.zip
+          # - target: aarch64-apple-darwin
+          #   os: macos-latest
+          #   name: zinnia-macos-arm64.zip
 
           # - target: x86_64-pc-windows-msvc
           #   os: windows-latest
