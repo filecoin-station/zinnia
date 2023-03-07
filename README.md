@@ -43,6 +43,8 @@ TTFB: 235ms
 ...
 ```
 
+See also [example modules](./examples).
+
 ## API
 
 See [Building Modules](./docs/building-modules.md).
