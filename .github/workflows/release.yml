@@ -62,7 +62,10 @@ jobs:
           toolchain: stable
           target: ${{ matrix.target }}
 
-      - name: Setup | Cache Rust deps when debugging
+      # When debugging this workflow, cache the build artefacts
+      # Note that a build for one tag cannot access cache created by a build for a different tag,
+      # therefore caching does not work  for real release builds.
+      - name: DEBUGGING | Cache Rust deps
         uses: Swatinem/rust-cache@6fd3edff6979b79f87531400ad694fb7f2c84b1f # v2.2.1
         if: ${{ !startsWith(github.ref, 'refs/tags/') }}
         with:
@@ -95,7 +98,12 @@ jobs:
           MACOS_SIGNING_IDENTITY: ${{ secrets.MACOS_SIGNING_IDENTITY }}
           MACOS_APP_ID: io.filstation.zinnia
         run: |
-          echo $MACOS_CERTIFICATE | base64 --decode > certificate.p12
+          echo "$MACOS_CERTIFICATE" | base64 --decode -o certificate.p12
+
+          which openssl
+          openssl version
+          openssl pkcs12 -info -in certificate.p12 -password "pass:$MACOS_CERTIFICATE_PWD" -nokeys
+
           security create-keychain -p $LOCAL_KEYCHAIN_PASSWORD build.keychain
           security default-keychain -s build.keychain
           security unlock-keychain -p $LOCAL_KEYCHAIN_PASSWORD build.keychain
@@ -119,7 +127,7 @@ jobs:
           fail_on_unmatched_files: true
 
       # When debugging this workflow, attach the artifacts to the workflow run
-      - name: Upload artifacts when debugging
+      - name: DEBUGGING | Upload artifacts to workflow run
         if: ${{ !startsWith(github.ref, 'refs/tags/') }}
         uses: actions/upload-artifact@v3
         with:
