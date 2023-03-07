@@ -28,6 +28,8 @@ $ zinnia run module.js
 Hello universe!
 ```
 
+See [example modules](../examples) for more advanced examples.
+
 ## Platform APIs
 
 ### Standard JavaScript APIs
