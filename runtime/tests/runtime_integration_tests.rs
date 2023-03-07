@@ -19,6 +19,7 @@ macro_rules! js_tests(
 js_tests!(globals_tests);
 js_tests!(timers_tests);
 js_tests!(webapis_tests);
+js_tests!(webcrypto_tests);
 js_tests!(libp2p_tests);
 
 // Run all tests in a single JS file
