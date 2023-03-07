@@ -70,8 +70,12 @@ while (true) {
 
   // 3. Record the results
   try {
-    await record({ peer, ...pingResult });
-    console.log("Submitted stats to InfluxDB.");
+    if (pingResult) {
+      await record({ peer, ...pingResult });
+      console.log("Submitted stats to InfluxDB.");
+    } else {
+      // TODO: record ping failure
+    }
   } catch (err) {
     console.error("Cannot record stats: %s", err);
   }
