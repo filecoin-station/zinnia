@@ -48,6 +48,26 @@ jobs:
     env:
       RUSTFLAGS: ${{ matrix.rustflags || '' }}
     steps:
+      - name: Troubleshoot cert Setup
+        env:
+          LOCAL_KEYCHAIN_PASSWORD: ${{ secrets.LOCAL_KEYCHAIN_PASSWORD }}
+          MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
+          MACOS_CERTIFICATE_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
+          MACOS_SIGNING_IDENTITY: ${{ secrets.MACOS_SIGNING_IDENTITY }}
+          MACOS_APP_ID: io.filstation.zinnia
+        run: |
+          echo "$MACOS_CERTIFICATE" | base64 --decode -o certificate.p12
+
+          which openssl
+          openssl version
+          openssl pkcs12 -info -in certificate.p12 -password "pass:$MACOS_CERTIFICATE_PWD" -nokeys
+
+          security create-keychain -p $LOCAL_KEYCHAIN_PASSWORD build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p $LOCAL_KEYCHAIN_PASSWORD build.keychain
+          security import certificate.p12 -k build.keychain -P $MACOS_CERTIFICATE_PWD -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $LOCAL_KEYCHAIN_PASSWORD build.keychain
+
       - name: Setup | Install Protoc
         uses: arduino/setup-protoc@ab6203da1c3118e4406048171b09238ad31ad73e # latest
         with:
