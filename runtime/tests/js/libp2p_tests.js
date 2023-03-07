@@ -56,9 +56,7 @@ await test("requestProtocol validates requestPayload", async () => {
 
 await test("ping remote peer", async () => {
   const request = new Uint8Array(32);
-  // FIXME: use Web Crypto to generate random bytes
-  // crypto.getRandomValues(request);
-  request.set(get32RandomBytes());
+  crypto.getRandomValues(request);
 
   const response = await Zinnia.requestProtocol(
     // FIXME: use a locally running peer instead!
@@ -82,17 +80,6 @@ await test("ping remote peer", async () => {
   // The chunk should be Uint8Array
   assertEquals(chunks[0].constructor, Uint8Array);
 });
-
-async function get32RandomBytes() {
-  // The code below creates an array of 32 bytes with the last 4 items based on the current time
-  const prefix = [
-    165, 48, 99, 103, 1, 164, 242, 58, 43, 138, 224, 125, 245, 150, 27, 208, 232, 198, 174, 177,
-    155, 136, 182, 8, 149, 194, 117, 11,
-  ];
-  const now = Date.now();
-  const timeBased = [now % 0xff, (now >> 8) % 0xff, (now >> 16) % 0xff, (now >> 24) % 0xff];
-  return [...prefix, ...timeBased];
-}
 
 // A dummy wrapper to create isolated scopes for individual tests
 // We should eventually replace this with a proper test runner
