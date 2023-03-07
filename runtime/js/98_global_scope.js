@@ -18,6 +18,7 @@
   const Console = window.__bootstrap.console.Console;
   const compression = window.__bootstrap.compression;
   const performance = window.__bootstrap.performance;
+  const crypto = window.__bootstrap.crypto;
   const url = window.__bootstrap.url;
   const urlPattern = window.__bootstrap.urlPattern;
   const headers = window.__bootstrap.headers;
@@ -43,8 +44,7 @@
     CloseEvent: util.nonEnumerable(event.CloseEvent),
     CompressionStream: util.nonEnumerable(compression.CompressionStream),
     CountQueuingStrategy: util.nonEnumerable(streams.CountQueuingStrategy),
-    // TODO https://github.com/filecoin-station/zinnia/issues/33
-    // CryptoKey: util.nonEnumerable(crypto.CryptoKey),
+    CryptoKey: util.nonEnumerable(crypto.CryptoKey),
     CustomEvent: util.nonEnumerable(event.CustomEvent),
     DecompressionStream: util.nonEnumerable(compression.DecompressionStream),
     DOMException: util.nonEnumerable(domException.DOMException),
@@ -102,10 +102,9 @@
     // CacheStorage: util.nonEnumerable(caches.CacheStorage),
     // Cache: util.nonEnumerable(caches.Cache),
     console: util.nonEnumerable(new Console((msg, level) => core.print(msg, level > 1))),
-    // TODO: https://github.com/filecoin-station/zinnia/issues/33
-    // crypto: util.readOnly(crypto.crypto),
-    // Crypto: util.nonEnumerable(crypto.Crypto),
-    // SubtleCrypto: util.nonEnumerable(crypto.SubtleCrypto),
+    crypto: util.readOnly(crypto.crypto),
+    Crypto: util.nonEnumerable(crypto.Crypto),
+    SubtleCrypto: util.nonEnumerable(crypto.SubtleCrypto),
     fetch: util.writable(fetch.fetch),
     performance: util.writable(performance.performance),
     reportError: util.writable(event.reportError),

@@ -38,6 +38,9 @@ pub struct BootstrapOptions {
 
     /// The user agent version string to use for Fetch API requests and libp2p Identify protocol
     pub agent_version: String,
+
+    /// Seed value for initializing the random number generator
+    pub rng_seed: Option<u64>,
 }
 
 impl Default for BootstrapOptions {
@@ -46,6 +49,7 @@ impl Default for BootstrapOptions {
             no_color: !colors::use_color(),
             is_tty: colors::is_tty(),
             agent_version: format!("zinnia_runtime/{}", env!("CARGO_PKG_VERSION")),
+            rng_seed: None,
         }
     }
 }
@@ -102,6 +106,7 @@ pub async fn run_js_module(
                 Some(module_specifier.clone()),
             ),
             deno_runtime::deno_fetch::init::<ZinniaPermissions>(Default::default()),
+            deno_runtime::deno_crypto::init(bootstrap_options.rng_seed),
             // Zinnia-specific APIs
             zinnia_libp2p::init(zinnia_libp2p::Options {
                 default_peer: zinnia_libp2p::PeerNodeConfig {

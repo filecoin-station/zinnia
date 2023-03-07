@@ -28,6 +28,8 @@ $ zinnia run module.js
 Hello universe!
 ```
 
+See [example modules](../examples) for more advanced examples.
+
 ## Platform APIs
 
 ### Standard JavaScript APIs
@@ -118,6 +120,13 @@ individual methods in [MDN web docs](https://developer.mozilla.org/en-US/docs/We
 - [URL](https://developer.mozilla.org/en-US/docs/Web/API/URL)
 - [URLSearchParams](https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams)
 - [URLPattern](https://developer.mozilla.org/en-US/docs/Web/API/URLPattern)
+
+#### Web Cryptography API
+
+- [CryptoKey](https://developer.mozilla.org/en-US/docs/Web/API/CryptoKey)
+- [Crypto](https://developer.mozilla.org/en-US/docs/Web/API/Crypto)
+- [SubtleCrypto](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto)
+- [crypto](https://developer.mozilla.org/en-US/docs/Web/API/crypto)
 
 #### WebSockets Standard (partial support)
 
@@ -214,15 +223,6 @@ Tracking issue: n/a
 - [Cache](https://developer.mozilla.org/en-US/docs/Web/API/Cache)
 - [Worker](https://developer.mozilla.org/en-US/docs/Web/API/Worker)
 - [caches](https://developer.mozilla.org/en-US/docs/Web/API/caches)
-
-#### Web Cryptography API
-
-Tracking issue: https://github.com/filecoin-station/zinnia/issues/33
-
-- [CryptoKey](https://developer.mozilla.org/en-US/docs/Web/API/CryptoKey)
-- [Crypto](https://developer.mozilla.org/en-US/docs/Web/API/Crypto)
-- [SubtleCrypto](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto)
-- [crypto](https://developer.mozilla.org/en-US/docs/Web/API/crypto)
 
 #### WebSockets Standard
 
