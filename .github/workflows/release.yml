@@ -44,7 +44,6 @@ jobs:
           #   # LTO is temporarily disabled, see https://github.com/rust-lang/rust/issues/107781
 
     runs-on: ${{ matrix.os }}
-    continue-on-error: true
     env:
       RUSTFLAGS: ${{ matrix.rustflags || '' }}
     steps:
