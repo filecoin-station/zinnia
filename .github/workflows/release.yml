@@ -63,12 +63,6 @@ jobs:
           openssl version
           openssl pkcs12 -info -in certificate.p12 -password "pass:$MACOS_CERTIFICATE_PASSWORD" -nokeys | head -7
 
-          security create-keychain -p $LOCAL_KEYCHAIN_PASSWORD build.keychain
-          security default-keychain -s build.keychain
-          security unlock-keychain -p $LOCAL_KEYCHAIN_PASSWORD build.keychain
-          security import certificate.p12 -k build.keychain -P $MACOS_CERTIFICATE_PASSWORD -T /usr/bin/codesign
-          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $LOCAL_KEYCHAIN_PASSWORD build.keychain
-
       - name: Setup | Install Protoc
         uses: arduino/setup-protoc@ab6203da1c3118e4406048171b09238ad31ad73e # latest
         with:
