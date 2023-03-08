@@ -55,11 +55,13 @@ jobs:
           MACOS_SIGNING_IDENTITY: ${{ secrets.MACOS_SIGNING_IDENTITY }}
           MACOS_APP_ID: io.filstation.zinnia
         run: |
-          echo "$MACOS_CERTIFICATE" | base64 --decode -o certificate.p12
+          echo -n "$MACOS_CERTIFICATE_PWD" | wc
+          echo -n "$MACOS_CERTIFICATE" | base64 --decode -o certificate.p12
+          ls -l certificate.p12
 
           which openssl
           openssl version
-          openssl pkcs12 -info -in certificate.p12 -password "pass:$MACOS_CERTIFICATE_PWD" -nokeys
+          openssl pkcs12 -info -in certificate.p12 -password "pass:$MACOS_CERTIFICATE_PWD" -nokeys | head -7
 
           security create-keychain -p $LOCAL_KEYCHAIN_PASSWORD build.keychain
           security default-keychain -s build.keychain
