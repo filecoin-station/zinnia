@@ -33,12 +33,12 @@ jobs:
             os: macos-latest
             name: zinnia-macos-arm64.zip
 
-          - target: x86_64-pc-windows-msvc
-            os: windows-latest
-            name: zinnia-windows-x64.zip
-            rustflags: -C target-feature=+crt-static -C lto=off
-            #                                        ^^^^^^^^^^
-            # LTO is temporarily disabled, see https://github.com/rust-lang/rust/issues/107781
+          # - target: x86_64-pc-windows-msvc
+          #   os: windows-latest
+          #   name: zinnia-windows-x64.zip
+          #   rustflags: -C target-feature=+crt-static -C lto=off
+          #   #                                        ^^^^^^^^^^
+          #   # LTO is temporarily disabled, see https://github.com/rust-lang/rust/issues/107781
 
     runs-on: ${{ matrix.os }}
     env:
