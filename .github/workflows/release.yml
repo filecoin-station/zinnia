@@ -33,6 +33,7 @@ jobs:
             os: macos-latest
             name: zinnia-macos-arm64.zip
 
+          # Support Windows: https://github.com/filecoin-station/zinnia/issues/99
           # - target: x86_64-pc-windows-msvc
           #   os: windows-latest
           #   name: zinnia-windows-x64.zip
