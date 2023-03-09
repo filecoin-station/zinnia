@@ -4,6 +4,9 @@ on:
   push:
     tags:
       - '*'
+    # TODO remove this before landing!
+    branches:
+      - '*'
 
 env:
   CARGO_INCREMENTAL: 0
