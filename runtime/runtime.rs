@@ -115,11 +115,11 @@ pub async fn run_js_module(
                 },
             }),
             Extension::builder("zinnia_runtime")
-                .js(include_js_files!(
-                  prefix "zinnia:runtime",
-                  "js/06_util.js",
-                  "js/98_global_scope.js",
-                  "js/99_main.js",
+                .esm(include_js_files!(
+                  dir "js",
+                  "06_util.js",
+                  "98_global_scope.js",
+                  "99_main.js",
                 ))
                 .state(move |state| {
                     state.put(ZinniaPermissions {});

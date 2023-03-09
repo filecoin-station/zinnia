@@ -23,9 +23,9 @@ struct DefaultNodeResourceId(deno_core::ResourceId);
 
 pub fn init(options: Options) -> Extension {
     Extension::builder(env!("CARGO_PKG_NAME"))
-        .js(include_js_files!(
-          prefix "internal:ext/libp2p",
-          "js/01_peer.js",
+        .esm(include_js_files!(
+            dir "js",
+             "01_peer.js",
         ))
         .ops(vec![
             op_p2p_get_peer_id::decl(),
