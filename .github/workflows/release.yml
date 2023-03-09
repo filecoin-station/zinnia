@@ -47,21 +47,26 @@ jobs:
     env:
       RUSTFLAGS: ${{ matrix.rustflags || '' }}
     steps:
-      - name: Troubleshoot cert Setup
+      - name: Setup | Apple codesign
+        if: matrix.os == 'macos-latest'
         env:
           LOCAL_KEYCHAIN_PASSWORD: ${{ secrets.LOCAL_KEYCHAIN_PASSWORD }}
           MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
           MACOS_CERTIFICATE_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
-          MACOS_SIGNING_IDENTITY: ${{ secrets.MACOS_SIGNING_IDENTITY }}
-          MACOS_APP_ID: io.filstation.zinnia
         run: |
-          echo -n "$MACOS_CERTIFICATE_PASSWORD" | wc
           echo -n "$MACOS_CERTIFICATE" | base64 --decode -o certificate.p12
-          ls -l certificate.p12
+          [ "$MACOS_CERTIFICATE_PASSWORD" = "" ] && echo "WARNING: Certificate passphrase is not set"
 
-          which openssl
-          openssl version
+          echo "Inspecting the signing certificate:"
           openssl pkcs12 -info -in certificate.p12 -password "pass:$MACOS_CERTIFICATE_PASSWORD" -nokeys | head -7
+
+          echo "Setting up keychain for codesign"
+          security create-keychain -p "$LOCAL_KEYCHAIN_PASSWORD" build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p "$LOCAL_KEYCHAIN_PASSWORD" build.keychain
+          security import certificate.p12 -k build.keychain -P "$MACOS_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$LOCAL_KEYCHAIN_PASSWORD" build.keychain
+          security list-keychain -d user -s build.keychain
 
       - name: Setup | Install Protoc
         uses: arduino/setup-protoc@ab6203da1c3118e4406048171b09238ad31ad73e # latest
@@ -113,12 +118,10 @@ jobs:
           MACOS_SIGNING_IDENTITY: ${{ secrets.MACOS_SIGNING_IDENTITY }}
           MACOS_APP_ID: io.filstation.zinnia
         run: |
-          security create-keychain -p "$LOCAL_KEYCHAIN_PASSWORD" build.keychain
-          security default-keychain -s build.keychain
-          security unlock-keychain -p "$LOCAL_KEYCHAIN_PASSWORD" build.keychain
-          security import certificate.p12 -k build.keychain -P "$MACOS_CERTIFICATE_PWD" -T /usr/bin/codesign
-          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$LOCAL_KEYCHAIN_PASSWORD" build.keychain
-          /usr/bin/codesign --force -v -s "$MACOS_SIGNING_IDENTITY" -i "$MACOS_APP_ID" target/${{ matrix.target }}/release/zinnia
+          codesign --timestamp --force --verbose \
+            --sign "$MACOS_SIGNING_IDENTITY" \
+            --identifier "$MACOS_APP_ID" \
+            target/${{ matrix.target }}/release/zinnia
 
       - name: Post Build | Prepare artifacts [macOS]
         if: matrix.os == 'macos-latest'
