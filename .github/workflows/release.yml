@@ -113,11 +113,13 @@ jobs:
         if: matrix.os == 'macos-latest'
         env:
           LOCAL_KEYCHAIN_PASSWORD: ${{ secrets.LOCAL_KEYCHAIN_PASSWORD }}
-          MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
-          MACOS_CERTIFICATE_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
           MACOS_SIGNING_IDENTITY: ${{ secrets.MACOS_SIGNING_IDENTITY }}
           MACOS_APP_ID: io.filstation.zinnia
         run: |
+          # Unlock the keychain again. Our builds take several minutes to complete,
+          # which usually triggers a timeout that locks the keychain.
+          security unlock-keychain -p "$LOCAL_KEYCHAIN_PASSWORD" build.keychain
+
           codesign --timestamp --force --verbose \
             --sign "$MACOS_SIGNING_IDENTITY" \
             --identifier "$MACOS_APP_ID" \
