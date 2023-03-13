@@ -20,16 +20,16 @@ const {
   ObjectPrototypeIsPrototypeOf,
   ObjectSetPrototypeOf,
 } = primordials;
-import * as util from "internal:zinnia_runtime/js/06_util.js";
-import * as event from "internal:deno_web/02_event.js";
-import * as timers from "internal:deno_web/02_timers.js";
-import * as colors from "internal:deno_console/01_colors.js";
-import { inspectArgs, quoteString, wrapConsole } from "internal:deno_console/02_console.js";
-import * as performance from "internal:deno_web/15_performance.js";
+import * as util from "ext:zinnia_runtime/06_util.js";
+import * as event from "ext:deno_web/02_event.js";
+import * as timers from "ext:deno_web/02_timers.js";
+import * as colors from "ext:deno_console/01_colors.js";
+import { inspectArgs, quoteString, wrapConsole } from "ext:deno_console/02_console.js";
+import * as performance from "ext:deno_web/15_performance.js";
 import {
   mainRuntimeGlobalProperties,
   windowOrWorkerGlobalScope,
-} from "internal:zinnia_runtime/js/98_global_scope.js";
+} from "ext:zinnia_runtime/98_global_scope.js";
 
 function formatException(error) {
   if (ObjectPrototypeIsPrototypeOf(ErrorPrototype, error)) {
@@ -62,6 +62,8 @@ function runtimeStart(runtimeOptions) {
 }
 
 let hasBootstrapped = false;
+// Set up global properties shared by main and worker runtime.
+ObjectDefineProperties(globalThis, windowOrWorkerGlobalScope);
 
 function bootstrapMainRuntime(runtimeOptions) {
   if (hasBootstrapped) {
@@ -70,19 +72,16 @@ function bootstrapMainRuntime(runtimeOptions) {
 
   performance.setTimeOrigin(DateNow());
 
-  const consoleFromV8 = globalThis.Deno.core.console;
-
   // Remove bootstrapping data from the global scope
   delete globalThis.__bootstrap;
   delete globalThis.bootstrap;
-  util.log("bootstrapMainRuntime");
   hasBootstrapped = true;
 
-  ObjectDefineProperties(globalThis, windowOrWorkerGlobalScope);
   ObjectDefineProperties(globalThis, mainRuntimeGlobalProperties);
   ObjectSetPrototypeOf(globalThis, Window.prototype);
 
   if (runtimeOptions.inspectFlag) {
+    const consoleFromV8 = core.console;
     const consoleFromDeno = globalThis.console;
     wrapConsole(consoleFromDeno, consoleFromV8);
   }
@@ -98,11 +97,6 @@ function bootstrapMainRuntime(runtimeOptions) {
   util.log("args", runtimeOptions.args);
 }
 
-ObjectDefineProperties(globalThis, {
-  bootstrap: {
-    value: {
-      mainRuntime: bootstrapMainRuntime,
-    },
-    configurable: true,
-  },
-});
+globalThis.bootstrap = {
+  mainRuntime: bootstrapMainRuntime,
+};

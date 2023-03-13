@@ -38,7 +38,6 @@ pub fn init(options: Options) -> Extension {
                 .unwrap();
             let rid = state.resource_table.add(default_node);
             state.put::<DefaultNodeResourceId>(DefaultNodeResourceId(rid));
-            Ok(())
         })
         .build()
 }

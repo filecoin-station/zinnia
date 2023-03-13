@@ -96,17 +96,17 @@ pub async fn run_js_module(
 
     // Initialize a runtime instance
     let mut runtime = JsRuntime::new(RuntimeOptions {
-        extensions_with_js: vec![
+        extensions: vec![
             // Web Platform APIs implemented by Deno
-            deno_runtime::deno_console::init(),
-            deno_runtime::deno_webidl::init(),
-            deno_runtime::deno_url::init(),
-            deno_runtime::deno_web::init::<ZinniaPermissions>(
+            deno_runtime::deno_console::init_esm(),
+            deno_runtime::deno_webidl::init_esm(),
+            deno_runtime::deno_url::init_ops_and_esm(),
+            deno_runtime::deno_web::init_ops_and_esm::<ZinniaPermissions>(
                 blob_store,
                 Some(module_specifier.clone()),
             ),
-            deno_runtime::deno_fetch::init::<ZinniaPermissions>(Default::default()),
-            deno_runtime::deno_crypto::init(bootstrap_options.rng_seed),
+            deno_runtime::deno_fetch::init_ops_and_esm::<ZinniaPermissions>(Default::default()),
+            deno_runtime::deno_crypto::init_ops_and_esm(bootstrap_options.rng_seed),
             // Zinnia-specific APIs
             zinnia_libp2p::init(zinnia_libp2p::Options {
                 default_peer: zinnia_libp2p::PeerNodeConfig {
@@ -123,7 +123,6 @@ pub async fn run_js_module(
                 ))
                 .state(move |state| {
                     state.put(ZinniaPermissions {});
-                    Ok(())
                 })
                 .build(),
         ],
