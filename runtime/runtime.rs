@@ -1,34 +1,27 @@
 use std::path::Path;
 use std::rc::Rc;
 
-use deno_runtime::deno_core::anyhow::anyhow;
-use deno_runtime::deno_core::error::type_error;
-use deno_runtime::deno_core::futures::FutureExt;
-use deno_runtime::deno_core::include_js_files;
-use deno_runtime::deno_core::located_script_name;
-use deno_runtime::deno_core::resolve_import;
-use deno_runtime::deno_core::url::Url;
-use deno_runtime::deno_core::Extension;
-use deno_runtime::deno_core::JsRuntime;
-use deno_runtime::deno_core::ModuleLoader;
-use deno_runtime::deno_core::ModuleSource;
-use deno_runtime::deno_core::ModuleSourceFuture;
-use deno_runtime::deno_core::ModuleSpecifier;
-use deno_runtime::deno_core::ModuleType;
-use deno_runtime::deno_core::ResolutionKind;
-use deno_runtime::deno_core::RuntimeOptions;
-use deno_runtime::deno_fetch::FetchPermissions;
-use deno_runtime::{colors, deno_core};
+use deno_core::anyhow::anyhow;
+use deno_core::error::type_error;
+use deno_core::futures::FutureExt;
+use deno_core::url::Url;
+use deno_core::{
+    include_js_files, located_script_name, resolve_import, serde_json, Extension, JsRuntime,
+    ModuleLoader, ModuleSource, ModuleSourceFuture, ModuleSpecifier, ModuleType, ResolutionKind,
+    RuntimeOptions,
+};
 
-use deno_runtime::deno_core::serde_json;
-use deno_runtime::deno_core::serde_json::json;
-use deno_runtime::deno_web::{BlobStore, TimersPermission};
+use deno_fetch::FetchPermissions;
+use deno_web::{BlobStore, TimersPermission};
+
+use crate::colors;
+
 use tokio::fs::File;
 use tokio::io::AsyncReadExt;
 
 use zinnia_libp2p;
 
-pub type AnyError = deno_runtime::deno_core::anyhow::Error;
+pub type AnyError = deno_core::anyhow::Error;
 
 /// Common bootstrap options for MainWorker & WebWorker
 #[derive(Clone)]
@@ -56,7 +49,7 @@ impl Default for BootstrapOptions {
 
 impl BootstrapOptions {
     pub fn as_json(&self) -> String {
-        let payload = json!({
+        let payload = serde_json::json!({
           "noColor": self.no_color,
           "isTty": self.is_tty,
         });
@@ -100,15 +93,15 @@ pub async fn run_js_module(
     let mut runtime = JsRuntime::new(RuntimeOptions {
         extensions: vec![
             // Web Platform APIs implemented by Deno
-            deno_runtime::deno_console::init_esm(),
-            deno_runtime::deno_webidl::init_esm(),
-            deno_runtime::deno_url::init_ops_and_esm(),
-            deno_runtime::deno_web::init_ops_and_esm::<ZinniaPermissions>(
+            deno_console::init_esm(),
+            deno_webidl::init_esm(),
+            deno_url::init_ops_and_esm(),
+            deno_web::init_ops_and_esm::<ZinniaPermissions>(
                 blob_store,
                 Some(module_specifier.clone()),
             ),
-            deno_runtime::deno_fetch::init_ops_and_esm::<ZinniaPermissions>(Default::default()),
-            deno_runtime::deno_crypto::init_ops_and_esm(bootstrap_options.rng_seed),
+            deno_fetch::init_ops_and_esm::<ZinniaPermissions>(Default::default()),
+            deno_crypto::init_ops_and_esm(bootstrap_options.rng_seed),
             // Zinnia-specific APIs
             zinnia_libp2p::init(zinnia_libp2p::Options {
                 default_peer: zinnia_libp2p::PeerNodeConfig {
