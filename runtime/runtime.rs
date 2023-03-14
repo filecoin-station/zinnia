@@ -69,11 +69,13 @@ struct ZinniaPermissions;
 
 impl TimersPermission for ZinniaPermissions {
     fn allow_hrtime(&mut self) -> bool {
-        // TODO: should we allow APIs depending in high-resultion time?
-        // Quoting https://deno.land/manual@v1.30.3/basics/permissions#permissions-list
-        //   --allow-hrtime
-        //   Allow high-resolution time measurement. High-resolution time can be used in timing attacks
-        //   and fingerprinting.
+        // Disable high-resolution time management.
+        //
+        // Quoting from https://v8.dev/docs/untrusted-code-mitigations
+        // > A high-precision timer makes it easier to observe side channels in the SSCA
+        // > vulnerability. If your product offers high-precision timers that can be accessed by
+        // > untrusted JavaScript or WebAssembly code, consider making these timers more coarse or
+        // > adding jitter to them.
         false
     }
     fn check_unstable(&self, _state: &deno_core::OpState, _api_name: &'static str) {}
