@@ -1,3 +1,10 @@
+[target.x86_64-pc-windows-msvc]
+rustflags = [
+  # Link the static version of the C runtime.
+  # This seems to be a common setup for Rust CLIs.
+  "-C", "target-feature=+crt-static",
+]
+
 [alias]
 # Temporary solution to have clippy config in a single place until
 # Cargo and/or Clippy supports lint config file.
