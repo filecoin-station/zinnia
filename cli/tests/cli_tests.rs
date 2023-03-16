@@ -3,6 +3,8 @@ use std::process::Output;
 use assert_cmd::Command;
 use assert_fs::prelude::*;
 use pretty_assertions::assert_eq;
+use zinnia_runtime::anyhow::Context;
+use zinnia_runtime::resolve_path;
 
 #[test]
 fn run_js_module() -> Result<(), Box<dyn std::error::Error>> {
@@ -37,6 +39,7 @@ function fail() {
 }
 "#,
     )?;
+
     let mod_js_str = mod_js.path().display().to_string();
 
     let output = Command::cargo_bin("zinnia")?
@@ -44,13 +47,18 @@ function fail() {
         .args(["run", &mod_js_str])
         .output()?;
 
+    let mod_url = resolve_path(
+        &mod_js_str,
+        &std::env::current_dir().context("unable to get current working directory")?,
+    )?;
+
     let expected_stderr = format!(
         r#"
   error: Uncaught Error: boom!
   throw new Error("boom!");
         ^
-    at fail (file://{mod_js_str}:5:9)
-    at file://{mod_js_str}:2:1
+    at fail ({mod_url}:5:9)
+    at {mod_url}:2:1
 "#
     )
     .trim_start()
