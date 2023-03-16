@@ -5520,6 +5520,7 @@ version = "0.3.0"
 dependencies = [
  "async-trait",
  "deno_core",
+ "either",
  "env_logger",
  "libp2p",
  "log",

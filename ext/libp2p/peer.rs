@@ -39,12 +39,12 @@ pub use config::PeerNodeConfig;
 
 use deno_core::anyhow::Result;
 use deno_core::{AsyncResult, Resource};
-use libp2p::core::either::EitherError;
 
 use std::collections::{hash_map, HashMap};
 use std::error::Error;
 use std::rc::Rc;
 
+use either::Either;
 use tokio::sync::{mpsc, oneshot};
 use tokio::task::JoinHandle;
 
@@ -257,10 +257,7 @@ impl EventLoop {
         &mut self,
         event: SwarmEvent<
             NodeBehaviourEvent,
-            EitherError<
-                EitherError<ping::Failure, ConnectionHandlerUpgrErr<std::io::Error>>,
-                std::io::Error,
-            >,
+            Either<Either<ping::Failure, ConnectionHandlerUpgrErr<std::io::Error>>, std::io::Error>,
         >,
     ) {
         match event {
