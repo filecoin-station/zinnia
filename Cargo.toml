@@ -27,7 +27,9 @@ zinnia_libp2p = { version = "0.3.0", path = "./ext/libp2p" }
 
 [profile.release]
 codegen-units = 1
-lto = true
-opt-level = 3
+# LTO is broken on Windows, see https://github.com/rust-lang/rust/issues/107781
+# lto = true
+# Optimize for size, otherwise the Windows linker fails the build
+opt-level = "z"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
