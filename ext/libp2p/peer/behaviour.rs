@@ -37,7 +37,8 @@ use std::{
     time::Duration,
 };
 
-use libp2p::core::{connection::ConnectionId, ConnectedPoint, Multiaddr, PeerId};
+use libp2p::core::{connection::ConnectionId, ConnectedPoint, Multiaddr};
+use libp2p::identity::PeerId;
 use libp2p::swarm::{
     behaviour::{AddressChange, ConnectionClosed, ConnectionEstablished, DialFailure, FromSwarm},
     dial_opts::DialOpts,

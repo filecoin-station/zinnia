@@ -49,11 +49,12 @@ use tokio::sync::{mpsc, oneshot};
 use tokio::task::JoinHandle;
 
 use libp2p::core::muxing::StreamMuxerBox;
-use libp2p::core::{transport, upgrade, Multiaddr, PeerId};
+use libp2p::core::{transport, upgrade, Multiaddr};
 use libp2p::futures::StreamExt;
+use libp2p::identity::{Keypair, PeerId};
 use libp2p::multiaddr::Protocol;
 use libp2p::swarm::{ConnectionHandlerUpgrErr, NetworkBehaviour, Swarm, SwarmEvent};
-use libp2p::{identify, identity, noise, ping, yamux, Transport};
+use libp2p::{identify, noise, ping, yamux, Transport};
 
 /// A Zinnia peer node wrapping rust-libp2p and providing higher-level APIs
 /// for consumption by Deno ops.
@@ -71,7 +72,7 @@ impl PeerNode {
     pub fn spawn(config: PeerNodeConfig) -> Result<PeerNode, Box<dyn Error>> {
         // Create a new random public/private key pair
         // Zinnia will always generate a new key pair on (re)start
-        let id_keys = identity::Keypair::generate_ed25519();
+        let id_keys = Keypair::generate_ed25519();
         let peer_id = id_keys.public().to_peer_id();
 
         let tcp_transport = create_transport(&id_keys)?;
@@ -175,7 +176,7 @@ impl Resource for PeerNode {
 }
 
 pub fn create_transport(
-    id_keys: &identity::Keypair,
+    id_keys: &Keypair,
 ) -> Result<transport::Boxed<(PeerId, StreamMuxerBox)>, noise::NoiseError> {
     // Setup the transport + multiplex + auth
     // Zinnia will hard-code this configuration initially.
@@ -468,7 +469,7 @@ mod tests {
         init();
         let cancellation_token = CancellationToken::new();
 
-        let listener_id_keys = identity::Keypair::generate_ed25519();
+        let listener_id_keys = Keypair::generate_ed25519();
         let listener_peer_id = listener_id_keys.public().to_peer_id();
         let listener_transport = create_transport(&listener_id_keys).unwrap();
 
