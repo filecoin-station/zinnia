@@ -7,4 +7,5 @@ mod vendored;
 pub use vendored::colors;
 pub use vendored::fmt_errors;
 
+pub use deno_core::anyhow;
 pub use deno_core::resolve_path;

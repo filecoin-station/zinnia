@@ -5,7 +5,7 @@
 //   deno run runtime/tests/js/timers_tests.js
 use std::path::PathBuf;
 
-use zinnia_runtime::{deno_core, run_js_module, AnyError, BootstrapOptions};
+use zinnia_runtime::{anyhow::Context, deno_core, run_js_module, AnyError, BootstrapOptions};
 
 macro_rules! js_tests(
   ( $name:ident ) => {
@@ -29,7 +29,10 @@ async fn run_js_test_file(name: &str) -> Result<(), AnyError> {
     full_path.push("js");
     full_path.push(name);
 
-    let main_module = deno_core::resolve_path(&full_path.to_string_lossy())?;
+    let main_module = deno_core::resolve_path(
+        &full_path.to_string_lossy(),
+        &std::env::current_dir().context("unable to get current working directory")?,
+    )?;
     let config = BootstrapOptions {
         agent_version: format!("zinnia_runtime_tests/{}", env!("CARGO_PKG_VERSION")),
         ..Default::default()
