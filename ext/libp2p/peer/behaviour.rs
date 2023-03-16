@@ -37,13 +37,14 @@ use std::{
     time::Duration,
 };
 
-use libp2p::core::{connection::ConnectionId, ConnectedPoint, Multiaddr};
+use libp2p::core::{ConnectedPoint, Endpoint, Multiaddr};
 use libp2p::identity::PeerId;
 use libp2p::swarm::{
     behaviour::{AddressChange, ConnectionClosed, ConnectionEstablished, DialFailure, FromSwarm},
     dial_opts::DialOpts,
-    IntoConnectionHandler, NetworkBehaviour, NetworkBehaviourAction, NotifyHandler, PollParameters,
+    NetworkBehaviour, NetworkBehaviourAction, NotifyHandler, PollParameters,
 };
+use libp2p::swarm::{ConnectionDenied, ConnectionId, THandler, THandlerInEvent, THandlerOutEvent};
 
 use smallvec::SmallVec;
 
@@ -199,7 +200,7 @@ pub struct RequestResponse {
     /// The protocol configuration.
     config: RequestResponseConfig,
     /// Pending events to return from `poll`.
-    pending_events: VecDeque<NetworkBehaviourAction<RequestResponseEvent, RequestResponseHandler>>,
+    pending_events: VecDeque<NetworkBehaviourAction<RequestResponseEvent, RequestProtocol>>,
     /// The currently connected peers, their pending outbound and inbound responses and their known,
     /// reachable addresses, if any.
     connected: HashMap<PeerId, SmallVec<[Connection; 2]>>,
@@ -250,10 +251,8 @@ impl RequestResponse {
         };
 
         if let Some(request) = self.try_send_request(peer, request) {
-            let handler = self.new_handler();
             self.pending_events.push_back(NetworkBehaviourAction::Dial {
                 opts: DialOpts::peer_id(*peer).build(),
-                handler,
             });
             self.pending_outbound_requests
                 .entry(*peer)
@@ -473,10 +472,7 @@ impl RequestResponse {
         }
     }
 
-    fn on_dial_failure(
-        &mut self,
-        DialFailure { peer_id, .. }: DialFailure<<Self as NetworkBehaviour>::ConnectionHandler>,
-    ) {
+    fn on_dial_failure(&mut self, DialFailure { peer_id, .. }: DialFailure) {
         if let Some(peer) = peer_id {
             // If there are pending outgoing requests when a dial failure occurs,
             // it is implied that we are not connected to the peer, since pending
@@ -504,22 +500,39 @@ impl NetworkBehaviour for RequestResponse {
     type ConnectionHandler = RequestResponseHandler;
     type OutEvent = RequestResponseEvent;
 
-    fn new_handler(&mut self) -> Self::ConnectionHandler {
-        RequestResponseHandler::new(
-            self.config.connection_keep_alive,
-            self.config.request_timeout,
-        )
-    }
+    fn handle_pending_outbound_connection(
+        &mut self,
+        _connection_id: ConnectionId,
+        maybe_peer: Option<PeerId>,
+        _addresses: &[Multiaddr],
+        _effective_role: Endpoint,
+    ) -> Result<Vec<Multiaddr>, ConnectionDenied> {
+        let peer = match maybe_peer {
+            None => return Ok(vec![]),
+            Some(peer) => peer,
+        };
 
-    fn addresses_of_peer(&mut self, peer: &PeerId) -> Vec<Multiaddr> {
         let mut addresses = Vec::new();
-        if let Some(connections) = self.connected.get(peer) {
+        if let Some(connections) = self.connected.get(&peer) {
             addresses.extend(connections.iter().filter_map(|c| c.address.clone()))
         }
-        if let Some(more) = self.addresses.get(peer) {
+        if let Some(more) = self.addresses.get(&peer) {
             addresses.extend(more.into_iter().cloned());
         }
-        addresses
+        Ok(addresses)
+    }
+
+    fn handle_established_outbound_connection(
+        &mut self,
+        _: ConnectionId,
+        _: PeerId,
+        _: &Multiaddr,
+        _: Endpoint,
+    ) -> Result<THandler<Self>, ConnectionDenied> {
+        Ok(RequestResponseHandler::new(
+            self.config.connection_keep_alive,
+            self.config.request_timeout,
+        ))
     }
 
     fn on_swarm_event(&mut self, event: FromSwarm<Self::ConnectionHandler>) {
@@ -547,8 +560,7 @@ impl NetworkBehaviour for RequestResponse {
         &mut self,
         peer: PeerId,
         connection: ConnectionId,
-        event: <<Self::ConnectionHandler as IntoConnectionHandler>::Handler as
-            libp2p::swarm::ConnectionHandler>::OutEvent,
+        event: THandlerOutEvent<Self>,
     ) {
         match event {
             RequestResponseHandlerEvent::Response {
@@ -636,7 +648,7 @@ impl NetworkBehaviour for RequestResponse {
         &mut self,
         _: &mut Context<'_>,
         _: &mut impl PollParameters,
-    ) -> Poll<NetworkBehaviourAction<Self::OutEvent, Self::ConnectionHandler>> {
+    ) -> Poll<NetworkBehaviourAction<Self::OutEvent, THandlerInEvent<Self>>> {
         if let Some(ev) = self.pending_events.pop_front() {
             return Poll::Ready(ev);
         } else if self.pending_events.capacity() > EMPTY_QUEUE_SHRINK_THRESHOLD {
