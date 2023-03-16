@@ -52,7 +52,7 @@ jobs:
       - run: cargo build --workspace --all-features --all-targets --target=${{ matrix.target }}
 
   test:
-    name: Test all crates
+    name: Test on ${{ matrix.target }}
     runs-on: ubuntu-latest
     needs:
       - build
