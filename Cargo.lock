@@ -5414,7 +5414,7 @@ dependencies = [
 
 [[package]]
 name = "zinnia"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "assert_cmd",
  "assert_fs",
@@ -5428,7 +5428,7 @@ dependencies = [
 
 [[package]]
 name = "zinnia_libp2p"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "async-trait",
  "deno_core",
@@ -5444,7 +5444,7 @@ dependencies = [
 
 [[package]]
 name = "zinnia_runtime"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "atty",
  "deno_console",

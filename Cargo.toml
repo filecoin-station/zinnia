@@ -22,8 +22,8 @@ env_logger = "0.10.0"
 tokio = { version = "1.24.1", features = ["fs", "rt", "macros"] }
 
 # workspace-local
-zinnia_runtime = { version = "0.3.0", path = "./runtime" }
-zinnia_libp2p = { version = "0.3.0", path = "./ext/libp2p" }
+zinnia_runtime = { version = "0.4.0", path = "./runtime" }
+zinnia_libp2p = { version = "0.4.0", path = "./ext/libp2p" }
 
 [profile.release]
 codegen-units = 1
