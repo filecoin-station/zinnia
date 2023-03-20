@@ -80,6 +80,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@52e69531e6f69a396bc9d1226284493a5db969ff # v1
         with:
           toolchain: stable
+          target: ${{ matrix.target }}
 
       - uses: Swatinem/rust-cache@6fd3edff6979b79f87531400ad694fb7f2c84b1f # v2.2.1
         with:
