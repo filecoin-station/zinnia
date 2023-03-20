@@ -297,9 +297,9 @@ dependencies = [
 
 [[package]]
 name = "assert_fs"
-version = "1.0.11"
+version = "1.0.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "34e9c67bc212f1414075b1ff074e8713d103dd82c98dc4b5a28405216695ff28"
+checksum = "e9d5bf7e5441c6393b5a9670a5036abe6b4847612f594b870f7332dbf10cf6fa"
 dependencies = [
  "anstyle",
  "doc-comment",
