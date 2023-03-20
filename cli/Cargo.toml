@@ -15,14 +15,14 @@ path = "main.rs"
 doc = false
 
 [dependencies]
-clap = { version = "4.1.8", features = ["derive"] }
+clap = { version = "4.1.11", features = ["derive"] }
 env_logger.workspace = true
 log.workspace = true
 tokio = { workspace = true }
 zinnia_runtime = { workspace = true }
 
 [dev-dependencies]
-assert_cmd = "2.0.9"
+assert_cmd = "2.0.10"
 assert_fs = { workspace = true }
 pretty_assertions = { workspace = true }
 
