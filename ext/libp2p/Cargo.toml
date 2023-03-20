@@ -18,9 +18,10 @@ log.workspace = true
 smallvec = "1.10.0"
 tokio = { workspace = true, features = ["rt", "macros", "sync", "time"] }
 tokio-util = "0.7.7"
+either = "1.8.1"
 
 [dependencies.libp2p]
-version = "0.50.1"
+version = "0.51.1"
 features = [
     # "async-std",
     # "autonat",
@@ -28,6 +29,7 @@ features = [
     # "deflate",
     "dns",
     # "ecdsa",
+    "ed25519",
     # "floodsub",
     # "gossipsub",
     "identify",
