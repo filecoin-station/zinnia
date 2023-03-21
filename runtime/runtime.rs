@@ -14,7 +14,7 @@ use deno_core::{
 use deno_fetch::FetchPermissions;
 use deno_web::{BlobStore, TimersPermission};
 
-use crate::colors;
+use crate::{colors, ConsoleReporter, Reporter};
 
 use tokio::fs::File;
 use tokio::io::AsyncReadExt;
@@ -37,10 +37,19 @@ pub struct BootstrapOptions {
 
     /// Filecoin wallet address - typically the built-in wallet in Filecoin Station
     pub wallet_address: String,
+
+    /// Report activities
+    pub reporter: Rc<dyn Reporter>,
 }
 
 impl Default for BootstrapOptions {
     fn default() -> Self {
+        Self::new(Rc::new(ConsoleReporter::new()))
+    }
+}
+
+impl BootstrapOptions {
+    fn new(reporter: Rc<dyn Reporter>) -> Self {
         Self {
             no_color: !colors::use_color(),
             is_tty: colors::is_tty(),
@@ -48,11 +57,10 @@ impl Default for BootstrapOptions {
             rng_seed: None,
             // See https://lotus.filecoin.io/lotus/manage/manage-fil/#public-key-address
             wallet_address: String::from("t1abjxfbp274xpdqcpuaykwkfb43omjotacm2p3za"),
+            reporter,
         }
     }
-}
 
-impl BootstrapOptions {
     pub fn as_json(&self) -> String {
         let payload = serde_json::json!({
           "noColor": self.no_color,
@@ -94,6 +102,7 @@ pub async fn run_js_module(
     bootstrap_options: &BootstrapOptions,
 ) -> Result<(), AnyError> {
     let blob_store = BlobStore::default();
+    let reporter = Rc::clone(&bootstrap_options.reporter);
 
     // Initialize a runtime instance
     let mut runtime = JsRuntime::new(RuntimeOptions {
@@ -124,6 +133,7 @@ pub async fn run_js_module(
                 ))
                 .state(move |state| {
                     state.put(ZinniaPermissions {});
+                    state.put(Rc::clone(&reporter));
                 })
                 .build(),
         ],

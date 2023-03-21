@@ -76,6 +76,13 @@ function fail() {
     Ok(())
 }
 
+
+// #[test]
+// fn report_jobs_completed() -> Result<(), Box<dyn std::error::Error>> {
+//     Ok(())
+
+// }
+
 // HELPERS
 
 #[derive(PartialEq)]
