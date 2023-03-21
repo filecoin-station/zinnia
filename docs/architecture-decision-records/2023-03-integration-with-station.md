@@ -19,8 +19,8 @@ Zinnia is a runtime for Filecoin Station modules. It's time to integrate Zinnia 
 enable the deployment of the first modules.
 
 Zinnia is designed to run multiple modules inside the same process, using V8 Isolates for keeping
-modules cleanly separated and sandboxed. The integration with libp2p (and later IPFS) is designed to
-allow multiple modules to share the same underlying set of network connections and block storage.
+modules separated and sandboxed. The integration with libp2p (and later IPFS) is designed to allow
+multiple modules to share the same underlying set of network connections and block storage.
 
 Zinnia has two primary modes of operation:
 
@@ -58,8 +58,16 @@ _(This is a strawman proposal, subject to changes during implementation.)_
 FIL_WALLET_ADDRESS=f1etc \
 # Where to keep state files
 STATE_ROOT=$HOME/Library/Caches/Filecoin\ Station/zinnia \
-# The program to run. The only argument is path to the directory containing module files.
-zinniad /Applications/Filecoin\ Station.app/Contents/Resources/zinnia-modules
+# The program to run. Positional arguments specify which modules to run.
+zinniad \
+  # A module can be a directory containing the entry point file
+  $HOME/Library/Caches/Filecoin\ Station/zinnia-modules/saturn-l2/main.js \
+  # A module can also be just a single file, like the Ping PoC
+  $HOME/Library/Caches/Filecoin\ Station/zinnia-modules/ping.js \
+  # Since we don't support ES Modules yet, a more complex module may want
+  # to bundle multiple source code files into a single file for distribution
+  # In such case, a module can be a directory with nested subdirectories too.
+  $HOME/Library/Caches/Filecoin\ Station/zinnia-modules/retrieval-checker/dist/index.js
 ```
 
 ### Communication with Station (Core, Desktop):
@@ -77,7 +85,7 @@ Example messages:
 
   `{"type": "activity:error", "module": "saturn", "message": "Cannot connect to the orchestrator."x }`
 
-  \_Note: `"module": "saturn"` describes which module emitted the log.
+  _Note: `"module": "saturn"` describes which module emitted the log._
 
 - **Activity log - info**
 
@@ -94,10 +102,6 @@ Example messages:
   In the future, we can easily extend this line to include per-module stats too:
 
   `{"type": "jobs-completed", "total": 123, modules: {"saturn": 100, "retrieval-checker": 23}}`
-
-Discussion points:
-
-- Should these logs include a timestamp? As a new JSON field or as a prefix before the JSON starts?
 
 ### Module identifiers
 
@@ -202,6 +206,13 @@ These APIs will behave differently when running a module via `zinnia` CLI in dev
 
    - More complex integration between Station and Zinnia: Zinnia needs to report URL where the stats
      API is available, the Station needs to parse that URL from Zinnia's `stdout`.
+
+3. Include a timestamp in the JSON messages printed to `stdout` for the Station. We decided this is
+   not needed now and can be easily added later if such a need arises.
+
+   Our current goal is integration with the Station. The Station (Core or Desktop) and the Zinnia
+   runtime will initially sit on the same machine. If the log consumer sits on the same machine, it
+   shouldn't matter who will attach the timestamp.
 
 <!--
 What are the different options we considered? What are their pros & cons?
