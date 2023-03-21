@@ -53,21 +53,30 @@ modules inside the Station.
 
 _(This is a strawman proposal, subject to changes during implementation.)_
 
+Configuration via environment variables:
+
+- `FIL_WALLET_ADDRESS`: Address of Station's built-in wallet (required).
+
+- `STATE_ROOT`: Directory where to keep state files (optional). Defaults to
+  `$XDG_STATE_HOME/zinniad`.
+
+Positional arguments:
+
+- Positional arguments specify which modules to run, where each module is a single JS file. We don't
+  make any assumptions about the directory layout of modules. Paths are resolved relatively to the
+  current working directory.
+
+Example invocation:
+
 ```bash
-# Address of Station's built-in wallet (required). 
+cd /Applications/Filecoin\ Station.app/Contents/Resources/zinnia-modules
+
 FIL_WALLET_ADDRESS=f1etc \
-# Where to keep state files (optional). Default: `$XDG_STATE_HOME/zinniad`
 STATE_ROOT=$HOME/Library/Caches/Filecoin\ Station/zinnia \
-# The program to run. Positional arguments specify which modules to run.
 zinniad \
-  # A module can be a directory containing the entry point file
-  $HOME/Library/Caches/Filecoin\ Station/zinnia-modules/saturn-l2/main.js \
-  # A module can also be just a single file, like the Ping PoC
-  $HOME/Library/Caches/Filecoin\ Station/zinnia-modules/ping.js \
-  # Since we don't support ES Modules yet, a more complex module may want
-  # to bundle multiple source code files into a single file for distribution
-  # In such case, a module can be a directory with nested subdirectories too.
-  $HOME/Library/Caches/Filecoin\ Station/zinnia-modules/retrieval-checker/dist/index.js
+  saturn-l2/main.js \
+  ping.js \
+  retrieval-checker/dist/index.js
 ```
 
 ### Communication with Station (Core, Desktop):
