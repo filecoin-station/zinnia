@@ -54,9 +54,9 @@ modules inside the Station.
 _(This is a strawman proposal, subject to changes during implementation.)_
 
 ```bash
-# Address of Station's built-in wallet
+# Address of Station's built-in wallet (required). 
 FIL_WALLET_ADDRESS=f1etc \
-# Where to keep state files
+# Where to keep state files (optional). Default: `$XDG_STATE_HOME/zinniad`
 STATE_ROOT=$HOME/Library/Caches/Filecoin\ Station/zinnia \
 # The program to run. Positional arguments specify which modules to run.
 zinniad \
@@ -213,6 +213,23 @@ These APIs will behave differently when running a module via `zinnia` CLI in dev
    Our current goal is integration with the Station. The Station (Core or Desktop) and the Zinnia
    runtime will initially sit on the same machine. If the log consumer sits on the same machine, it
    shouldn't matter who will attach the timestamp.
+
+4. Use `XDG_STATE_HOME` to configure where should `zinniad` keep the state files.
+
+   The major difference between `XDG_STATE_HOME` and `STATE_ROOT` is that `XDG_STATE_HOME` provides
+   a system (or user) wide directory, we need to append a zinnia-specific segment to that path to
+   obtain `STATE_ROOT`.
+
+   I prefer to give the user full control over the location by providing them `STATE_ROOT` config
+   option.
+
+   This becomes relevant when Zinnia is running inside the Station. If we use `XDG_STATE_HOME`, then
+   we will keep the state in `XDG_STATE_HOME/zinnia`, a different place from where Station keeps its
+   files. We could make this path Station specific, but that feels hacky to me and incorrect in the
+   situation when Zinnia runs outside of the Station
+
+   However, I think it's a good idea to make `STATE_ROOT` an optional configuration option and use
+   `XDG_STATE_HOME/zinnia` as the default value.
 
 <!--
 What are the different options we considered? What are their pros & cons?
