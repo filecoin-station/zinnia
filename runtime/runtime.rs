@@ -47,7 +47,7 @@ impl Default for BootstrapOptions {
             agent_version: format!("zinnia_runtime/{}", env!("CARGO_PKG_VERSION")),
             rng_seed: None,
             // See https://lotus.filecoin.io/lotus/manage/manage-fil/#public-key-address
-            wallet_address: "t1abjxfbp274xpdqcpuaykwkfb43omjotacm2p3za".to_owned(),
+            wallet_address: String::from("t1abjxfbp274xpdqcpuaykwkfb43omjotacm2p3za"),
         }
     }
 }
