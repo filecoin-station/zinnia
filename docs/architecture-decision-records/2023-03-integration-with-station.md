@@ -159,13 +159,13 @@ namespace Zinnia {
 
 These APIs will behave differently when running a module via `zinnia` CLI in development.
 
-- The wallet address is read from `.zinnia/config.yaml` in the current working directory (project
-  root).
-
-  When the address is not configured, we use a dummy testnet address
+- In the initial version, the wallet address is hardcoded to a dummy testnet address
   `t1abjxfbp274xpdqcpuaykwkfb43omjotacm2p3za`. This value is taken from
   [Filecoin Lotus docs](https://lotus.filecoin.io/lotus/manage/manage-fil/#public-key-address) with
   the leading `"f"` replaced with `"t"`.
+
+  Later, we can implement reading of the wallet address from a configuration file, e.g.
+  `.zinnia/config.yaml` in the current working directory (typically the project root).
 
 - Activity logs are printed to stdout with human-readable formatting.
   ```
