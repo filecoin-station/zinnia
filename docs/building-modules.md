@@ -201,6 +201,14 @@ for await (const chunk of response) {
 }
 ```
 
+### `Zinnia.walletAddress`
+
+The wallet address where to send rewards. When running inside the Station Desktop, this API will
+return the address of Station's built-in wallet.
+
+The value is hard-coded to a testnet address `t1abjxfbp274xpdqcpuaykwkfb43omjotacm2p3za` when
+running the module via `zinnia` CLI.
+
 <!--
 UNSUPPORTED APIs
 -->
