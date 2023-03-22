@@ -179,7 +179,7 @@ These APIs will behave differently when running a module via `zinnia` CLI in dev
 
 - Activity logs are printed to stdout with human-readable formatting.
   ```text
-  [10:30:20.000 INFO ] Connecting to the network.
+  [10:30:20.000  INFO] Connecting to the network.
   [10:30:21.000 ERROR] Cannot connect to the orchestrator.
   ```
 - Job completions are printed to stdout but less frequently, e.g. every 500ms.
