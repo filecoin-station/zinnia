@@ -95,7 +95,7 @@ const windowOrWorkerGlobalScope = {
   // },
   // CacheStorage: util.nonEnumerable(caches.CacheStorage),
   // Cache: util.nonEnumerable(caches.Cache),
-  console: util.nonEnumerable(new console.Console(debugLog)),
+  console: util.nonEnumerable(new console.Console((msg, _level) => debugLog(msg))),
   crypto: util.readOnly(crypto.crypto),
   Crypto: util.nonEnumerable(crypto.Crypto),
   SubtleCrypto: util.nonEnumerable(crypto.SubtleCrypto),

@@ -61,28 +61,28 @@ pub fn init(options: Options) -> Extension {
         .build()
 }
 
-type ReporterState = Rc<dyn Reporter>;
+type StoredReporter = Rc<dyn Reporter>;
 
 #[op]
 fn op_job_completed(state: &mut OpState) {
-    let reporter = state.borrow::<ReporterState>();
+    let reporter = state.borrow::<StoredReporter>();
     reporter.job_completed();
 }
 
 #[op]
 fn op_info_activity(state: &mut OpState, msg: &str) {
-    let reporter = state.borrow::<ReporterState>();
+    let reporter = state.borrow::<StoredReporter>();
     reporter.info_activity(msg);
 }
 
 #[op]
 fn op_error_activity(state: &mut OpState, msg: &str) {
-    let reporter = state.borrow::<ReporterState>();
+    let reporter = state.borrow::<StoredReporter>();
     reporter.error_activity(msg);
 }
 
 #[op]
 fn op_debug_print(state: &mut OpState, msg: &str) {
-    let reporter = state.borrow::<ReporterState>();
+    let reporter = state.borrow::<StoredReporter>();
     reporter.debug_print(msg);
 }
