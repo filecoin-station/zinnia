@@ -27,7 +27,7 @@ function reportInfoActivity(msg) {
 
 function reportErrorActivity(msg) {
   if (typeof msg !== "string") msg = "" + msg;
-  ops.op_info_activity(msg);
+  ops.op_error_activity(msg);
 }
 
 function reportJobCompleted() {

@@ -31,8 +31,8 @@ Zinnia.jobCompleted();
         CmdResult {
             exit_ok: true,
             stdout: [
-                "[TIMESTAMP INFO ] information\n",
-                "[TIMESTAMP INFO ] problem\n",
+                "[TIMESTAMP  INFO] information\n",
+                "[TIMESTAMP ERROR] problem\n",
                 "[TIMESTAMP STATS] Jobs completed: 1\n",
             ]
             .join(""),

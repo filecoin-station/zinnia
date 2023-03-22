@@ -29,3 +29,4 @@ zinnia_libp2p.workspace = true
 
 [dev-dependencies]
 env_logger.workspace = true
+pretty_assertions = { workspace = true }

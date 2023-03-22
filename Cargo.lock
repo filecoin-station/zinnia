@@ -5609,6 +5609,7 @@ dependencies = [
  "env_logger",
  "log",
  "once_cell",
+ "pretty_assertions",
  "termcolor",
  "tokio",
  "zinnia_libp2p",

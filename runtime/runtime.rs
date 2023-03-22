@@ -1,12 +1,13 @@
 use std::path::Path;
 use std::rc::Rc;
+use std::time::Duration;
 
 use deno_core::anyhow::anyhow;
 use deno_core::error::type_error;
 use deno_core::futures::FutureExt;
 use deno_core::{
-    located_script_name, resolve_import, serde_json, JsRuntime, ModuleLoader,
-    ModuleSource, ModuleSourceFuture, ModuleSpecifier, ModuleType, ResolutionKind, RuntimeOptions,
+    located_script_name, resolve_import, serde_json, JsRuntime, ModuleLoader, ModuleSource,
+    ModuleSourceFuture, ModuleSpecifier, ModuleType, ResolutionKind, RuntimeOptions,
 };
 
 use deno_web::BlobStore;
@@ -44,7 +45,7 @@ pub struct BootstrapOptions {
 
 impl Default for BootstrapOptions {
     fn default() -> Self {
-        Self::new(Rc::new(ConsoleReporter::new()))
+        Self::new(Rc::new(ConsoleReporter::new(Duration::from_millis(500))))
     }
 }
 
