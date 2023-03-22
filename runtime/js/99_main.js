@@ -91,6 +91,10 @@ function bootstrapMainRuntime(runtimeOptions) {
 
   runtimeStart(runtimeOptions);
 
+  ObjectDefineProperties(globalThis.Zinnia, {
+    walletAddress: util.readOnly(runtimeOptions.walletAddress),
+  });
+
   // delete `Deno` global
   delete globalThis.Deno;
 
