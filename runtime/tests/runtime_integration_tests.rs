@@ -3,7 +3,7 @@
 //   ./target/debug/zinnia run runtime/tests/js/timers_tests.js
 // Most of the tests should pass on Deno too!
 //   deno run runtime/tests/js/timers_tests.js
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::rc::Rc;
 
 use zinnia_runtime::RecordingReporter;
@@ -61,20 +61,23 @@ async fn run_js_test_file(name: &str, activity_log: Option<&str>) -> Result<(), 
     if let Some(log_file) = activity_log {
         let mut activity_path = base_dir.clone();
         activity_path.push(log_file);
-        let expected_text = std::fs::read_to_string(activity_path.clone())
-            .with_context(|| format!("cannot read {}", activity_path.display()))?;
-
-        assert_eq!(
-            reporter
-                .events
-                .borrow()
-                .iter()
-                .map(|e| format!("{}\n", e.trim_end()))
-                .collect::<Vec<String>>()
-                .join(""),
-            expected_text,
-        );
+        assert_activity_log(reporter.events.borrow(), &activity_path);
     }
 
     Ok(())
+}
+
+fn assert_activity_log(events: std::cell::Ref<Vec<String>>, activity_path: &Path) {
+    let expected_text = std::fs::read_to_string(activity_path)
+        .unwrap_or_else(|err| panic!("cannot read {}: {}", activity_path.display(), err))
+        // normalize line endings to Unix style (LF only)
+        .replace("\r\n", "\n");
+
+    let actual_output = events
+        .iter()
+        .map(|e| format!("{}\n", e.trim_end()))
+        .collect::<Vec<String>>()
+        .join("");
+
+    assert_eq!(actual_output, expected_text,);
 }
