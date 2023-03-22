@@ -21,6 +21,7 @@ js_tests!(timers_tests);
 js_tests!(webapis_tests);
 js_tests!(webcrypto_tests);
 js_tests!(libp2p_tests);
+js_tests!(station_apis_tests);
 
 // Run all tests in a single JS file
 async fn run_js_test_file(name: &str) -> Result<(), AnyError> {

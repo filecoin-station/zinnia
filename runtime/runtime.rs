@@ -34,6 +34,9 @@ pub struct BootstrapOptions {
 
     /// Seed value for initializing the random number generator
     pub rng_seed: Option<u64>,
+
+    /// Filecoin wallet address - typically the built-in wallet in Filecoin Station
+    pub wallet_address: String,
 }
 
 impl Default for BootstrapOptions {
@@ -43,6 +46,8 @@ impl Default for BootstrapOptions {
             is_tty: colors::is_tty(),
             agent_version: format!("zinnia_runtime/{}", env!("CARGO_PKG_VERSION")),
             rng_seed: None,
+            // See https://lotus.filecoin.io/lotus/manage/manage-fil/#public-key-address
+            wallet_address: String::from("t1abjxfbp274xpdqcpuaykwkfb43omjotacm2p3za"),
         }
     }
 }
@@ -52,6 +57,7 @@ impl BootstrapOptions {
         let payload = serde_json::json!({
           "noColor": self.no_color,
           "isTty": self.is_tty,
+          "walletAddress": self.wallet_address,
         });
         serde_json::to_string_pretty(&payload).unwrap()
     }
