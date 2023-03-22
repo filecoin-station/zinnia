@@ -49,6 +49,11 @@ individual methods in [MDN web docs](https://developer.mozilla.org/en-US/docs/We
 
 - [console](https://developer.mozilla.org/en-US/docs/Web/API/console)
 
+> Note: Zinnia considers console logs as a debugging tool. All Console methods print to `stderr`.
+> See [`Zinnia.activity.info`](#zinniaactivityinfomessage) and
+> [`Zinnia.activity.error](#zinniaactivityerrormessage) APIs for reporting information to be shown
+> to Station users in the Station Desktop UI.
+
 #### DOM Standard
 
 - [AbortController](https://developer.mozilla.org/en-US/docs/Web/API/AbortController)
@@ -201,13 +206,42 @@ for await (const chunk of response) {
 }
 ```
 
-### `Zinnia.walletAddress`
+#### Integration with Filecoin Station
+
+#### `Zinnia.walletAddress`
 
 The wallet address where to send rewards. When running inside the Station Desktop, this API will
 return the address of Station's built-in wallet.
 
 The value is hard-coded to a testnet address `t1abjxfbp274xpdqcpuaykwkfb43omjotacm2p3za` when
 running the module via `zinnia` CLI.
+
+#### `Zinnia.activity.info(message)`
+
+Add a new Activity Log item informing the Station user when things proceed as expected.
+
+Example messages:
+
+```
+Saturn Node will try to connect to the Saturn Orchestrator...
+Saturn Node is online and connected to 9 peers.
+```
+
+#### `Zinnia.activity.error(message)`
+
+Add a new Activity Log informing the Station user about an error state.
+
+Example messages:
+
+```
+Saturn Node is not able to connect to the network.
+```
+
+#### `Zinnia.jobCompleted()`
+
+Report that a single job was completed.
+
+Call this function every time your module completes a job. It's ok to call it frequently.
 
 <!--
 UNSUPPORTED APIs
