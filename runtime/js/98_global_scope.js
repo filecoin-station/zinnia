@@ -26,7 +26,7 @@ import * as webidl from "ext:deno_webidl/00_webidl.js";
 import DOMException from "ext:deno_web/01_dom_exception.js";
 import * as abortSignal from "ext:deno_web/03_abort_signal.js";
 import * as globalInterfaces from "ext:deno_web/04_global_interfaces.js";
-import { zinniaNs } from "ext:zinnia_runtime/90_zinnia_apis.js";
+import { zinniaNs, debugLog } from "ext:zinnia_runtime/90_zinnia_apis.js";
 
 // https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope
 const windowOrWorkerGlobalScope = {
@@ -95,7 +95,7 @@ const windowOrWorkerGlobalScope = {
   // },
   // CacheStorage: util.nonEnumerable(caches.CacheStorage),
   // Cache: util.nonEnumerable(caches.Cache),
-  console: util.nonEnumerable(new console.Console((msg, level) => core.print(msg, level > 1))),
+  console: util.nonEnumerable(new console.Console(debugLog)),
   crypto: util.readOnly(crypto.crypto),
   Crypto: util.nonEnumerable(crypto.Crypto),
   SubtleCrypto: util.nonEnumerable(crypto.SubtleCrypto),

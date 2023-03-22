@@ -7,6 +7,14 @@ test("Zinnia.walletAddress", () => {
   assertStrictEquals(Zinnia.walletAddress, "t1abjxfbp274xpdqcpuaykwkfb43omjotacm2p3za");
 });
 
+test("smoke tests for reporting APIs", () => {
+  console.log("debug-info");
+  console.error("debug-error");
+  Zinnia.activity.info("information");
+  Zinnia.activity.error("problem");
+  Zinnia.jobCompleted();
+});
+
 // A dummy wrapper to create isolated scopes for individual tests
 // We should eventually replace this with a proper test runner
 // See https://github.com/filecoin-station/zinnia/issues/30

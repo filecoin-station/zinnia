@@ -24,7 +24,9 @@ zinnia_runtime = { workspace = true }
 [dev-dependencies]
 assert_cmd = "2.0.10"
 assert_fs = { workspace = true }
+lazy_static = "1.4.0"
 pretty_assertions = { workspace = true }
+regex = "1.7.2"
 
 [package.metadata.winres]
 # This section defines the metadata that appears in the deno.exe PE header.

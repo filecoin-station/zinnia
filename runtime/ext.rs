@@ -3,7 +3,7 @@ use std::rc::Rc;
 
 use deno_core::anyhow::Result;
 use deno_core::url::Url;
-use deno_core::{include_js_files, Extension};
+use deno_core::{include_js_files, op, Extension, OpState};
 use deno_fetch::FetchPermissions;
 use deno_web::TimersPermission;
 
@@ -48,9 +48,41 @@ pub fn init(options: Options) -> Extension {
           "98_global_scope.js",
           "99_main.js",
         ))
+        .ops(vec![
+            op_job_completed::decl(),
+            op_info_activity::decl(),
+            op_error_activity::decl(),
+            op_debug_print::decl(),
+        ])
         .state(move |state| {
             state.put(ZinniaPermissions {});
             state.put(Rc::clone(&options.reporter));
         })
         .build()
+}
+
+type ReporterState = Rc<dyn Reporter>;
+
+#[op]
+fn op_job_completed(state: &mut OpState) {
+    let reporter = state.borrow::<ReporterState>();
+    reporter.job_completed();
+}
+
+#[op]
+fn op_info_activity(state: &mut OpState, msg: &str) {
+    let reporter = state.borrow::<ReporterState>();
+    reporter.info_activity(msg);
+}
+
+#[op]
+fn op_error_activity(state: &mut OpState, msg: &str) {
+    let reporter = state.borrow::<ReporterState>();
+    reporter.error_activity(msg);
+}
+
+#[op]
+fn op_debug_print(state: &mut OpState, msg: &str) {
+    let reporter = state.borrow::<ReporterState>();
+    reporter.debug_print(msg);
 }

@@ -1,15 +1,19 @@
 use std::cell::RefCell;
+use std::io::{stderr, stdout, Write};
 use std::time::{Duration, Instant};
 
 // Report events, activities and messages from the running module
 pub trait Reporter {
     /// Print a debug log message. This is typically triggered by Console APIs like `console.log`.
-    fn debug_log(&self, msg: &str);
+    /// Important: these messages include the final newline, the reporter SHOULD NOT add EOL.
+    fn debug_print(&self, msg: &str);
 
     /// Record an activity log entry with level "info".
+    /// Important: this message DOES NOT include the final newline. The reporter should add EOL.
     fn info_activity(&self, msg: &str);
 
     /// Record an activity log entry with level "error".
+    /// Important: this message DOES NOT include the final newline. The reporter should add EOL.
     fn error_activity(&self, msg: &str);
 
     /// Report that module completed another job.
@@ -34,7 +38,7 @@ impl JobCompletionTracker {
         }
     }
 
-    pub fn job_completed<F: FnOnce(u64) -> ()>(&mut self, log: F) {
+    pub fn job_completed<F: FnOnce(u64)>(&mut self, log: F) {
         self.counter += 1;
 
         if let Some(last) = self.last_report {
@@ -47,7 +51,7 @@ impl JobCompletionTracker {
         log(self.counter);
     }
 
-    pub fn flush<F: FnOnce(u64) -> ()>(&mut self, log: F) {
+    pub fn flush<F: FnOnce(u64)>(&mut self, log: F) {
         match self.last_report {
             None => {
                 // no jobs were completed, nothing to report
@@ -73,8 +77,23 @@ impl ConsoleReporter {
         }
     }
 
-    fn print_jobs_completed(total: u64) {
-        println!("[{} STATS] Jobs completed: {}", now_str(), total);
+    fn print_jobs_completed(&self, total: u64) {
+        let msg = format!("Jobs completed: {total}");
+        self.report("STATS", &msg);
+    }
+
+    fn report(&self, scope: &str, msg: &str) {
+        // Important: activity messages do not include the final newline character
+        let msg = format!("[{} {scope:5}] {msg}\n", now_str());
+        // We are ignoring write errors because there isn't much to do in such case
+        let _ = stdout().write_all(msg.as_bytes());
+        let _ = stdout().flush();
+    }
+}
+
+impl Default for ConsoleReporter {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -82,27 +101,30 @@ impl Drop for ConsoleReporter {
     fn drop(&mut self) {
         self.tracker
             .borrow_mut()
-            .flush(ConsoleReporter::print_jobs_completed);
+            .flush(|n| self.print_jobs_completed(n));
     }
 }
 
 impl Reporter for ConsoleReporter {
-    fn debug_log(&self, msg: &str) {
-        eprintln!("{}", msg);
+    fn debug_print(&self, msg: &str) {
+        // Important: debug logs already contain the final newline character
+        // We are ignoring write errors because there isn't much to do in such case
+        let _ = stderr().write_all(msg.as_bytes());
+        let _ = stderr().flush();
     }
 
     fn info_activity(&self, msg: &str) {
-        println!("[{} INFO ] {msg}", now_str());
+        self.report("INFO", msg)
     }
 
     fn error_activity(&self, msg: &str) {
-        println!("[{} ERROR] {msg}", now_str());
+        self.report("ERROR", msg)
     }
 
     fn job_completed(&self) {
         self.tracker
             .borrow_mut()
-            .job_completed(Self::print_jobs_completed);
+            .job_completed(|n| self.print_jobs_completed(n));
     }
 }
 
