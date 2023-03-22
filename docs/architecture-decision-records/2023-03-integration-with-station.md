@@ -57,8 +57,8 @@ Configuration via environment variables:
 
 - `FIL_WALLET_ADDRESS`: Address of Station's built-in wallet (required).
 
-- `STATE_ROOT`: Directory where to keep state files (optional). Defaults to
-  `$XDG_STATE_HOME/zinniad`.
+- `ROOT_DIR`: Directory where to keep state files (optional). Defaults to a platform-specific
+  location, e.g. `$XDG_STATE_HOME/zinniad` on Linux.
 
 Positional arguments:
 
@@ -72,7 +72,7 @@ Example invocation:
 cd /Applications/Filecoin\ Station.app/Contents/Resources/zinnia-modules
 
 FIL_WALLET_ADDRESS=f1etc \
-STATE_ROOT=$HOME/Library/Caches/Filecoin\ Station/zinnia \
+ROOT_DIR=$HOME/Library/Caches/Filecoin\ Station/zinnia \
 zinniad \
   saturn-l2/main.js \
   ping.js \
@@ -112,9 +112,10 @@ Example messages:
 
   `{"type": "jobs-completed", "total": 123, modules: {"saturn": 100, "retrieval-checker": 23}}`
 
-- Messages logged via Console APIs like `console.log` are printed to `stderr` without any modifications.
+- Messages logged via Console APIs like `console.log` are printed to `stderr` without any
+  modifications.
 
-  ```
+  ```text
   Pinging /dnsaddr/bootstrap.libp2p.io/p2p/QmQCU2EcMqAqQPR2i9bChDtGNJchTbq5TbXJJ16u19uLTa
   RTT: 1252ms
   Cannot record stats: Error: InfluxDB API error 401
@@ -177,13 +178,13 @@ These APIs will behave differently when running a module via `zinnia` CLI in dev
   `.zinnia/config.yaml` in the current working directory (typically the project root).
 
 - Activity logs are printed to stdout with human-readable formatting.
-  ```
+  ```text
   [10:30:20.000 INFO ] Connecting to the network.
   [10:30:21.000 ERROR] Cannot connect to the orchestrator.
   ```
 - Job completions are printed to stdout but less frequently, e.g. every 500ms.
 
-  ```
+  ```text
   [10:30:20.000 STATS] Jobs completed: 123
   [10:30:20.500 STATS] Jobs completed: 134
   [10:30:21.000 STATS] Jobs completed: 146
@@ -234,11 +235,11 @@ These APIs will behave differently when running a module via `zinnia` CLI in dev
 
 4. Use `XDG_STATE_HOME` to configure where should `zinniad` keep the state files.
 
-   The major difference between `XDG_STATE_HOME` and `STATE_ROOT` is that `XDG_STATE_HOME` provides
-   a system (or user) wide directory, we need to append a zinnia-specific segment to that path to
-   obtain `STATE_ROOT`.
+   The major difference between `XDG_STATE_HOME` and `ROOT_DIR` is that `XDG_STATE_HOME` provides a
+   system (or user) wide directory, we need to append a zinnia-specific segment to that path to
+   obtain `ROOT_DIR`.
 
-   I prefer to give the user full control over the location by providing them `STATE_ROOT` config
+   I prefer to give the user full control over the location by providing them `ROOT_DIR` config
    option.
 
    This becomes relevant when Zinnia is running inside the Station. If we use `XDG_STATE_HOME`, then
@@ -246,8 +247,20 @@ These APIs will behave differently when running a module via `zinnia` CLI in dev
    files. We could make this path Station specific, but that feels hacky to me and incorrect in the
    situation when Zinnia runs outside of the Station
 
-   However, I think it's a good idea to make `STATE_ROOT` an optional configuration option and use
+   However, I think it's a good idea to make `ROOT_DIR` an optional configuration option and use
    `XDG_STATE_HOME/zinnia` as the default value.
+
+   Few more thoughts:
+
+   - `XDG_STATE_HOME` is specific to Linux. Windows uses something like `%LOCALAPPDATA%`, macOS
+     something else.
+
+   - We already provide `ROOT_DIR` for trusted modules, quoting from
+     [module interface docs](https://github.com/filecoin-station/desktop/blob/596b16704347c5c6e09c621f475cd20291938b77/docs/MODULE_INTERFACE.md?plain=1#L27-L29):
+
+     > `ROOT_DIR` The long-lived working directory on disk. The module must store all of its files
+     > inside (subdirectories of) this directory. The directory isn't expected to be backed up or
+     > shared across machines in any way.
 
 <!--
 What are the different options we considered? What are their pros & cons?
