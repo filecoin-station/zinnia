@@ -112,6 +112,15 @@ Example messages:
 
   `{"type": "jobs-completed", "total": 123, modules: {"saturn": 100, "retrieval-checker": 23}}`
 
+- Messages logged via Console APIs like `console.log` are printed to `stderr` without any modifications.
+
+  ```
+  Pinging /dnsaddr/bootstrap.libp2p.io/p2p/QmQCU2EcMqAqQPR2i9bChDtGNJchTbq5TbXJJ16u19uLTa
+  RTT: 1252ms
+  Cannot record stats: Error: InfluxDB API error 401
+  {"code":"unauthorized","message":"unauthorized access"}
+  ```
+
 ### Module identifiers
 
 We need each module to have a unique identifier (a name) that we can use in the messages above. This
@@ -141,8 +150,8 @@ namespace Zinnia {
   /** Get the wallet address, this value is typically provided by the Station. */
   walletAddress: String;
 
-  /** Report activities to the Station */
-  log: {
+  /** Report activities to the Station. These messages are displayed in the main UI. */
+  activity: {
     /** Report an informative status update, e.g. "Connecting to the network." */
     info(message: string);
 
