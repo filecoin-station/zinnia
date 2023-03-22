@@ -3,8 +3,6 @@
 // https://github.com/denoland/deno/blob/86785f21194460d713276dca2/runtime/js/98_global_scope.js
 
 const core = globalThis.Deno.core;
-const primordials = globalThis.__bootstrap.primordials;
-const { ObjectDefineProperties, ObjectCreate } = primordials;
 
 import * as util from "ext:zinnia_runtime/06_util.js";
 import * as event from "ext:deno_web/02_event.js";
@@ -28,7 +26,7 @@ import * as webidl from "ext:deno_webidl/00_webidl.js";
 import DOMException from "ext:deno_web/01_dom_exception.js";
 import * as abortSignal from "ext:deno_web/03_abort_signal.js";
 import * as globalInterfaces from "ext:deno_web/04_global_interfaces.js";
-import * as libp2p from "ext:zinnia_libp2p/01_peer.js";
+import { zinniaNs } from "ext:zinnia_runtime/90_zinnia_apis.js";
 
 // https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope
 const windowOrWorkerGlobalScope = {
@@ -110,9 +108,6 @@ const windowOrWorkerGlobalScope = {
   // Branding as a WebIDL object
   [webidl.brand]: util.nonEnumerable(webidl.brand),
 };
-
-const zinniaNs = ObjectCreate(null);
-ObjectDefineProperties(zinniaNs, libp2p.defaultPeerProps);
 
 const mainRuntimeGlobalProperties = {
   // Location: location.locationConstructorDescriptor,

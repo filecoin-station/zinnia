@@ -12,3 +12,6 @@ pub use deno_core::resolve_path;
 
 mod reporter;
 pub use reporter::*;
+
+mod ext;
+

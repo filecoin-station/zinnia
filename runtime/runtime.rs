@@ -4,17 +4,17 @@ use std::rc::Rc;
 use deno_core::anyhow::anyhow;
 use deno_core::error::type_error;
 use deno_core::futures::FutureExt;
-use deno_core::url::Url;
 use deno_core::{
-    include_js_files, located_script_name, resolve_import, serde_json, Extension, JsRuntime,
-    ModuleLoader, ModuleSource, ModuleSourceFuture, ModuleSpecifier, ModuleType, ResolutionKind,
-    RuntimeOptions,
+    located_script_name, resolve_import, serde_json, JsRuntime, ModuleLoader,
+    ModuleSource, ModuleSourceFuture, ModuleSpecifier, ModuleType, ResolutionKind, RuntimeOptions,
 };
 
-use deno_fetch::FetchPermissions;
-use deno_web::{BlobStore, TimersPermission};
+use deno_web::BlobStore;
 
 use crate::{colors, ConsoleReporter, Reporter};
+
+use crate::ext as runtime_ext;
+use runtime_ext::ZinniaPermissions;
 
 use tokio::fs::File;
 use tokio::io::AsyncReadExt;
@@ -71,32 +71,6 @@ impl BootstrapOptions {
     }
 }
 
-/// Hard-coded permissions
-struct ZinniaPermissions;
-
-impl TimersPermission for ZinniaPermissions {
-    fn allow_hrtime(&mut self) -> bool {
-        // Disable high-resolution time management.
-        //
-        // Quoting from https://v8.dev/docs/untrusted-code-mitigations
-        // > A high-precision timer makes it easier to observe side channels in the SSCA
-        // > vulnerability. If your product offers high-precision timers that can be accessed by
-        // > untrusted JavaScript or WebAssembly code, consider making these timers more coarse or
-        // > adding jitter to them.
-        false
-    }
-    fn check_unstable(&self, _state: &deno_core::OpState, _api_name: &'static str) {}
-}
-
-impl FetchPermissions for ZinniaPermissions {
-    fn check_net_url(&mut self, _url: &Url, _api_name: &str) -> Result<(), AnyError> {
-        Ok(())
-    }
-    fn check_read(&mut self, _p: &Path, _api_name: &str) -> Result<(), AnyError> {
-        Ok(())
-    }
-}
-
 pub async fn run_js_module(
     module_specifier: &ModuleSpecifier,
     bootstrap_options: &BootstrapOptions,
@@ -124,18 +98,7 @@ pub async fn run_js_module(
                     ..Default::default()
                 },
             }),
-            Extension::builder("zinnia_runtime")
-                .esm(include_js_files!(
-                  dir "js",
-                  "06_util.js",
-                  "98_global_scope.js",
-                  "99_main.js",
-                ))
-                .state(move |state| {
-                    state.put(ZinniaPermissions {});
-                    state.put(Rc::clone(&reporter));
-                })
-                .build(),
+            runtime_ext::init(runtime_ext::Options { reporter }),
         ],
         will_snapshot: false,
         inspector: false,
