@@ -21,4 +21,3 @@ async function vendor(url, outfile) {
     throw new Error(`Process failed with ${reason}: ${cmd}`);
   }
 }
-
