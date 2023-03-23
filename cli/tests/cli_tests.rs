@@ -2,25 +2,43 @@ use std::process::Output;
 
 use assert_cmd::Command;
 use assert_fs::prelude::*;
+use lazy_static::lazy_static;
 use pretty_assertions::assert_eq;
+use regex::Regex;
+
 use zinnia_runtime::anyhow::Context;
 use zinnia_runtime::resolve_path;
 
 #[test]
 fn run_js_module() -> Result<(), Box<dyn std::error::Error>> {
     let mod_js = assert_fs::NamedTempFile::new("hello-mod.js")?;
-    mod_js.write_str("console.log('Hello world!')")?;
+    mod_js.write_str(
+        r#"
+console.log("console.log");
+console.error("console.error");
+Zinnia.activity.info("activity.info");
+Zinnia.activity.error("activity.error");
+Zinnia.jobCompleted();
+"#,
+    )?;
 
     let output = Command::cargo_bin("zinnia")?
+        .env("NO_COLOR", "1")
         .args(["run", &mod_js.path().display().to_string()])
         .output()?;
 
     assert_eq!(
-        CmdResult::from(&output),
+        CmdResult::from(&output).map_stdout(strip_timestamps),
         CmdResult {
             exit_ok: true,
-            stdout: "Hello world!\n".into(),
-            stderr: "".into(),
+            stdout: [
+                "console.log\n",
+                "[TIMESTAMP  INFO] activity.info\n",
+                "[TIMESTAMP ERROR] activity.error\n",
+                "[TIMESTAMP STATS] Jobs completed: 1\n",
+            ]
+            .join(""),
+            stderr: "console.error\n".into(),
         }
     );
 
@@ -93,6 +111,27 @@ impl CmdResult {
             stderr: String::from_utf8_lossy(&cmd_output.stderr).to_string(),
         }
     }
+
+    pub fn map_stdout<F>(self, f: F) -> Self
+    where
+        F: FnOnce(&str) -> String,
+    {
+        Self {
+            stdout: f(&self.stdout),
+            ..self
+        }
+    }
+
+    #[allow(unused)]
+    pub fn map_stderr<F>(self, f: F) -> Self
+    where
+        F: FnOnce(&str) -> String,
+    {
+        Self {
+            stderr: f(&self.stdout),
+            ..self
+        }
+    }
 }
 
 impl std::fmt::Debug for CmdResult {
@@ -107,4 +146,12 @@ impl std::fmt::Debug for CmdResult {
         f.write_str("==END==")?;
         Ok(())
     }
+}
+
+fn strip_timestamps(text: &str) -> String {
+    lazy_static! {
+        static ref TIME_PATTERN: Regex = Regex::new(r"(?m)^\[\d\d:\d\d:\d\d.\d\d\d ").unwrap();
+    }
+
+    TIME_PATTERN.replace_all(text, "[TIMESTAMP ").to_string()
 }
