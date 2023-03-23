@@ -74,7 +74,6 @@ impl ConsoleReporter {
     }
 
     fn report(&self, scope: &str, msg: &str, color: Color) -> Result<()> {
-        // Important: activity messages do not include the final newline character
         if use_color() {
             let mut spec = ColorSpec::new();
             spec.set_fg(Some(color)).set_bold(true);
@@ -91,6 +90,7 @@ impl ConsoleReporter {
 }
 
 fn print_raw_report<W: Write>(w: &mut W, scope: &str, msg: &str) -> std::io::Result<()> {
+    // Important: activity messages do not include the final newline character
     w.write_fmt(format_args!("[{} {scope:>5}] {msg}\n", now_str()))
 }
 
