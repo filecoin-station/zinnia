@@ -34,9 +34,9 @@ function reportJobCompleted() {
   ops.op_job_completed();
 }
 
-function debugLog(msg) {
+function log(msg, level) {
   if (typeof msg !== "string") msg = "" + msg;
-  ops.op_debug_print(msg);
+  ops.op_zinnia_log(msg, level);
 }
 
-export { zinniaNs, debugLog };
+export { zinniaNs, log };

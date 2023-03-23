@@ -14,10 +14,10 @@ fn run_js_module() -> Result<(), Box<dyn std::error::Error>> {
     let mod_js = assert_fs::NamedTempFile::new("hello-mod.js")?;
     mod_js.write_str(
         r#"
-console.log("debug-info");
-console.error("debug-error");
-Zinnia.activity.info("information");
-Zinnia.activity.error("problem");
+console.log("console.log");
+console.error("console.error");
+Zinnia.activity.info("activity.info");
+Zinnia.activity.error("activity.error");
 Zinnia.jobCompleted();
 "#,
     )?;
@@ -31,12 +31,13 @@ Zinnia.jobCompleted();
         CmdResult {
             exit_ok: true,
             stdout: [
-                "[TIMESTAMP  INFO] information\n",
-                "[TIMESTAMP ERROR] problem\n",
+                "console.log\n",
+                "[TIMESTAMP  INFO] activity.info\n",
+                "[TIMESTAMP ERROR] activity.error\n",
                 "[TIMESTAMP STATS] Jobs completed: 1\n",
             ]
             .join(""),
-            stderr: "debug-info\ndebug-error\n".into(),
+            stderr: "console.error\n".into(),
         }
     );
 

@@ -1,5 +1,5 @@
-DEBUG: debug-info
-DEBUG: debug-error
-INFO: information
-ERROR: problem
+console.info: console.log
+console.error: console.error
+INFO: activity.info
+ERROR: activity.error
 JOB-COMPLETED

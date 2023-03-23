@@ -7,7 +7,7 @@ use deno_core::{include_js_files, op, Extension, OpState};
 use deno_fetch::FetchPermissions;
 use deno_web::TimersPermission;
 
-use crate::Reporter;
+use crate::{LogLevel, Reporter};
 
 pub struct Options {
     pub reporter: Rc<dyn Reporter>,
@@ -52,7 +52,7 @@ pub fn init(options: Options) -> Extension {
             op_job_completed::decl(),
             op_info_activity::decl(),
             op_error_activity::decl(),
-            op_debug_print::decl(),
+            op_zinnia_log::decl(),
         ])
         .state(move |state| {
             state.put(ZinniaPermissions {});
@@ -82,7 +82,7 @@ fn op_error_activity(state: &mut OpState, msg: &str) {
 }
 
 #[op]
-fn op_debug_print(state: &mut OpState, msg: &str) {
+fn op_zinnia_log(state: &mut OpState, msg: &str, level: LogLevel) {
     let reporter = state.borrow::<StoredReporter>();
-    reporter.debug_print(msg);
+    reporter.log(level, msg);
 }

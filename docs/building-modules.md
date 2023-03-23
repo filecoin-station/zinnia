@@ -49,8 +49,9 @@ individual methods in [MDN web docs](https://developer.mozilla.org/en-US/docs/We
 
 - [console](https://developer.mozilla.org/en-US/docs/Web/API/console)
 
-> Note: Zinnia considers console logs as a debugging tool. All Console methods print to `stderr`.
-> See [`Zinnia.activity.info`](#zinniaactivityinfomessage) and
+> Note: Messaged logged using Console APIs will not show in Station UI, they purpose is to help
+> Station Module authors to troubleshoot issues. See
+> [`Zinnia.activity.info`](#zinniaactivityinfomessage) and
 > [`Zinnia.activity.error](#zinniaactivityerrormessage) APIs for reporting information to be shown
 > to Station users in the Station Desktop UI.
 

@@ -2,7 +2,7 @@ use std::cell::RefCell;
 use std::io::{stderr, stdout, Write};
 use std::time::{Duration, Instant};
 
-use crate::Reporter;
+use crate::{LogLevel, Reporter};
 
 #[derive(Debug)]
 pub struct JobCompletionTracker {
@@ -86,11 +86,17 @@ impl Drop for ConsoleReporter {
 }
 
 impl Reporter for ConsoleReporter {
-    fn debug_print(&self, msg: &str) {
-        // Important: debug logs already contain the final newline character
-        // We are ignoring write errors because there isn't much to do in such case
-        let _ = stderr().write_all(msg.as_bytes());
-        let _ = stderr().flush();
+    fn log(&self, level: LogLevel, msg: &str) {
+        // Important: Console logs already contain the final newline character
+        if level <= LogLevel::Info {
+            // We are ignoring write errors because there isn't much to do in such case
+            let _ = stdout().write_all(msg.as_bytes());
+            let _ = stdout().flush();
+        } else {
+            // We are ignoring write errors because there isn't much to do in such case
+            let _ = stderr().write_all(msg.as_bytes());
+            let _ = stderr().flush();
+        }
     }
 
     fn info_activity(&self, msg: &str) {

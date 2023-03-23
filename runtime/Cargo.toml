@@ -23,6 +23,8 @@ deno_web = "0.124.0"
 deno_webidl = "0.93.0"
 log.workspace = true
 once_cell = "1.17.1"
+serde.workspace = true
+serde_repr.workspace = true
 termcolor = "1.2.0"
 tokio = { workspace = true, features = ["fs"] }
 zinnia_libp2p.workspace = true

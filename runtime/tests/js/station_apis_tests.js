@@ -8,10 +8,10 @@ test("Zinnia.walletAddress", () => {
 });
 
 test("smoke tests for reporting APIs", () => {
-  console.log("debug-info");
-  console.error("debug-error");
-  Zinnia.activity.info("information");
-  Zinnia.activity.error("problem");
+  console.log("console.log");
+  console.error("console.error");
+  Zinnia.activity.info("activity.info");
+  Zinnia.activity.error("activity.error");
   Zinnia.jobCompleted();
 });
 
