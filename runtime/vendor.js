@@ -3,11 +3,11 @@
 // See https://github.com/filecoin-station/zinnia/issues/43
 //
 // Run this script using the following command:
-//   deno --allow-all runtime/vendor.js
+//   deno run --allow-run runtime/vendor.js
 
-import { fromFileUrl } from "https://deno.land/std@0.177.0/path/mod.ts";
+import { fromFileUrl } from "https://deno.land/std@0.181.0/path/mod.ts";
 
-await vendor("https://deno.land/std@0.177.0/testing/asserts.ts", "asserts.bundle.js");
+await vendor("https://deno.land/std@0.181.0/testing/asserts.ts", "asserts.bundle.js");
 
 async function vendor(url, outfile) {
   const outpath = fromFileUrl(import.meta.resolve(`./vendored/${outfile}`));
@@ -21,3 +21,4 @@ async function vendor(url, outfile) {
     throw new Error(`Process failed with ${reason}: ${cmd}`);
   }
 }
+

@@ -179,9 +179,9 @@ function diff(A, B) {
                 id: ptr
             };
         } else {
-            const prev1 = down.id;
+            const prev = down.id;
             ptr++;
-            routes[ptr] = prev1;
+            routes[ptr] = prev;
             routes[ptr + diffTypesPtrOffset] = REMOVED;
             return {
                 y: down.y + 1,
@@ -212,8 +212,8 @@ function diff(A, B) {
         for(let k = -p; k < delta; ++k){
             fp[k + offset] = snake(k, fp[k - 1 + offset], fp[k + 1 + offset], offset, A, B);
         }
-        for(let k1 = delta + p; k1 > delta; --k1){
-            fp[k1 + offset] = snake(k1, fp[k1 - 1 + offset], fp[k1 + 1 + offset], offset, A, B);
+        for(let k = delta + p; k > delta; --k){
+            fp[k + offset] = snake(k, fp[k - 1 + offset], fp[k + 1 + offset], offset, A, B);
         }
         fp[delta + offset] = snake(delta, fp[delta - 1 + offset], fp[delta + 1 + offset], offset, A, B);
     }
@@ -246,18 +246,18 @@ function diffstr(A, B) {
             }
             return tokens.filter((token)=>token);
         } else {
-            const tokens1 = [], lines = string.split(/(\n|\r\n)/);
+            const tokens = [], lines = string.split(/(\n|\r\n)/);
             if (!lines[lines.length - 1]) {
                 lines.pop();
             }
-            for(let i1 = 0; i1 < lines.length; i1++){
-                if (i1 % 2) {
-                    tokens1[tokens1.length - 1] += lines[i1];
+            for(let i = 0; i < lines.length; i++){
+                if (i % 2) {
+                    tokens[tokens.length - 1] += lines[i];
                 } else {
-                    tokens1.push(lines[i1]);
+                    tokens.push(lines[i]);
                 }
             }
-            return tokens1;
+            return tokens;
         }
     }
     function createDetails(line, tokens) {
@@ -463,7 +463,8 @@ function assertEquals(actual, expected, msg) {
     if (equal(actual, expected)) {
         return;
     }
-    let message = "";
+    const msgSuffix = msg ? `: ${msg}` : ".";
+    let message = `Values are not equal${msgSuffix}`;
     const actualString = format(actual);
     const expectedString = format(expected);
     try {
@@ -472,12 +473,9 @@ function assertEquals(actual, expected, msg) {
         const diffMsg = buildMessage(diffResult, {
             stringDiff
         }).join("\n");
-        message = `Values are not equal:\n${diffMsg}`;
+        message = `${message}\n${diffMsg}`;
     } catch  {
-        message = `\n${red(CAN_NOT_DISPLAY)} + \n\n`;
-    }
-    if (msg) {
-        message = msg;
+        message = `${message}\n${red(CAN_NOT_DISPLAY)} + \n\n`;
     }
     throw new AssertionError(message);
 }
@@ -497,35 +495,30 @@ function assertNotEquals(actual, expected, msg) {
     } catch  {
         expectedString = "[Cannot display]";
     }
-    if (!msg) {
-        msg = `actual: ${actualString} expected not to be: ${expectedString}`;
-    }
-    throw new AssertionError(msg);
+    const msgSuffix = msg ? `: ${msg}` : ".";
+    throw new AssertionError(`Expected actual: ${actualString} not to be: ${expectedString}${msgSuffix}`);
 }
 function assertStrictEquals(actual, expected, msg) {
     if (Object.is(actual, expected)) {
         return;
     }
+    const msgSuffix = msg ? `: ${msg}` : ".";
     let message;
-    if (msg) {
-        message = msg;
+    const actualString = format(actual);
+    const expectedString = format(expected);
+    if (actualString === expectedString) {
+        const withOffset = actualString.split("\n").map((l)=>`    ${l}`).join("\n");
+        message = `Values have the same structure but are not reference-equal${msgSuffix}\n\n${red(withOffset)}\n`;
     } else {
-        const actualString = format(actual);
-        const expectedString = format(expected);
-        if (actualString === expectedString) {
-            const withOffset = actualString.split("\n").map((l)=>`    ${l}`).join("\n");
-            message = `Values have the same structure but are not reference-equal:\n\n${red(withOffset)}\n`;
-        } else {
-            try {
-                const stringDiff = typeof actual === "string" && typeof expected === "string";
-                const diffResult = stringDiff ? diffstr(actual, expected) : diff(actualString.split("\n"), expectedString.split("\n"));
-                const diffMsg = buildMessage(diffResult, {
-                    stringDiff
-                }).join("\n");
-                message = `Values are not strictly equal:\n${diffMsg}`;
-            } catch  {
-                message = `\n${red(CAN_NOT_DISPLAY)} + \n\n`;
-            }
+        try {
+            const stringDiff = typeof actual === "string" && typeof expected === "string";
+            const diffResult = stringDiff ? diffstr(actual, expected) : diff(actualString.split("\n"), expectedString.split("\n"));
+            const diffMsg = buildMessage(diffResult, {
+                stringDiff
+            }).join("\n");
+            message = `Values are not strictly equal${msgSuffix}\n${diffMsg}`;
+        } catch  {
+            message = `\n${red(CAN_NOT_DISPLAY)} + \n\n`;
         }
     }
     throw new AssertionError(message);
@@ -534,7 +527,8 @@ function assertNotStrictEquals(actual, expected, msg) {
     if (!Object.is(actual, expected)) {
         return;
     }
-    throw new AssertionError(msg ?? `Expected "actual" to be strictly unequal to: ${format(actual)}\n`);
+    const msgSuffix = msg ? `: ${msg}` : ".";
+    throw new AssertionError(`Expected "actual" to be strictly unequal to: ${format(actual)}${msgSuffix}\n`);
 }
 function assertAlmostEquals(actual, expected, tolerance = 1e-7, msg) {
     if (Object.is(actual, expected)) {
@@ -544,49 +538,50 @@ function assertAlmostEquals(actual, expected, tolerance = 1e-7, msg) {
     if (delta <= tolerance) {
         return;
     }
+    const msgSuffix = msg ? `: ${msg}` : ".";
     const f = (n)=>Number.isInteger(n) ? n : n.toExponential();
-    throw new AssertionError(msg ?? `actual: "${f(actual)}" expected to be close to "${f(expected)}": \
-delta "${f(delta)}" is greater than "${f(tolerance)}"`);
+    throw new AssertionError(`Expected actual: "${f(actual)}" to be close to "${f(expected)}": \
+delta "${f(delta)}" is greater than "${f(tolerance)}"${msgSuffix}`);
 }
 function assertInstanceOf(actual, expectedType, msg = "") {
-    if (!msg) {
-        const expectedTypeStr = expectedType.name;
-        let actualTypeStr = "";
-        if (actual === null) {
-            actualTypeStr = "null";
-        } else if (actual === undefined) {
-            actualTypeStr = "undefined";
-        } else if (typeof actual === "object") {
-            actualTypeStr = actual.constructor?.name ?? "Object";
-        } else {
-            actualTypeStr = typeof actual;
-        }
-        if (expectedTypeStr == actualTypeStr) {
-            msg = `Expected object to be an instance of "${expectedTypeStr}".`;
-        } else if (actualTypeStr == "function") {
-            msg = `Expected object to be an instance of "${expectedTypeStr}" but was not an instanced object.`;
-        } else {
-            msg = `Expected object to be an instance of "${expectedTypeStr}" but was "${actualTypeStr}".`;
-        }
+    if (actual instanceof expectedType) return;
+    const msgSuffix = msg ? `: ${msg}` : ".";
+    const expectedTypeStr = expectedType.name;
+    let actualTypeStr = "";
+    if (actual === null) {
+        actualTypeStr = "null";
+    } else if (actual === undefined) {
+        actualTypeStr = "undefined";
+    } else if (typeof actual === "object") {
+        actualTypeStr = actual.constructor?.name ?? "Object";
+    } else {
+        actualTypeStr = typeof actual;
     }
-    assert(actual instanceof expectedType, msg);
+    if (expectedTypeStr == actualTypeStr) {
+        msg = `Expected object to be an instance of "${expectedTypeStr}"${msgSuffix}`;
+    } else if (actualTypeStr == "function") {
+        msg = `Expected object to be an instance of "${expectedTypeStr}" but was not an instanced object${msgSuffix}`;
+    } else {
+        msg = `Expected object to be an instance of "${expectedTypeStr}" but was "${actualTypeStr}"${msgSuffix}`;
+    }
+    throw new AssertionError(msg);
 }
-function assertNotInstanceOf(actual, unexpectedType, msg = `Expected object to not be an instance of "${typeof unexpectedType}"`) {
+function assertNotInstanceOf(actual, unexpectedType, msg) {
+    const msgSuffix = msg ? `: ${msg}` : ".";
+    msg = `Expected object to not be an instance of "${typeof unexpectedType}"${msgSuffix}`;
     assertFalse(actual instanceof unexpectedType, msg);
 }
 function assertExists(actual, msg) {
     if (actual === undefined || actual === null) {
-        if (!msg) {
-            msg = `actual: "${actual}" expected to not be null or undefined`;
-        }
+        const msgSuffix = msg ? `: ${msg}` : ".";
+        msg = `Expected actual: "${actual}" to not be null or undefined${msgSuffix}`;
         throw new AssertionError(msg);
     }
 }
 function assertStringIncludes(actual, expected, msg) {
     if (!actual.includes(expected)) {
-        if (!msg) {
-            msg = `actual: "${actual}" expected to contain: "${expected}"`;
-        }
+        const msgSuffix = msg ? `: ${msg}` : ".";
+        msg = `Expected actual: "${actual}" to contain: "${expected}"${msgSuffix}`;
         throw new AssertionError(msg);
     }
 }
@@ -607,28 +602,25 @@ function assertArrayIncludes(actual, expected, msg) {
     if (missing.length === 0) {
         return;
     }
-    if (!msg) {
-        msg = `actual: "${format(actual)}" expected to include: "${format(expected)}"\nmissing: ${format(missing)}`;
-    }
+    const msgSuffix = msg ? `: ${msg}` : ".";
+    msg = `Expected actual: "${format(actual)}" to include: "${format(expected)}"${msgSuffix}\nmissing: ${format(missing)}`;
     throw new AssertionError(msg);
 }
 function assertMatch(actual, expected, msg) {
     if (!expected.test(actual)) {
-        if (!msg) {
-            msg = `actual: "${actual}" expected to match: "${expected}"`;
-        }
+        const msgSuffix = msg ? `: ${msg}` : ".";
+        msg = `Expected actual: "${actual}" to match: "${expected}"${msgSuffix}`;
         throw new AssertionError(msg);
     }
 }
 function assertNotMatch(actual, expected, msg) {
     if (expected.test(actual)) {
-        if (!msg) {
-            msg = `actual: "${actual}" expected to not match: "${expected}"`;
-        }
+        const msgSuffix = msg ? `: ${msg}` : ".";
+        msg = `Expected actual: "${actual}" to not match: "${expected}"${msgSuffix}`;
         throw new AssertionError(msg);
     }
 }
-function assertObjectMatch(actual, expected) {
+function assertObjectMatch(actual, expected, msg) {
     function filter(a, b) {
         const seen = new WeakMap();
         return fn(a, b);
@@ -660,24 +652,24 @@ function assertObjectMatch(actual, expected) {
                     filtered[key] = value;
                     continue;
                 } else if (typeof value === "object") {
-                    const subset1 = b[key];
-                    if (typeof subset1 === "object" && subset1) {
-                        if (value instanceof Map && subset1 instanceof Map) {
+                    const subset = b[key];
+                    if (typeof subset === "object" && subset) {
+                        if (value instanceof Map && subset instanceof Map) {
                             filtered[key] = new Map([
                                 ...value
-                            ].filter(([k])=>subset1.has(k)).map(([k, v])=>[
+                            ].filter(([k])=>subset.has(k)).map(([k, v])=>[
                                     k,
-                                    typeof v === "object" ? fn(v, subset1.get(k)) : v
+                                    typeof v === "object" ? fn(v, subset.get(k)) : v
                                 ]));
                             continue;
                         }
-                        if (value instanceof Set && subset1 instanceof Set) {
+                        if (value instanceof Set && subset instanceof Set) {
                             filtered[key] = new Set([
                                 ...value
-                            ].filter((v)=>subset1.has(v)));
+                            ].filter((v)=>subset.has(v)));
                             continue;
                         }
-                        filtered[key] = fn(value, subset1);
+                        filtered[key] = fn(value, subset);
                         continue;
                     }
                 }
@@ -686,21 +678,23 @@ function assertObjectMatch(actual, expected) {
             return filtered;
         }
     }
-    return assertEquals(filter(actual, expected), filter(expected, expected));
+    return assertEquals(filter(actual, expected), filter(expected, expected), msg);
 }
 function fail(msg) {
-    assert(false, `Failed assertion${msg ? `: ${msg}` : "."}`);
+    const msgSuffix = msg ? `: ${msg}` : ".";
+    assert(false, `Failed assertion${msgSuffix}`);
 }
 function assertIsError(error, ErrorClass, msgIncludes, msg) {
+    const msgSuffix = msg ? `: ${msg}` : ".";
     if (error instanceof Error === false) {
-        throw new AssertionError(`Expected "error" to be an Error object.`);
+        throw new AssertionError(`Expected "error" to be an Error object${msgSuffix}}`);
     }
     if (ErrorClass && !(error instanceof ErrorClass)) {
-        msg = `Expected error to be instance of "${ErrorClass.name}", but was "${typeof error === "object" ? error?.constructor?.name : "[not an object]"}"${msg ? `: ${msg}` : "."}`;
+        msg = `Expected error to be instance of "${ErrorClass.name}", but was "${typeof error === "object" ? error?.constructor?.name : "[not an object]"}"${msgSuffix}`;
         throw new AssertionError(msg);
     }
     if (msgIncludes && (!(error instanceof Error) || !stripColor(error.message).includes(stripColor(msgIncludes)))) {
-        msg = `Expected error message to include "${msgIncludes}", but got "${error instanceof Error ? error.message : "[not an Error]"}"${msg ? `: ${msg}` : "."}`;
+        msg = `Expected error message to include "${msgIncludes}", but got "${error instanceof Error ? error.message : "[not an Error]"}"${msgSuffix}`;
         throw new AssertionError(msg);
     }
 }
@@ -719,13 +713,13 @@ function assertThrows(fn, errorClassOrMsg, msgIncludesOrMsg, msg) {
         msg = errorClassOrMsg;
     }
     let doesThrow = false;
-    const msgToAppendToError = msg ? `: ${msg}` : ".";
+    const msgSuffix = msg ? `: ${msg}` : ".";
     try {
         fn();
     } catch (error) {
         if (ErrorClass) {
             if (error instanceof Error === false) {
-                throw new AssertionError("A non-Error object was thrown.");
+                throw new AssertionError(`A non-Error object was thrown${msgSuffix}`);
             }
             assertIsError(error, ErrorClass, msgIncludes, msg);
         }
@@ -733,7 +727,7 @@ function assertThrows(fn, errorClassOrMsg, msgIncludesOrMsg, msg) {
         doesThrow = true;
     }
     if (!doesThrow) {
-        msg = `Expected function to throw${msgToAppendToError}`;
+        msg = `Expected function to throw${msgSuffix}`;
         throw new AssertionError(msg);
     }
     return err;
@@ -752,7 +746,7 @@ async function assertRejects(fn, errorClassOrMsg, msgIncludesOrMsg, msg) {
     }
     let doesThrow = false;
     let isPromiseReturned = false;
-    const msgToAppendToError = msg ? `: ${msg}` : ".";
+    const msgSuffix = msg ? `: ${msg}` : ".";
     try {
         const possiblePromise = fn();
         if (possiblePromise && typeof possiblePromise === "object" && typeof possiblePromise.then === "function") {
@@ -761,11 +755,11 @@ async function assertRejects(fn, errorClassOrMsg, msgIncludesOrMsg, msg) {
         }
     } catch (error) {
         if (!isPromiseReturned) {
-            throw new AssertionError(`Function throws when expected to reject${msgToAppendToError}`);
+            throw new AssertionError(`Function throws when expected to reject${msgSuffix}`);
         }
         if (ErrorClass) {
             if (error instanceof Error === false) {
-                throw new AssertionError("A non-Error object was rejected.");
+                throw new AssertionError(`A non-Error object was rejected${msgSuffix}`);
             }
             assertIsError(error, ErrorClass, msgIncludes, msg);
         }
@@ -773,12 +767,13 @@ async function assertRejects(fn, errorClassOrMsg, msgIncludesOrMsg, msg) {
         doesThrow = true;
     }
     if (!doesThrow) {
-        throw new AssertionError(`Expected function to reject${msgToAppendToError}`);
+        throw new AssertionError(`Expected function to reject${msgSuffix}`);
     }
     return err;
 }
 function unimplemented(msg) {
-    throw new AssertionError(msg || "unimplemented");
+    const msgSuffix = msg ? `: ${msg}` : ".";
+    throw new AssertionError(`Unimplemented${msgSuffix}`);
 }
 function unreachable() {
     throw new AssertionError("unreachable");
