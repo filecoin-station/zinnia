@@ -1,4 +1,4 @@
-import { assertStrictEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
+import { assertStrictEquals } from "https://deno.land/std@0.181.0/testing/asserts.ts";
 
 test("Zinnia.walletAddress", () => {
   // Runtime JS tests are executed with the default configuration

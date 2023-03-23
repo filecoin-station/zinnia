@@ -1,4 +1,4 @@
-import { assertEquals, assertNotEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
+import { assertEquals, assertNotEquals } from "https://deno.land/std@0.181.0/testing/asserts.ts";
 
 await test("getRandomValues()", async () => {
   const first = new Uint8Array(4);
