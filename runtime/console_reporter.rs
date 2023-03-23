@@ -91,7 +91,7 @@ impl ConsoleReporter {
 
 fn print_raw_report<W: Write>(w: &mut W, scope: &str, msg: &str) -> std::io::Result<()> {
     // Important: activity messages do not include the final newline character
-    w.write_fmt(format_args!("[{} {scope:>5}] {msg}\n", now_str()))
+    write!(w, "[{} {scope:>5}] {msg}\n", now_str())
 }
 
 impl Drop for ConsoleReporter {
