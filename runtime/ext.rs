@@ -3,15 +3,11 @@ use std::rc::Rc;
 
 use deno_core::anyhow::Result;
 use deno_core::url::Url;
-use deno_core::{include_js_files, op, Extension, OpState};
+use deno_core::{op, OpState};
 use deno_fetch::FetchPermissions;
 use deno_web::TimersPermission;
 
 use crate::{LogLevel, Reporter};
-
-pub struct Options {
-    pub reporter: Rc<dyn Reporter>,
-}
 
 /// Hard-coded permissions
 pub struct ZinniaPermissions;
@@ -39,27 +35,29 @@ impl FetchPermissions for ZinniaPermissions {
     }
 }
 
-pub fn init(options: Options) -> Extension {
-    Extension::builder("zinnia_runtime")
-        .esm(include_js_files!(
-          dir "js",
-          "06_util.js",
-          "90_zinnia_apis.js",
-          "98_global_scope.js",
-          "99_main.js",
-        ))
-        .ops(vec![
-            op_job_completed::decl(),
-            op_info_activity::decl(),
-            op_error_activity::decl(),
-            op_zinnia_log::decl(),
-        ])
-        .state(move |state| {
-            state.put(ZinniaPermissions {});
-            state.put(Rc::clone(&options.reporter));
-        })
-        .build()
-}
+deno_core::extension!(
+    zinnia_runtime,
+    ops = [
+        op_job_completed,
+        op_info_activity,
+        op_error_activity,
+        op_zinnia_log,
+    ],
+    esm = [
+      dir "js",
+      "06_util.js",
+      "90_zinnia_apis.js",
+      "98_global_scope.js",
+      "99_main.js",
+    ],
+    options = {
+        reporter: Rc<dyn Reporter>,
+    },
+    state = |state, options| {
+        state.put(ZinniaPermissions {});
+        state.put(Rc::clone(&options.reporter));
+    }
+);
 
 type StoredReporter = Rc<dyn Reporter>;
 

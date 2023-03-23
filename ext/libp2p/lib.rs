@@ -3,7 +3,7 @@ use std::rc::Rc;
 
 use deno_core::anyhow::{anyhow, Context, Result};
 use deno_core::error::AnyError;
-use deno_core::{include_js_files, op, Extension, OpState, ZeroCopyBuf};
+use deno_core::{op, OpState, ZeroCopyBuf};
 use libp2p::identity::PeerId;
 use libp2p::multiaddr::Protocol;
 use libp2p::Multiaddr;
@@ -22,26 +22,28 @@ pub struct Options {
 #[derive(Debug, Clone, Copy)]
 struct DefaultNodeResourceId(deno_core::ResourceId);
 
-pub fn init(options: Options) -> Extension {
-    Extension::builder(env!("CARGO_PKG_NAME"))
-        .esm(include_js_files!(
-            dir "js",
-             "01_peer.js",
-        ))
-        .ops(vec![
-            op_p2p_get_peer_id::decl(),
-            op_p2p_request_protocol::decl(),
-        ])
-        .state(move |state| {
-            let default_node = PeerNode::spawn(options.default_peer.clone())
-                // FIXME: map errors to AnyError instead of panicking
-                // We need to convert `Box<dyn Error + Send>` to `anyhow::Error`
-                .unwrap();
-            let rid = state.resource_table.add(default_node);
-            state.put::<DefaultNodeResourceId>(DefaultNodeResourceId(rid));
-        })
-        .build()
-}
+deno_core::extension!(
+    zinnia_libp2p,
+    ops = [
+        op_p2p_get_peer_id,
+        op_p2p_request_protocol,
+    ],
+    esm = [
+        dir "js",
+        "01_peer.js",
+    ],
+    options = {
+        default_peer: PeerNodeConfig,
+    },
+    state = |state, options| {
+        let default_node = PeerNode::spawn(options.default_peer)
+            // FIXME: map errors to AnyError instead of panicking
+            // We need to convert `Box<dyn Error + Send>` to `anyhow::Error`
+            .unwrap();
+        let rid = state.resource_table.add(default_node);
+        state.put::<DefaultNodeResourceId>(DefaultNodeResourceId(rid));
+    },
+);
 
 #[op]
 pub fn op_p2p_get_peer_id(state: &mut OpState) -> Result<String> {

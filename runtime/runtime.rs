@@ -14,8 +14,7 @@ use deno_web::BlobStore;
 
 use crate::{colors, ConsoleReporter, Reporter};
 
-use crate::ext as runtime_ext;
-use runtime_ext::ZinniaPermissions;
+use crate::ext::ZinniaPermissions;
 
 use tokio::fs::File;
 use tokio::io::AsyncReadExt;
@@ -83,23 +82,21 @@ pub async fn run_js_module(
     let mut runtime = JsRuntime::new(RuntimeOptions {
         extensions: vec![
             // Web Platform APIs implemented by Deno
-            deno_console::init_esm(),
-            deno_webidl::init_esm(),
-            deno_url::init_ops_and_esm(),
-            deno_web::init_ops_and_esm::<ZinniaPermissions>(
+            deno_console::deno_console::init_ops_and_esm(),
+            deno_webidl::deno_webidl::init_ops_and_esm(),
+            deno_url::deno_url::init_ops_and_esm(),
+            deno_web::deno_web::init_ops_and_esm::<ZinniaPermissions>(
                 blob_store,
                 Some(module_specifier.clone()),
             ),
-            deno_fetch::init_ops_and_esm::<ZinniaPermissions>(Default::default()),
-            deno_crypto::init_ops_and_esm(bootstrap_options.rng_seed),
+            deno_fetch::deno_fetch::init_ops_and_esm::<ZinniaPermissions>(Default::default()),
+            deno_crypto::deno_crypto::init_ops_and_esm(bootstrap_options.rng_seed),
             // Zinnia-specific APIs
-            zinnia_libp2p::init(zinnia_libp2p::Options {
-                default_peer: zinnia_libp2p::PeerNodeConfig {
-                    agent_version: bootstrap_options.agent_version.clone(),
-                    ..Default::default()
-                },
+            zinnia_libp2p::zinnia_libp2p::init_ops_and_esm(zinnia_libp2p::PeerNodeConfig {
+                agent_version: bootstrap_options.agent_version.clone(),
+                ..Default::default()
             }),
-            runtime_ext::init(runtime_ext::Options { reporter }),
+            crate::ext::zinnia_runtime::init_ops_and_esm(reporter),
         ],
         will_snapshot: false,
         inspector: false,
@@ -110,7 +107,7 @@ pub async fn run_js_module(
     });
 
     let script = format!("bootstrap.mainRuntime({})", bootstrap_options.as_json());
-    runtime.execute_script(&located_script_name!(), &script)?;
+    runtime.execute_script(located_script_name!(), script)?;
 
     // Load and run the module
     let main_module_id = runtime.load_main_module(module_specifier, None).await?;
@@ -179,7 +176,7 @@ impl ModuleLoader for ZinniaModuleLoader {
             };
 
             let module = ModuleSource {
-                code: Box::from(code.as_bytes()),
+                code: code.into(),
                 module_type: ModuleType::JavaScript,
                 module_url_specified: specifier.to_string(),
                 module_url_found: specifier.to_string(),
