@@ -13,6 +13,7 @@ path = "lib.rs"
 
 [dependencies]
 atty = "0.2.14"
+chrono = { version= "0.4.24", default-features = false, features = [ "clock", "std" ] }
 deno_console = "0.94.0"
 deno_core.workspace = true
 deno_crypto = "0.108.0"
@@ -22,9 +23,12 @@ deno_web = "0.125.0"
 deno_webidl = "0.94.0"
 log.workspace = true
 once_cell = "1.17.1"
+serde.workspace = true
+serde_repr.workspace = true
 termcolor = "1.2.0"
 tokio = { workspace = true, features = ["fs"] }
 zinnia_libp2p.workspace = true
 
 [dev-dependencies]
 env_logger.workspace = true
+pretty_assertions = { workspace = true }

@@ -22,7 +22,8 @@ pub struct Options {
 #[derive(Debug, Clone, Copy)]
 struct DefaultNodeResourceId(deno_core::ResourceId);
 
-deno_core::extension!(zinnia_libp2p,
+deno_core::extension!(
+    zinnia_libp2p,
     ops = [
         op_p2p_get_peer_id,
         op_p2p_request_protocol,

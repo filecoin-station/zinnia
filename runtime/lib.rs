@@ -9,3 +9,10 @@ pub use vendored::fmt_errors;
 
 pub use deno_core::anyhow;
 pub use deno_core::resolve_path;
+
+mod console_reporter;
+mod reporter;
+pub use console_reporter::*;
+pub use reporter::*;
+
+mod ext;
