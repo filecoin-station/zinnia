@@ -76,7 +76,8 @@ impl ConsoleReporter {
     fn report(&self, scope: &str, msg: &str, color: Color) -> Result<()> {
         if use_color() {
             let mut spec = ColorSpec::new();
-            spec.set_fg(Some(color)).set_bold(true);
+            // spec.set_fg(Some(color)).set_bold(true);
+            spec.set_fg(Some(color));
             let mut ansi_writer = Ansi::new(stdout());
             ansi_writer.set_color(&spec)?;
             print_raw_report(&mut ansi_writer, scope, msg)?;
@@ -91,7 +92,7 @@ impl ConsoleReporter {
 
 fn print_raw_report<W: Write>(w: &mut W, scope: &str, msg: &str) -> std::io::Result<()> {
     // Important: activity messages do not include the final newline character
-    write!(w, "[{} {scope:>5}] {msg}\n", now_str())
+    writeln!(w, "[{} {scope:>5}] {msg}", now_str())
 }
 
 impl Drop for ConsoleReporter {
