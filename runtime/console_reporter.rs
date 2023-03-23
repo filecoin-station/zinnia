@@ -2,6 +2,10 @@ use std::cell::RefCell;
 use std::io::{stderr, stdout, Write};
 use std::time::{Duration, Instant};
 
+use termcolor::{Ansi, Color, ColorSpec, WriteColor};
+
+use crate::anyhow::Result;
+use crate::colors::use_color;
 use crate::{LogLevel, Reporter};
 
 #[derive(Debug)]
@@ -65,16 +69,29 @@ impl ConsoleReporter {
 
     fn print_jobs_completed(&self, total: u64) {
         let msg = format!("Jobs completed: {total}");
-        self.report("STATS", &msg);
+        let _ = self.report("STATS", &msg, Color::Yellow);
+        // ^^^ We are ignoring errors because there isn't much to do in such case
     }
 
-    fn report(&self, scope: &str, msg: &str) {
+    fn report(&self, scope: &str, msg: &str, color: Color) -> Result<()> {
         // Important: activity messages do not include the final newline character
-        let msg = format!("[{} {scope:>5}] {msg}\n", now_str());
-        // We are ignoring write errors because there isn't much to do in such case
-        let _ = stdout().write_all(msg.as_bytes());
-        let _ = stdout().flush();
+        if use_color() {
+            let mut spec = ColorSpec::new();
+            spec.set_fg(Some(color)).set_bold(true);
+            let mut ansi_writer = Ansi::new(stdout());
+            ansi_writer.set_color(&spec)?;
+            print_raw_report(&mut ansi_writer, scope, msg)?;
+            ansi_writer.reset()?;
+        } else {
+            print_raw_report(&mut stdout(), scope, msg)?;
+        }
+        stdout().flush()?;
+        Ok(())
     }
+}
+
+fn print_raw_report<W: Write>(w: &mut W, scope: &str, msg: &str) -> std::io::Result<()> {
+    w.write_fmt(format_args!("[{} {scope:>5}] {msg}\n", now_str()))
 }
 
 impl Drop for ConsoleReporter {
@@ -100,11 +117,13 @@ impl Reporter for ConsoleReporter {
     }
 
     fn info_activity(&self, msg: &str) {
-        self.report("INFO", msg)
+        let _ = self.report("INFO", msg, Color::Green);
+        // ^^^ We are ignoring errors because there isn't much to do in such case
     }
 
     fn error_activity(&self, msg: &str) {
-        self.report("ERROR", msg)
+        let _ = self.report("ERROR", msg, Color::Red);
+        // ^^^ We are ignoring errors because there isn't much to do in such case
     }
 
     fn job_completed(&self) {

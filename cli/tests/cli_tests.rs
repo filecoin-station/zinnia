@@ -23,6 +23,7 @@ Zinnia.jobCompleted();
     )?;
 
     let output = Command::cargo_bin("zinnia")?
+        .env("NO_COLOR", "1")
         .args(["run", &mod_js.path().display().to_string()])
         .output()?;
 
