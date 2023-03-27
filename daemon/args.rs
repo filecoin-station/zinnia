@@ -50,7 +50,7 @@ where
         Ok(state_home) => format!("{state_home}/zinniad"),
         Err(_) => {
             let home = get_env_var("HOME").expect("HOME must be set");
-            format!("{home}/Library/Application Support/app.filstation.zinniad")
+            format!("{home}/.local/state/zinniad")
         }
     }
 }
