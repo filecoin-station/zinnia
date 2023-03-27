@@ -61,7 +61,7 @@ where
     F: Fn(&'a str) -> Result<String, env::VarError>,
 {
     let app_data = get_env_var("LOCALAPPDATA").expect("LOCALAPPDATA must be set");
-    format!("{app_data}/zinniad")
+    format!("{app_data}\\zinniad")
 }
 
 #[cfg(test)]
@@ -123,6 +123,6 @@ mod tests {
                 .ok_or(env::VarError::NotPresent)
         });
 
-        assert_eq!(dir, r"\Users\Jane Smith\AppData\Local\Zinnia Service");
+        assert_eq!(dir, r"\Users\Jane Smith\AppData\Local\zinniad");
     }
 }
