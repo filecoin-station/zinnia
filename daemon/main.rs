@@ -46,7 +46,7 @@ async fn run(config: CliArgs) -> Result<()> {
     let module_version = "unknown";
 
     let main_module = resolve_path(
-        &file,
+        file,
         &std::env::current_dir().context("unable to get current working directory")?,
     )?;
     let config = BootstrapOptions {
