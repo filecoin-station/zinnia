@@ -24,6 +24,17 @@ impl Display for LogLevel {
     }
 }
 
+impl From<LogLevel> for log::Level {
+    fn from(value: LogLevel) -> Self {
+        match value {
+            LogLevel::Debug => log::Level::Debug,
+            LogLevel::Info => log::Level::Info,
+            LogLevel::Warn => log::Level::Warn,
+            LogLevel::Error => log::Level::Error,
+        }
+    }
+}
+
 // Report events, activities and messages from the running module
 pub trait Reporter {
     /// Print a debug log message. This is typically triggered by Console APIs like `console.log`.

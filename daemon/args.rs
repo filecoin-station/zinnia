@@ -28,6 +28,10 @@ pub enum Commands {
     },
 }
 
+// TODO: replace platform-specific code with https://crates.io/crates/directories
+// We need to contribute support for `state_dir` on Windows & MacOS
+// https://github.com/dirs-dev/directories-rs/issues/70
+
 #[cfg(target_os = "macos")]
 fn get_default_root_dir<'a, F>(get_env_var: F) -> String
 where

@@ -1,4 +1,8 @@
 mod args;
+mod station_reporter;
+
+use std::rc::Rc;
+use std::time::Duration;
 
 use args::CliArgs;
 use clap::Parser;
@@ -6,6 +10,8 @@ use clap::Parser;
 use log::{error, info};
 use zinnia_runtime::anyhow::{anyhow, Context, Error, Result};
 use zinnia_runtime::{resolve_path, run_js_module, BootstrapOptions};
+
+use crate::station_reporter::StationReporter;
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
@@ -46,6 +52,10 @@ async fn run(config: CliArgs) -> Result<()> {
             env!("CARGO_PKG_VERSION")
         ),
         wallet_address: config.wallet_address,
+        reporter: Rc::new(StationReporter::new(
+            Duration::from_millis(200),
+            module_name.into(),
+        )),
         ..Default::default()
     };
 

@@ -5599,6 +5599,8 @@ dependencies = [
  "env_logger",
  "log",
  "pretty_assertions",
+ "serde",
+ "serde_json",
  "tokio",
  "zinnia_runtime",
 ]
