@@ -123,7 +123,7 @@ jobs:
 
       - name: Release | Upload artifacts
         if: startsWith(github.ref, 'refs/tags/') # Don't create releases when debugging
-        uses: softprops/action-gh-release@d4e8205d7e959a9107da6396278b2f1f07af0f9b
+        uses: softprops/action-gh-release@c9b46fe7aad9f02afd89b12450b780f52dacfb2d
         with:
           draft: true
           files: ${{ matrix.name }}
