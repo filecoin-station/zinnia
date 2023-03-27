@@ -45,10 +45,30 @@ impl StationReporter {
 }
 
 fn print_event(data: &serde_json::Value) -> Result<()> {
-    // serde_json::to_writer(stdout(), data)?;
     writeln!(stdout(), "{data}")?;
     stdout().flush()?;
     Ok(())
+}
+
+pub fn log_info_activity(msg: &str) {
+    let event = json!({
+        "type": "activity:info",
+        "module": serde_json::Value::Null,
+        "message": msg,
+    });
+    let _ = print_event(&event);
+    // ^^^ We are ignoring errors because there isn't much to do in such case
+}
+
+#[allow(unused)]
+pub fn log_error_activity(msg: &str) {
+    let event = json!({
+        "type": "activity:error",
+        "module": serde_json::Value::Null,
+        "message": msg,
+    });
+    let _ = print_event(&event);
+    // ^^^ We are ignoring errors because there isn't much to do in such case
 }
 
 impl Drop for StationReporter {

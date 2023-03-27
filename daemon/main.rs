@@ -11,7 +11,7 @@ use log::{error, info};
 use zinnia_runtime::anyhow::{anyhow, Context, Error, Result};
 use zinnia_runtime::{resolve_path, run_js_module, BootstrapOptions};
 
-use crate::station_reporter::StationReporter;
+use crate::station_reporter::{log_info_activity, StationReporter};
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
@@ -35,6 +35,9 @@ async fn run(config: CliArgs) -> Result<()> {
             "We do not yet support running more than one module."
         ));
     }
+
+    log_info_activity("Module Runtime started.");
+
     let file = &config.files[0];
 
     // TODO: configurable module name and version
@@ -61,6 +64,7 @@ async fn run(config: CliArgs) -> Result<()> {
 
     // TODO: handle module exit and restart it
     // https://github.com/filecoin-station/zinnia/issues/146
+    log::info!("Starting module {main_module}");
     run_js_module(&main_module, &config).await?;
 
     Ok(())
