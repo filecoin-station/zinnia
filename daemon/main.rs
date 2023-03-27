@@ -4,7 +4,8 @@ use args::CliArgs;
 use clap::Parser;
 
 use log::{error, info};
-use zinnia_runtime::anyhow::{anyhow, Error, Result};
+use zinnia_runtime::anyhow::{anyhow, Context, Error, Result};
+use zinnia_runtime::{resolve_path, run_js_module, BootstrapOptions};
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
@@ -25,11 +26,33 @@ async fn run(config: CliArgs) -> Result<()> {
     }
     if config.files.len() > 1 {
         return Err(anyhow!(
-            "zinniad does not yet support running more than one module."
+            "We do not yet support running more than one module."
         ));
     }
+    let file = &config.files[0];
 
-    info!("To be done: run {}", config.files[0]);
+    // TODO: configurable module name and version
+    // https://github.com/filecoin-station/zinnia/issues/147
+    let module_name = file.trim_end_matches(".js");
+    let module_version = "unknown";
+
+    let main_module = resolve_path(
+        &file,
+        &std::env::current_dir().context("unable to get current working directory")?,
+    )?;
+    let config = BootstrapOptions {
+        agent_version: format!(
+            "zinniad/{} {module_name}/{module_version}",
+            env!("CARGO_PKG_VERSION")
+        ),
+        wallet_address: config.wallet_address,
+        ..Default::default()
+    };
+
+    // TODO: handle module exit and restart it
+    // https://github.com/filecoin-station/zinnia/issues/146
+    run_js_module(&main_module, &config).await?;
+
     Ok(())
 }
 
