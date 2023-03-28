@@ -5,6 +5,7 @@ members = [
 
     "runtime",
     "cli",
+    "daemon",
 ]
 
 [workspace.package]

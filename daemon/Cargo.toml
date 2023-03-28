@@ -1,0 +1,26 @@
+[package]
+name = "zinniad"
+version = "0.5.0"
+authors.workspace = true
+default-run = "zinniad"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Zinnia daemon runs Zinnia modules inside Filecoin Station."
+
+[[bin]]
+name = "zinniad"
+path = "main.rs"
+doc = false
+
+[dependencies]
+clap = { version = "4.1.13", features = ["derive", "env"] }
+env_logger.workspace = true
+log.workspace = true
+serde.workspace = true
+serde_json = "1.0.94"
+tokio = { workspace = true }
+zinnia_runtime = { workspace = true }
+
+[dev-dependencies]
+pretty_assertions = { workspace = true }

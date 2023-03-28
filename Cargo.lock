@@ -5590,3 +5590,17 @@ dependencies = [
  "tokio",
  "zinnia_libp2p",
 ]
+
+[[package]]
+name = "zinniad"
+version = "0.5.0"
+dependencies = [
+ "clap",
+ "env_logger",
+ "log",
+ "pretty_assertions",
+ "serde",
+ "serde_json",
+ "tokio",
+ "zinnia_runtime",
+]
