@@ -23,19 +23,19 @@ jobs:
           # List of platforms, this must be in sync with the list of platforms in ci.yaml
           - target: x86_64-unknown-linux-gnu
             os: ubuntu-latest
-            name: zinnia-linux-x64.tar.gz
+            name: linux-x64.tar.gz
 
           - target: x86_64-apple-darwin
             os: macos-latest
-            name: zinnia-macos-x64.zip
+            name: macos-x64.zip
 
           - target: aarch64-apple-darwin
             os: macos-latest
-            name: zinnia-macos-arm64.zip
+            name: macos-arm64.zip
 
           - target: x86_64-pc-windows-msvc
             os: windows-latest
-            name: zinnia-windows-x64.zip
+            name: windows-x64.zip
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -91,13 +91,15 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: |
           cd target/${{ matrix.target }}/release
-          7z a ../../../${{ matrix.name }} zinnia.exe
+          7z a ../../../zinnia-${{ matrix.name }} zinnia.exe
+          7z a ../../../zinniad-${{ matrix.name }} zinniad.exe
 
       - name: Post Build | Prepare artifacts [Linux]
         if: matrix.os == 'ubuntu-latest'
         run: |
           cd target/${{ matrix.target }}/release
-          tar czvf ../../../${{ matrix.name }} zinnia
+          tar czvf ../../../zinnia-${{ matrix.name }} zinnia
+          tar czvf ../../../zinniad-${{ matrix.name }} zinniad
 
       - name: Post Build | Sign the executable [macOS]
         if: matrix.os == 'macos-latest'
@@ -119,14 +121,15 @@ jobs:
         if: matrix.os == 'macos-latest'
         run: |
           cd target/${{ matrix.target }}/release
-          zip ../../../${{ matrix.name }} zinnia
+          zip ../../../zinnia-${{ matrix.name }} zinnia
+          zip ../../../zinniad-${{ matrix.name }} zinniad
 
       - name: Release | Upload artifacts
         if: startsWith(github.ref, 'refs/tags/') # Don't create releases when debugging
         uses: softprops/action-gh-release@c9b46fe7aad9f02afd89b12450b780f52dacfb2d
         with:
           draft: true
-          files: ${{ matrix.name }}
+          files: "*-${{ matrix.name }}"
           fail_on_unmatched_files: true
 
       # When debugging this workflow, attach the artifacts to the workflow run
@@ -134,6 +137,6 @@ jobs:
         if: ${{ !startsWith(github.ref, 'refs/tags/') }}
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ matrix.name }}
-          path: ${{ matrix.name }}
+          name: archives-${{ matrix.name }}
+          path: "*-${{ matrix.name }}"
 
