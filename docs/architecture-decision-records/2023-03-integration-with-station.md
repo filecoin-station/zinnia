@@ -60,6 +60,9 @@ Configuration via environment variables:
 - `ROOT_DIR`: Directory where to keep state files (optional). Defaults to a platform-specific
   location, e.g. `$XDG_STATE_HOME/zinniad` on Linux.
 
+  > Note: `ROOT_DIR` was superseded with `CACHE_DIR` and `STATE_DIR`, see
+  > [Filesystem Conventions ADR](./2023-03-filesystem-conventions.md).
+
 Positional arguments:
 
 - Positional arguments specify which modules to run, where each module is a single JS file. We don't
