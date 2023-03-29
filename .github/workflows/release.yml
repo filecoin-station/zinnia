@@ -112,10 +112,17 @@ jobs:
           # which usually triggers a timeout that locks the keychain.
           security unlock-keychain -p "$LOCAL_KEYCHAIN_PASSWORD" build.keychain
 
+          # Sign `zinnia`
           codesign --timestamp --force --verbose \
             --sign "$MACOS_SIGNING_IDENTITY" \
             --identifier "$MACOS_APP_ID" \
             target/${{ matrix.target }}/release/zinnia
+
+          # Sign `zinniad`
+          codesign --timestamp --force --verbose \
+            --sign "$MACOS_SIGNING_IDENTITY" \
+            --identifier "$MACOS_APP_ID" \
+            target/${{ matrix.target }}/release/zinniad
 
       - name: Post Build | Prepare artifacts [macOS]
         if: matrix.os == 'macos-latest'
