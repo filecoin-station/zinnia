@@ -32,11 +32,6 @@ If you have Rust tooling installed on your machine (see
 [Install Rust](https://www.rust-lang.org/tools/install)), you can build & install Zinnia from the
 source code.
 
-You also need the Protocol Buffers compiler, `protoc`. See
-[Protocol Buffer Compiler Installation](https://grpc.io/docs/protoc-installation/).
-
-Run the following command to build and install Zinnia:
-
 ```sh
 $ cargo install zinnia
 ```
