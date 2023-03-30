@@ -9,10 +9,13 @@ pub struct CliArgs {
     #[arg(long, short = 'w', env)]
     pub wallet_address: String,
 
-    /// Directory where to keep state files (optional). Defaults to a platform-specific location,
-    /// e.g. $XDG_STATE_HOME/zinniad on Linux.
-    #[arg(long, short = 'r', env, default_value_t = get_default_root_dir(env::var))]
-    pub root_dir: String,
+    /// Directory where to keep state files.
+    #[arg(long, env, default_value_t = get_default_state_dir(env::var))]
+    pub state_root: String,
+
+    /// Directory where to keep temporary files like cached data.
+    #[arg(long, env, default_value_t = get_default_cache_dir(env::var))]
+    pub cache_root: String,
 
     /// List of modules to run, where each module is a single JS file. We don't make any assumptions
     /// about the directory layout of modules. Paths are resolved relatively to the current working
@@ -33,7 +36,7 @@ pub enum Commands {
 // https://github.com/dirs-dev/directories-rs/issues/70
 
 #[cfg(target_os = "macos")]
-fn get_default_root_dir<'a, F>(get_env_var: F) -> String
+fn get_default_state_dir<'a, F>(get_env_var: F) -> String
 where
     F: Fn(&'a str) -> Result<String, env::VarError>,
 {
@@ -41,8 +44,17 @@ where
     format!("{home}/Library/Application Support/app.filstation.zinniad")
 }
 
+#[cfg(target_os = "macos")]
+fn get_default_cache_dir<'a, F>(get_env_var: F) -> String
+where
+    F: Fn(&'a str) -> Result<String, env::VarError>,
+{
+    let home = get_env_var("HOME").expect("HOME must be set");
+    format!("{home}/Library/Caches/app.filstation.zinniad")
+}
+
 #[cfg(target_os = "linux")]
-fn get_default_root_dir<'a, F>(get_env_var: F) -> String
+fn get_default_state_dir<'a, F>(get_env_var: F) -> String
 where
     F: Fn(&'a str) -> Result<String, env::VarError>,
 {
@@ -55,74 +67,158 @@ where
     }
 }
 
-#[cfg(target_os = "windows")]
-fn get_default_root_dir<'a, F>(get_env_var: F) -> String
+#[cfg(target_os = "linux")]
+fn get_default_cache_dir<'a, F>(get_env_var: F) -> String
 where
     F: Fn(&'a str) -> Result<String, env::VarError>,
 {
+    match get_env_var("XDG_CACHE_HOME") {
+        Ok(state_home) => format!("{state_home}/zinniad"),
+        Err(_) => {
+            let home = get_env_var("HOME").expect("HOME must be set");
+            format!("{home}/.cache/zinniad")
+        }
+    }
+}
+
+#[cfg(target_os = "windows")]
+fn get_default_state_dir<'a, F>(get_env_var: F) -> String
+where
+    F: Fn(&'a str) -> Result<String, env::VarError>,
+{
+    // LOCALAPPDATA is usually C:\Users\{username}\AppData\Local
     let app_data = get_env_var("LOCALAPPDATA").expect("LOCALAPPDATA must be set");
     format!("{app_data}\\zinniad")
 }
 
+#[cfg(target_os = "windows")]
+fn get_default_cache_dir<'a, F>(get_env_var: F) -> String
+where
+    F: Fn(&'a str) -> Result<String, env::VarError>,
+{
+    // TEMP or TMP is usually C:\Users\{Username}\AppData\Local\Temp
+    let temp = get_env_var("TEMP").expect("TEMP must be set");
+    format!("{temp}\\zinniad")
+}
+
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use std::collections::HashMap;
+    mod state_root {
+        use super::super::*;
+        use pretty_assertions::assert_eq;
+        use std::collections::HashMap;
 
-    use pretty_assertions::assert_eq;
+        #[test]
+        #[cfg(target_os = "macos")]
+        fn default_state_dir_on_macos() {
+            let env = HashMap::from([("HOME", "/users/labber")]);
+            let dir = get_default_state_dir(|key| {
+                env.get(&key)
+                    .map(|val| String::from(*val))
+                    .ok_or(env::VarError::NotPresent)
+            });
 
-    #[test]
-    #[cfg(target_os = "macos")]
-    fn default_root_dir_on_macos() {
-        let env = HashMap::from([("HOME", "/users/labber")]);
-        let dir = get_default_root_dir(|key| {
-            env.get(&key)
-                .map(|val| String::from(*val))
-                .ok_or(env::VarError::NotPresent)
-        });
+            assert_eq!(
+                dir,
+                "/users/labber/Library/Application Support/app.filstation.zinniad"
+            );
+        }
 
-        assert_eq!(
-            dir,
-            "/users/labber/Library/Application Support/app.filstation.zinniad"
-        );
+        #[test]
+        #[cfg(target_os = "linux")]
+        fn default_state_dir_on_linux() {
+            let env = HashMap::from([("XDG_STATE_HOME", "/users/labber/.local-state")]);
+            let dir = get_default_state_dir(|key| {
+                env.get(&key)
+                    .map(|val| String::from(*val))
+                    .ok_or(env::VarError::NotPresent)
+            });
+
+            assert_eq!(dir, "/users/labber/.local-state/zinniad");
+        }
+
+        #[test]
+        #[cfg(target_os = "linux")]
+        fn default_state_dir_on_linux_without_xdg() {
+            let env = HashMap::from([("HOME", "/users/labber")]);
+            let dir = get_default_state_dir(|key| {
+                env.get(&key)
+                    .map(|val| String::from(*val))
+                    .ok_or(env::VarError::NotPresent)
+            });
+
+            assert_eq!(dir, "/users/labber/.local/state/zinniad");
+        }
+
+        #[test]
+        #[cfg(target_os = "windows")]
+        fn default_state_dir_on_linux() {
+            let env = HashMap::from([("LOCALAPPDATA", r"\Users\Jane Smith\AppData\Local")]);
+            let dir = get_default_state_dir(|key| {
+                env.get(&key)
+                    .map(|val| String::from(*val))
+                    .ok_or(env::VarError::NotPresent)
+            });
+
+            assert_eq!(dir, r"\Users\Jane Smith\AppData\Local\zinniad");
+        }
     }
 
-    #[test]
-    #[cfg(target_os = "linux")]
-    fn default_root_dir_on_linux() {
-        let env = HashMap::from([("XDG_STATE_HOME", "/users/labber/.local-state")]);
-        let dir = get_default_root_dir(|key| {
-            env.get(&key)
-                .map(|val| String::from(*val))
-                .ok_or(env::VarError::NotPresent)
-        });
+    mod cache_root {
+        use super::super::*;
+        use pretty_assertions::assert_eq;
+        use std::collections::HashMap;
 
-        assert_eq!(dir, "/users/labber/.local-state/zinniad");
-    }
+        #[test]
+        #[cfg(target_os = "macos")]
+        fn default_cache_dir_on_macos() {
+            let env = HashMap::from([("HOME", "/users/labber")]);
+            let dir = get_default_cache_dir(|key| {
+                env.get(&key)
+                    .map(|val| String::from(*val))
+                    .ok_or(env::VarError::NotPresent)
+            });
 
-    #[test]
-    #[cfg(target_os = "linux")]
-    fn default_root_dir_on_linux_without_xdg() {
-        let env = HashMap::from([("HOME", "/users/labber")]);
-        let dir = get_default_root_dir(|key| {
-            env.get(&key)
-                .map(|val| String::from(*val))
-                .ok_or(env::VarError::NotPresent)
-        });
+            assert_eq!(dir, "/users/labber/Library/Caches/app.filstation.zinniad");
+        }
 
-        assert_eq!(dir, "/users/labber/.local/state/zinniad");
-    }
+        #[test]
+        #[cfg(target_os = "linux")]
+        fn default_cache_dir_on_linux() {
+            let env = HashMap::from([("XDG_CACHE_HOME", "/users/labber/.temp")]);
+            let dir = get_default_cache_dir(|key| {
+                env.get(&key)
+                    .map(|val| String::from(*val))
+                    .ok_or(env::VarError::NotPresent)
+            });
 
-    #[test]
-    #[cfg(target_os = "windows")]
-    fn default_root_dir_on_linux() {
-        let env = HashMap::from([("LOCALAPPDATA", r"\Users\Jane Smith\AppData\Local")]);
-        let dir = get_default_root_dir(|key| {
-            env.get(&key)
-                .map(|val| String::from(*val))
-                .ok_or(env::VarError::NotPresent)
-        });
+            assert_eq!(dir, "/users/labber/.temp/zinniad");
+        }
 
-        assert_eq!(dir, r"\Users\Jane Smith\AppData\Local\zinniad");
+        #[test]
+        #[cfg(target_os = "linux")]
+        fn default_cache_dir_on_linux_without_xdg() {
+            let env = HashMap::from([("HOME", "/users/labber")]);
+            let dir = get_default_cache_dir(|key| {
+                env.get(&key)
+                    .map(|val| String::from(*val))
+                    .ok_or(env::VarError::NotPresent)
+            });
+
+            assert_eq!(dir, "/users/labber/.cache/zinniad");
+        }
+
+        #[test]
+        #[cfg(target_os = "windows")]
+        fn default_cache_dir_on_linux() {
+            let env = HashMap::from([("TEMP", r"\Users\Jane Smith\AppData\Local\Temp")]);
+            let dir = get_default_cache_dir(|key| {
+                env.get(&key)
+                    .map(|val| String::from(*val))
+                    .ok_or(env::VarError::NotPresent)
+            });
+
+            assert_eq!(dir, r"\Users\Jane Smith\AppData\Local\Temp\zinniad");
+        }
     }
 }
