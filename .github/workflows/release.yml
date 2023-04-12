@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - '*'
+    branches:
+      - '*'
 
 env:
   CARGO_INCREMENTAL: 0
@@ -25,17 +27,17 @@ jobs:
             os: ubuntu-latest
             name: linux-x64.tar.gz
 
-          - target: x86_64-apple-darwin
-            os: macos-latest
-            name: macos-x64.zip
+          # - target: x86_64-apple-darwin
+          #   os: macos-latest
+          #   name: macos-x64.zip
 
-          - target: aarch64-apple-darwin
-            os: macos-latest
-            name: macos-arm64.zip
+          # - target: aarch64-apple-darwin
+          #   os: macos-latest
+          #   name: macos-arm64.zip
 
-          - target: x86_64-pc-windows-msvc
-            os: windows-latest
-            name: windows-x64.zip
+          # - target: x86_64-pc-windows-msvc
+          #   os: windows-latest
+          #   name: windows-x64.zip
 
     runs-on: ${{ matrix.os }}
     steps:
