@@ -107,7 +107,7 @@ pub async fn run_js_module(
     });
 
     let script = format!("bootstrap.mainRuntime({})", bootstrap_options.as_json());
-    runtime.execute_script(located_script_name!(), script)?;
+    runtime.execute_script(located_script_name!(), script.into())?;
 
     // Load and run the module
     let main_module_id = runtime.load_main_module(module_specifier, None).await?;
@@ -141,24 +141,25 @@ impl ModuleLoader for ZinniaModuleLoader {
     fn load(
         &self,
         module_specifier: &ModuleSpecifier,
-        maybe_referrer: Option<ModuleSpecifier>,
+        maybe_referrer: Option<&ModuleSpecifier>,
         is_dyn_import: bool,
     ) -> std::pin::Pin<Box<ModuleSourceFuture>> {
-        let specifier = module_specifier.clone();
+        let module_specifier = module_specifier.clone();
         let main_js_module = self.main_js_module.clone();
+        let maybe_referrer = maybe_referrer.map(|url_ref| url_ref.clone());
         async move {
             if is_dyn_import {
                 return Err(anyhow!(
                     "Zinnia does not support dynamic imports. (URL: {})",
-                    specifier
+                    module_specifier
                 ));
             }
 
-            let spec_str = specifier.as_str();
+            let spec_str = module_specifier.as_str();
 
             let code = {
                 if spec_str.eq_ignore_ascii_case(main_js_module.as_str()) {
-                    read_file_to_string(specifier.to_file_path().unwrap()).await?
+                    read_file_to_string(module_specifier.to_file_path().unwrap()).await?
                 } else if spec_str == "https://deno.land/std@0.177.0/testing/asserts.ts" {
                     return Err(anyhow!(
                         "The vendored version of deno asserts was upgraded to 0.181.0. Please update your imports.\nModule URL: {spec_str}\nImported from: {}",
@@ -171,7 +172,7 @@ impl ModuleLoader for ZinniaModuleLoader {
                 } else {
                     let mut msg =
                         "Zinnia does not support importing from other modules yet. ".to_string();
-                    msg.push_str(specifier.as_str());
+                    msg.push_str(module_specifier.as_str());
                     if let Some(referrer) = &maybe_referrer {
                         msg.push_str(" imported from ");
                         msg.push_str(referrer.as_str());
@@ -180,15 +181,9 @@ impl ModuleLoader for ZinniaModuleLoader {
                 }
             };
 
-            let module = ModuleSource {
-                code: code.into(),
-                module_type: ModuleType::JavaScript,
-                module_url_specified: specifier.to_string(),
-                module_url_found: specifier.to_string(),
-            };
+            let module = ModuleSource::new(ModuleType::JavaScript, code.into(), &module_specifier);
             Ok(module)
-        }
-        .boxed_local()
+        }.boxed_local()
     }
 }
 
