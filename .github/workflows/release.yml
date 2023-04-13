@@ -85,8 +85,8 @@ jobs:
       - name: Setup | Cross
         if: ${{ matrix.builder == 'cross' }}
         run: |
-          curl https://github.com/cross-rs/cross/releases/latest/download/cross-x86_64-unknown-linux-gnu.tar.gz -o /tmp/cross.tgz
-          (cd ~/.cargo/bin && tar xzf /tmp/cross.tgz)
+          curl -L https://github.com/cross-rs/cross/releases/latest/download/cross-x86_64-unknown-linux-gnu.tar.gz -o /tmp/cross.tgz
+          tar xzf /tmp/cross.tgz --cd ~/.cargo/bin
           cross --version
 
       # When debugging this workflow, cache the build artefacts
