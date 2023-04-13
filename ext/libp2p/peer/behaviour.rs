@@ -42,7 +42,7 @@ use libp2p::identity::PeerId;
 use libp2p::swarm::{
     behaviour::{AddressChange, ConnectionClosed, ConnectionEstablished, DialFailure, FromSwarm},
     dial_opts::DialOpts,
-    NetworkBehaviour, NetworkBehaviourAction, NotifyHandler, PollParameters,
+    NetworkBehaviour, NotifyHandler, PollParameters, ToSwarm,
 };
 use libp2p::swarm::{ConnectionDenied, ConnectionId, THandler, THandlerInEvent, THandlerOutEvent};
 
@@ -200,7 +200,7 @@ pub struct RequestResponse {
     /// The protocol configuration.
     config: RequestResponseConfig,
     /// Pending events to return from `poll`.
-    pending_events: VecDeque<NetworkBehaviourAction<RequestResponseEvent, RequestProtocol>>,
+    pending_events: VecDeque<ToSwarm<RequestResponseEvent, RequestProtocol>>,
     /// The currently connected peers, their pending outbound and inbound responses and their known,
     /// reachable addresses, if any.
     connected: HashMap<PeerId, SmallVec<[Connection; 2]>>,
@@ -251,7 +251,7 @@ impl RequestResponse {
         };
 
         if let Some(request) = self.try_send_request(peer, request) {
-            self.pending_events.push_back(NetworkBehaviourAction::Dial {
+            self.pending_events.push_back(ToSwarm::Dial {
                 opts: DialOpts::peer_id(*peer).build(),
             });
             self.pending_outbound_requests
@@ -341,12 +341,11 @@ impl RequestResponse {
             let ix = (request.request_id.0 as usize) % connections.len();
             let conn = &mut connections[ix];
             conn.pending_inbound_responses.insert(request.request_id);
-            self.pending_events
-                .push_back(NetworkBehaviourAction::NotifyHandler {
-                    peer_id: *peer,
-                    handler: NotifyHandler::One(conn.id),
-                    event: request,
-                });
+            self.pending_events.push_back(ToSwarm::NotifyHandler {
+                peer_id: *peer,
+                handler: NotifyHandler::One(conn.id),
+                event: request,
+            });
             None
         } else {
             Some(request)
@@ -461,14 +460,13 @@ impl RequestResponse {
         }
 
         for request_id in connection.pending_inbound_responses {
-            self.pending_events
-                .push_back(NetworkBehaviourAction::GenerateEvent(
-                    RequestResponseEvent::OutboundFailure {
-                        peer: peer_id,
-                        request_id,
-                        error: OutboundFailure::ConnectionClosed,
-                    },
-                ));
+            self.pending_events.push_back(ToSwarm::GenerateEvent(
+                RequestResponseEvent::OutboundFailure {
+                    peer: peer_id,
+                    request_id,
+                    error: OutboundFailure::ConnectionClosed,
+                },
+            ));
         }
     }
 
@@ -482,14 +480,13 @@ impl RequestResponse {
             // another, concurrent dialing attempt ongoing.
             if let Some(pending) = self.pending_outbound_requests.remove(&peer) {
                 for request in pending {
-                    self.pending_events
-                        .push_back(NetworkBehaviourAction::GenerateEvent(
-                            RequestResponseEvent::OutboundFailure {
-                                peer,
-                                request_id: request.request_id,
-                                error: OutboundFailure::DialFailure,
-                            },
-                        ));
+                    self.pending_events.push_back(ToSwarm::GenerateEvent(
+                        RequestResponseEvent::OutboundFailure {
+                            peer,
+                            request_id: request.request_id,
+                            error: OutboundFailure::DialFailure,
+                        },
+                    ));
                 }
             }
         }
@@ -577,10 +574,9 @@ impl NetworkBehaviour for RequestResponse {
                     request_id,
                     response,
                 };
-                self.pending_events
-                    .push_back(NetworkBehaviourAction::GenerateEvent(
-                        RequestResponseEvent::Message { peer, message },
-                    ));
+                self.pending_events.push_back(ToSwarm::GenerateEvent(
+                    RequestResponseEvent::Message { peer, message },
+                ));
             }
             RequestResponseHandlerEvent::OutboundTimeout(request_id) => {
                 let removed = self.remove_pending_inbound_response(&peer, connection, &request_id);
@@ -589,14 +585,13 @@ impl NetworkBehaviour for RequestResponse {
                     "Expect request_id to be pending before request times out."
                 );
 
-                self.pending_events
-                    .push_back(NetworkBehaviourAction::GenerateEvent(
-                        RequestResponseEvent::OutboundFailure {
-                            peer,
-                            request_id,
-                            error: OutboundFailure::Timeout,
-                        },
-                    ));
+                self.pending_events.push_back(ToSwarm::GenerateEvent(
+                    RequestResponseEvent::OutboundFailure {
+                        peer,
+                        request_id,
+                        error: OutboundFailure::Timeout,
+                    },
+                ));
             }
             RequestResponseHandlerEvent::InboundTimeout => {
                 // Note: `RequestResponseHandlerEvent::InboundTimeout` is emitted both for timing
@@ -605,13 +600,12 @@ impl NetworkBehaviour for RequestResponse {
                 // not assert the request_id to be present before removing it.
                 // self.remove_pending_outbound_response(&peer, connection, request_id);
 
-                self.pending_events
-                    .push_back(NetworkBehaviourAction::GenerateEvent(
-                        RequestResponseEvent::InboundFailure {
-                            peer,
-                            error: InboundFailure::Timeout,
-                        },
-                    ));
+                self.pending_events.push_back(ToSwarm::GenerateEvent(
+                    RequestResponseEvent::InboundFailure {
+                        peer,
+                        error: InboundFailure::Timeout,
+                    },
+                ));
             }
             RequestResponseHandlerEvent::OutboundUnsupportedProtocols(request_id) => {
                 let removed = self.remove_pending_inbound_response(&peer, connection, &request_id);
@@ -620,26 +614,24 @@ impl NetworkBehaviour for RequestResponse {
                     "Expect request_id to be pending before failing to connect.",
                 );
 
-                self.pending_events
-                    .push_back(NetworkBehaviourAction::GenerateEvent(
-                        RequestResponseEvent::OutboundFailure {
-                            peer,
-                            request_id,
-                            error: OutboundFailure::UnsupportedProtocols,
-                        },
-                    ));
+                self.pending_events.push_back(ToSwarm::GenerateEvent(
+                    RequestResponseEvent::OutboundFailure {
+                        peer,
+                        request_id,
+                        error: OutboundFailure::UnsupportedProtocols,
+                    },
+                ));
             }
             RequestResponseHandlerEvent::InboundUnsupportedProtocols => {
                 // Note: No need to call `self.remove_pending_outbound_response`,
                 // `RequestResponseHandlerEvent::Request` was never emitted for this request and
                 // thus request was never added to `pending_outbound_responses`.
-                self.pending_events
-                    .push_back(NetworkBehaviourAction::GenerateEvent(
-                        RequestResponseEvent::InboundFailure {
-                            peer,
-                            error: InboundFailure::UnsupportedProtocols,
-                        },
-                    ));
+                self.pending_events.push_back(ToSwarm::GenerateEvent(
+                    RequestResponseEvent::InboundFailure {
+                        peer,
+                        error: InboundFailure::UnsupportedProtocols,
+                    },
+                ));
             }
         }
     }
@@ -648,7 +640,7 @@ impl NetworkBehaviour for RequestResponse {
         &mut self,
         _: &mut Context<'_>,
         _: &mut impl PollParameters,
-    ) -> Poll<NetworkBehaviourAction<Self::OutEvent, THandlerInEvent<Self>>> {
+    ) -> Poll<ToSwarm<Self::OutEvent, THandlerInEvent<Self>>> {
         if let Some(ev) = self.pending_events.pop_front() {
             return Poll::Ready(ev);
         } else if self.pending_events.capacity() > EMPTY_QUEUE_SHRINK_THRESHOLD {
