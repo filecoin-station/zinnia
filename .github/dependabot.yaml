@@ -16,8 +16,9 @@ updates:
       # For Deno crates, ignore all semver-minor updates
       # More often than not, these crates must be updated together,
       # and Dependabot cannot do that yet (see https://github.com/github/roadmap/issues/148)
-      dependency-name: "deno_*"
-      update-types: ["version-update:semver-minor"]
+      - dependency-name: "deno_*"
+        update-types: ["version-update:semver-minor"]
+
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
