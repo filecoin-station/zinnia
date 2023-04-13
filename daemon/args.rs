@@ -5,16 +5,16 @@ use clap::{command, Parser, Subcommand};
 #[derive(Parser, PartialEq, Debug)]
 #[command(author, version, about, long_about = None)]
 pub struct CliArgs {
-    /// Address of Station's built-in wallet (required).
-    #[arg(long, short = 'w', env)]
+    /// Address of Station's built-in Filecoin wallet (required).
+    #[arg(long, short = 'w', env, name = "FIL ADDRESS")]
     pub wallet_address: String,
 
     /// Directory where to keep state files.
-    #[arg(long, env, default_value_t = get_default_state_dir(env::var))]
+    #[arg(long, env, default_value_t = get_default_state_dir(env::var), name = "LOCAL STATE DIR PATH")]
     pub state_root: String,
 
     /// Directory where to keep temporary files like cached data.
-    #[arg(long, env, default_value_t = get_default_cache_dir(env::var))]
+    #[arg(long, env, default_value_t = get_default_cache_dir(env::var), name = "CACHE DIR PATH")]
     pub cache_root: String,
 
     /// List of modules to run, where each module is a single JS file. We don't make any assumptions
