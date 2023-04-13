@@ -1,5 +1,8 @@
 name: Validate Dependabot config
 
+# This is a workaround for a bug that's breaking the built-in Dependabot validator
+# provided by GitHub. Tracking issue: https://github.com/dependabot/dependabot-core/issues/4605
+
 on:
   pull_request:
     paths:
