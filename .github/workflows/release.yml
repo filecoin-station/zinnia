@@ -32,6 +32,20 @@ jobs:
             name: linux-arm64.tar.gz
             builder: cross
 
+          # Not supported by Deno yet, see
+          # https://github.com/denoland/rusty_v8/pull/999
+          # - target: x86_64-unknown-linux-musl
+          #   os: ubuntu-latest
+          #   name: linux-x64-musl.tar.gz
+          #   builder: cross
+
+          # Not supported by Deno yet, see
+          # https://github.com/denoland/rusty_v8/issues/596
+          # - target: aarch64-unknown-linux-musl
+          #   os: ubuntu-latest
+          #   name: linux-arm64-musl.tar.gz
+          #   builder: cross
+
           # - target: x86_64-apple-darwin
           #   os: macos-latest
           #   name: macos-x64.zip
