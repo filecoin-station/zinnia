@@ -6,7 +6,7 @@ use clap::{command, Parser, Subcommand};
 #[command(author, version, about, long_about = None)]
 pub struct CliArgs {
     /// Address of Station's built-in Filecoin wallet (required).
-    #[arg(long, short = 'w', env, name = "FIL ADDRESS")]
+    #[arg(long, short = 'w', env = "FIL_WALLET_ADDRESS", name = "FIL ADDRESS")]
     pub wallet_address: String,
 
     /// Directory where to keep state files.
