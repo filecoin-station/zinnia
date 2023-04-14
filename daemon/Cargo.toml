@@ -14,7 +14,7 @@ path = "main.rs"
 doc = false
 
 [dependencies]
-clap = { version = "4.2.1", features = ["derive", "env"] }
+clap = { version = "4.2.2", features = ["derive", "env"] }
 env_logger.workspace = true
 log.workspace = true
 serde.workspace = true
