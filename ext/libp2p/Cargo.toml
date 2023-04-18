@@ -21,7 +21,7 @@ tokio-util = "0.7.7"
 either = "1.8.1"
 
 [dependencies.libp2p]
-version = "0.51.1"
+version = "0.51.3"
 features = [
     # "async-std",
     # "autonat",

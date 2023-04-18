@@ -53,7 +53,7 @@ use libp2p::core::{transport, upgrade, Multiaddr};
 use libp2p::futures::StreamExt;
 use libp2p::identity::{Keypair, PeerId};
 use libp2p::multiaddr::Protocol;
-use libp2p::swarm::{ConnectionHandlerUpgrErr, NetworkBehaviour, Swarm, SwarmEvent};
+use libp2p::swarm::{ConnectionHandlerUpgrErr, NetworkBehaviour, Swarm, SwarmBuilder, SwarmEvent};
 use libp2p::{identify, noise, ping, yamux, Transport};
 
 /// A Zinnia peer node wrapping rust-libp2p and providing higher-level APIs
@@ -85,7 +85,7 @@ impl PeerNode {
 
         // Build the Swarm, connecting the lower layer transport logic with the
         // higher layer network behaviour logic.
-        let swarm = Swarm::with_tokio_executor(
+        let swarm = SwarmBuilder::with_tokio_executor(
             tcp_transport,
             NodeBehaviour {
                 zinnia: RequestResponse::new(config.request_response_config()),
@@ -93,7 +93,8 @@ impl PeerNode {
                 id: identify::Behaviour::new(config.id_config(id_keys.public())),
             },
             peer_id,
-        );
+        )
+        .build();
 
         let (command_sender, command_receiver) = mpsc::channel::<Command>(1);
 
@@ -354,6 +355,7 @@ impl EventLoop {
                 log::debug!("Dialing {peer_id}");
             }
 
+            #[allow(deprecated)]
             SwarmEvent::BannedPeer { peer_id, .. } => {
                 log::debug!("Banned peer {peer_id}");
             }
@@ -482,8 +484,12 @@ mod tests {
             }
         };
 
-        let mut listener_swarm =
-            Swarm::with_tokio_executor(listener_transport, listener_behavior, listener_peer_id);
+        let mut listener_swarm = SwarmBuilder::with_tokio_executor(
+            listener_transport,
+            listener_behavior,
+            listener_peer_id,
+        )
+        .build();
 
         // FIXME: Use an ephemeral port number here.
         // Listen on port 0, read back the port assigned by the OS
