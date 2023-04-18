@@ -146,7 +146,7 @@ impl ModuleLoader for ZinniaModuleLoader {
     ) -> std::pin::Pin<Box<ModuleSourceFuture>> {
         let module_specifier = module_specifier.clone();
         let main_js_module = self.main_js_module.clone();
-        let maybe_referrer = maybe_referrer.map(|url_ref| url_ref.clone());
+        let maybe_referrer = maybe_referrer.cloned();
         async move {
             if is_dyn_import {
                 return Err(anyhow!(
