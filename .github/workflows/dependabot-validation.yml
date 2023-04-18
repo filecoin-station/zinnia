@@ -1,0 +1,27 @@
+name: Validate Dependabot config
+
+# This is a workaround for a bug that's breaking the built-in Dependabot validator
+# provided by GitHub. Tracking issue: https://github.com/dependabot/dependabot-core/issues/4605
+
+on:
+  pull_request:
+    paths:
+      - '.github/dependabot.yml'
+      - '.github/workflows/dependabot-validation.yml'
+jobs:
+  validate:
+    name: Validate Dependabot config
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: marocchino/validate-dependabot@v2
+        id: validate
+        with:
+          path: .github/dependabot.yaml
+
+      - uses: marocchino/sticky-pull-request-comment@v2
+        if: always()
+        with:
+          header: validate-dependabot
+          message: ${{ steps.validate.outputs.markdown }}
