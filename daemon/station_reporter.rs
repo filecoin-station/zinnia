@@ -1,28 +1,38 @@
 use std::cell::RefCell;
 use std::io::{stderr, stdout, Write};
+use std::path::PathBuf;
 use std::time::Duration;
 
 use serde_json::{json, Map};
 use zinnia_runtime::anyhow::Result;
 use zinnia_runtime::{JobCompletionTracker, LogLevel, Reporter};
 
+use crate::state::{self, State};
+
 /// StationReporter reports activities to stdout as ND-JSON stream and all Console logs to stderr
 pub struct StationReporter {
     tracker: RefCell<JobCompletionTracker>,
     module_name: String,
     log_target: String,
+    state_file: PathBuf,
 }
 
 impl StationReporter {
     /// Create a new instance.
     ///
     /// `job_report_delay` specifies how often the information about new jobs is printed.
-    pub fn new(job_report_delay: Duration, module_name: String) -> Self {
+    pub fn new(state_file: PathBuf, job_report_delay: Duration, module_name: String) -> Self {
         let log_target = format!("module:{module_name}");
+        let initial_job_count = state::load(&state_file).total_jobs_completed;
+
         Self {
-            tracker: RefCell::new(JobCompletionTracker::new(job_report_delay)),
+            tracker: RefCell::new(JobCompletionTracker::new(
+                initial_job_count,
+                job_report_delay,
+            )),
             module_name,
             log_target,
+            state_file,
         }
     }
 
@@ -36,7 +46,7 @@ impl StationReporter {
         let event = json!({
             "type": "jobs-completed",
             "total": total,
-             "modules": modules,
+            "modules": modules,
         });
 
         let _ = print_event(&event);
@@ -110,8 +120,49 @@ impl Reporter for StationReporter {
     }
 
     fn job_completed(&self) {
-        self.tracker
+        let total_jobs_completed = self
+            .tracker
             .borrow_mut()
             .job_completed(|n| self.print_jobs_completed(n));
+
+        let state = State {
+            total_jobs_completed,
+        };
+        state::store(&self.state_file, &state);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use pretty_assertions::assert_eq;
+    use tempfile;
+
+    const NO_DELAY: Duration = Duration::from_millis(0);
+
+    #[test]
+    fn persists_job_counter() -> Result<()> {
+        let state_dir = tempfile::tempdir()?;
+        let state_file = state_dir.path().join("state.json");
+        let reporter = StationReporter::new(state_file.clone(), NO_DELAY, "test".into());
+        assert_eq!(reporter.tracker.borrow().counter(), 0, "initial count");
+
+        reporter.job_completed();
+        println!("{:?}", reporter.tracker);
+        assert_eq!(
+            reporter.tracker.borrow().counter(),
+            1,
+            "count after a job was completed"
+        );
+
+        let reporter = StationReporter::new(state_file, NO_DELAY, "test".into());
+        println!("{:?}", reporter.tracker);
+        assert_eq!(
+            reporter.tracker.borrow().counter(),
+            1,
+            "count after creating a new reporter"
+        );
+
+        Ok(())
     }
 }

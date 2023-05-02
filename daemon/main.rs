@@ -1,6 +1,8 @@
 mod args;
+mod state;
 mod station_reporter;
 
+use std::path::PathBuf;
 use std::rc::Rc;
 use std::time::Duration;
 
@@ -36,6 +38,9 @@ async fn run(config: CliArgs) -> Result<()> {
         ));
     }
 
+    let state_file = PathBuf::from(config.state_root).join("state.json");
+    log::debug!("Using state file: {}", state_file.display());
+
     log_info_activity("Module Runtime started.");
 
     let file = &config.files[0];
@@ -56,6 +61,7 @@ async fn run(config: CliArgs) -> Result<()> {
         ),
         wallet_address: config.wallet_address,
         reporter: Rc::new(StationReporter::new(
+            state_file,
             Duration::from_millis(200),
             module_name.into(),
         )),

@@ -16,25 +16,31 @@ pub struct JobCompletionTracker {
 }
 
 impl JobCompletionTracker {
-    pub fn new(delay: Duration) -> Self {
+    pub fn new(initial_value: u64, delay: Duration) -> Self {
         Self {
             delay,
-            counter: 0,
+            counter: initial_value,
             last_report: None,
         }
     }
 
-    pub fn job_completed<F: FnOnce(u64)>(&mut self, log: F) {
+    pub fn counter(&self) -> u64 {
+        self.counter
+    }
+
+    pub fn job_completed<F: FnOnce(u64)>(&mut self, log: F) -> u64 {
         self.counter += 1;
 
         if let Some(last) = self.last_report {
             if last.0.elapsed() < self.delay {
-                return;
+                return self.counter;
             }
         }
         self.last_report.replace((Instant::now(), self.counter));
 
         log(self.counter);
+
+        self.counter
     }
 
     pub fn flush<F: FnOnce(u64)>(&mut self, log: F) {
@@ -63,7 +69,7 @@ impl ConsoleReporter {
     /// `job_report_delay` specifies how often the information about new jobs is printed.
     pub fn new(job_report_delay: Duration) -> Self {
         Self {
-            tracker: RefCell::new(JobCompletionTracker::new(job_report_delay)),
+            tracker: RefCell::new(JobCompletionTracker::new(0, job_report_delay)),
         }
     }
 
@@ -145,7 +151,7 @@ mod tests {
 
     impl Default for JobCompletionTracker {
         fn default() -> Self {
-            Self::new(Duration::from_millis(1000))
+            Self::new(0, Duration::from_millis(1000))
         }
     }
 
@@ -169,7 +175,7 @@ mod tests {
     #[test]
     fn tracker_prints_new_jobs_after_delay() {
         let mut reported = 0;
-        let mut tracker = JobCompletionTracker::new(Duration::from_millis(1));
+        let mut tracker = JobCompletionTracker::new(0, Duration::from_millis(1));
         tracker.job_completed(|x| reported = x);
         std::thread::sleep(Duration::from_millis(2));
         tracker.job_completed(|x| reported = x);
