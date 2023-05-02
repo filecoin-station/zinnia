@@ -75,25 +75,34 @@ impl ConsoleReporter {
 
     fn print_jobs_completed(&self, total: u64) {
         let msg = format!("Jobs completed: {total}");
-        let _ = self.report("STATS", &msg, Color::Yellow);
-        // ^^^ We are ignoring errors because there isn't much to do in such case
+        self.report("STATS", &msg, Color::Yellow);
     }
 
-    fn report(&self, scope: &str, msg: &str, color: Color) -> Result<()> {
-        if use_color() {
-            let mut spec = ColorSpec::new();
-            // spec.set_fg(Some(color)).set_bold(true);
-            spec.set_fg(Some(color));
-            let mut ansi_writer = Ansi::new(stdout());
-            ansi_writer.set_color(&spec)?;
-            print_raw_report(&mut ansi_writer, scope, msg)?;
-            ansi_writer.reset()?;
-        } else {
-            print_raw_report(&mut stdout(), scope, msg)?;
-        }
-        stdout().flush()?;
-        Ok(())
+    fn report(&self, scope: &str, msg: &str, color: Color) {
+        print_report(scope, msg, color).unwrap_or_else(|err| {
+            // We are ignoring errors because there isn't much to do in such case
+            log::debug!(
+                "Cannot report event [scope:{scope} color:{color:?}] {msg:?}: {}",
+                err
+            )
+        })
     }
+}
+
+fn print_report(scope: &str, msg: &str, color: Color) -> Result<()> {
+    if use_color() {
+        let mut spec = ColorSpec::new();
+        // spec.set_fg(Some(color)).set_bold(true);
+        spec.set_fg(Some(color));
+        let mut ansi_writer = Ansi::new(stdout());
+        ansi_writer.set_color(&spec)?;
+        print_raw_report(&mut ansi_writer, scope, msg)?;
+        ansi_writer.reset()?;
+    } else {
+        print_raw_report(&mut stdout(), scope, msg)?;
+    }
+    stdout().flush()?;
+    Ok(())
 }
 
 fn print_raw_report<W: Write>(w: &mut W, scope: &str, msg: &str) -> std::io::Result<()> {
@@ -124,13 +133,11 @@ impl Reporter for ConsoleReporter {
     }
 
     fn info_activity(&self, msg: &str) {
-        let _ = self.report("INFO", msg, Color::Green);
-        // ^^^ We are ignoring errors because there isn't much to do in such case
+        self.report("INFO", msg, Color::Green);
     }
 
     fn error_activity(&self, msg: &str) {
-        let _ = self.report("ERROR", msg, Color::Red);
-        // ^^^ We are ignoring errors because there isn't much to do in such case
+        self.report("ERROR", msg, Color::Red);
     }
 
     fn job_completed(&self) {

@@ -49,15 +49,17 @@ impl StationReporter {
             "modules": modules,
         });
 
-        let _ = print_event(&event);
-        // ^^^ We are ignoring errors because there isn't much to do in such case
+        print_event(&event);
     }
 }
 
-fn print_event(data: &serde_json::Value) -> Result<()> {
-    writeln!(stdout(), "{data}")?;
-    stdout().flush()?;
-    Ok(())
+fn print_event(data: &serde_json::Value) {
+    writeln!(stdout(), "{data}")
+        .and_then(|_| stdout().flush())
+        .unwrap_or_else(|err| {
+            // We are ignoring errors because there isn't much to do in such case
+            log::debug!("Cannot print event {}: {}", data, err);
+        });
 }
 
 pub fn log_info_activity(msg: &str) {
@@ -66,8 +68,7 @@ pub fn log_info_activity(msg: &str) {
         "module": serde_json::Value::Null,
         "message": msg,
     });
-    let _ = print_event(&event);
-    // ^^^ We are ignoring errors because there isn't much to do in such case
+    print_event(&event);
 }
 
 #[allow(unused)]
@@ -77,8 +78,7 @@ pub fn log_error_activity(msg: &str) {
         "module": serde_json::Value::Null,
         "message": msg,
     });
-    let _ = print_event(&event);
-    // ^^^ We are ignoring errors because there isn't much to do in such case
+    print_event(&event);
 }
 
 impl Drop for StationReporter {
@@ -105,8 +105,7 @@ impl Reporter for StationReporter {
             "module": self.module_name,
             "message": msg,
         });
-        let _ = print_event(&event);
-        // ^^^ We are ignoring errors because there isn't much to do in such case
+        print_event(&event);
     }
 
     fn error_activity(&self, msg: &str) {
@@ -115,8 +114,7 @@ impl Reporter for StationReporter {
             "module": self.module_name,
             "message": msg,
         });
-        let _ = print_event(&event);
-        // ^^^ We are ignoring errors because there isn't much to do in such case
+        print_event(&event);
     }
 
     fn job_completed(&self) {
