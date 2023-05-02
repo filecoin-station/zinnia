@@ -5,7 +5,9 @@ use assert_fs::prelude::*;
 use lazy_static::lazy_static;
 use pretty_assertions::assert_eq;
 use regex::Regex;
+use rexpect;
 
+use rexpect::process::wait::WaitStatus;
 use zinnia_runtime::anyhow::Context;
 use zinnia_runtime::resolve_path;
 
@@ -90,6 +92,45 @@ function fail() {
             stderr: expected_stderr,
         }
     );
+
+    Ok(())
+}
+
+#[test]
+fn exits_gracefully() -> Result<(), Box<dyn std::error::Error>> {
+    let mod_js = assert_fs::NamedTempFile::new("exit.js")?;
+    mod_js.write_str(
+        r#"
+tick();
+function tick() {
+    console.log('tick');
+    setTimeout(tick, 100);
+}
+"#,
+    )?;
+
+    let mod_js_str = mod_js.path().display().to_string();
+
+    let mut cmd = std::process::Command::new(assert_cmd::cargo::cargo_bin("zinnia"));
+    cmd.env("NO_COLOR", "1")
+        .env("RUST_LOG", "debug/shutting")
+        .args(["run", &mod_js_str]);
+
+    // Wait until the module starts and prints the first log line
+    let mut p = rexpect::session::spawn_command(cmd, Some(1000 /* milliseconds */))?;
+    p.exp_regex("tick")?;
+
+    // Kill the process via Ctrl+C
+    p.send_control('c')?;
+    // Read the rest of stdout
+    let output = p.exp_eof()?;
+    let output = Regex::new("^(?s).*DEBUG zinnia]")?.replace_all(&output, "");
+    let output = output.trim();
+    assert_eq!(output, "Shutting down...");
+
+    // Check the exit code
+    let result = p.process.wait()?;
+    assert_eq!(result, WaitStatus::Exited(p.process.child_pid, 0));
 
     Ok(())
 }

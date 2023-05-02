@@ -1,8 +1,11 @@
 mod args;
 
+use std::process::ExitCode;
+
 use args::{CliArgs, Commands};
 use clap::Parser;
 
+use tokio::signal;
 use zinnia_runtime::anyhow::{Context, Error, Result};
 use zinnia_runtime::deno_core::error::JsError;
 use zinnia_runtime::fmt_errors::format_js_error;
@@ -21,7 +24,7 @@ async fn main() {
     }
 }
 
-async fn main_impl() -> Result<()> {
+async fn main_impl() -> Result<ExitCode> {
     let cli_args = CliArgs::parse_from(std::env::args());
     match cli_args.command {
         Commands::Run { file } => {
@@ -33,8 +36,23 @@ async fn main_impl() -> Result<()> {
                 agent_version: format!("zinnia/{}", env!("CARGO_PKG_VERSION")),
                 ..Default::default()
             };
-            run_js_module(&main_module, &config).await?;
-            Ok(())
+
+            tokio::select! {
+                result = run_js_module(&main_module, &config) => {
+                    result.map(|_| ExitCode::SUCCESS)
+                },
+
+                _ = signal::ctrl_c() => {
+                    log::debug!("Shutting down...");
+                    Ok(ExitCode::SUCCESS)
+                },
+
+                #cfg[cfg(windows)]
+                _ = signal::windows::ctrl_close() => {
+                    log::debug!("Shutting down...");
+                    Ok(ExitCode::SUCCESS)
+                }
+            }
         }
     }
 }
