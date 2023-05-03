@@ -27,7 +27,7 @@ pub fn load(state_file: &Path) -> State {
                     err
                 );
             }
-            return State::default();
+            State::default()
         }
         Ok(data) => match serde_json::from_str::<State>(&data) {
             Err(err) => {
@@ -36,11 +36,11 @@ pub fn load(state_file: &Path) -> State {
                     state_file.display(),
                     err
                 );
-                return State::default();
+                State::default()
             }
             Ok(state) => {
                 log::debug!("Initial state: {:?}", state);
-                return state;
+                state
             }
         },
     }
