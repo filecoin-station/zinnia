@@ -48,17 +48,6 @@ impl State {
     }
 
     pub fn store(&self, state_file: &Path) {
-        if let Some(parent) = state_file.parent() {
-            if let Err(err) = std::fs::create_dir_all(&parent) {
-                log::warn!(
-                    "Cannot create state directory {}: {}",
-                    parent.display(),
-                    err
-                );
-                return;
-            }
-        }
-
         let payload = match serde_json::to_string_pretty(self) {
             Err(err) => {
                 log::warn!("Cannot serialize state: {}", err);
@@ -68,8 +57,26 @@ impl State {
             Ok(payload) => payload,
         };
 
-        let write_result = AtomicFile::new(state_file, OverwriteBehavior::AllowOverwrite)
+        let mut write_result = AtomicFile::new(state_file, OverwriteBehavior::AllowOverwrite)
             .write(|f| f.write_all(payload.as_bytes()));
+
+        if let Err(atomicwrites::Error::Internal(err)) = &write_result {
+            if err.kind() == std::io::ErrorKind::NotFound {
+                if let Some(parent) = state_file.parent() {
+                    if let Err(err) = std::fs::create_dir_all(&parent) {
+                        log::warn!(
+                            "Cannot create state directory {}: {}",
+                            parent.display(),
+                            err
+                        );
+                    } else {
+                        write_result =
+                            AtomicFile::new(state_file, OverwriteBehavior::AllowOverwrite)
+                                .write(|f| f.write_all(payload.as_bytes()));
+                    }
+                }
+            }
+        }
 
         match write_result {
             Err(err) => log::warn!("Cannot write state to {}: {}", state_file.display(), err),
