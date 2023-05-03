@@ -24,6 +24,11 @@ jobs:
           - target: x86_64-unknown-linux-gnu
             os: ubuntu-latest
             name: linux-x64.tar.gz
+            # Build using `cross` to link against an older `glibc` version that's compatible
+            # with more Linux distros. When building on `ubuntu-latest`, we link against the
+            # latest glibc version, and `zinniad` cannot start e.g. in `node:18` Docker image
+            # based on Debian Bullseye distro.
+            builder: cross
 
           - target: aarch64-unknown-linux-gnu
             os: ubuntu-latest
