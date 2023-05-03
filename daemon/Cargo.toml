@@ -14,6 +14,7 @@ path = "main.rs"
 doc = false
 
 [dependencies]
+atomicwrites = "0.4.1"
 clap = { version = "4.2.7", features = ["derive", "env"] }
 env_logger.workspace = true
 log.workspace = true
@@ -24,3 +25,4 @@ zinnia_runtime = { workspace = true }
 
 [dev-dependencies]
 pretty_assertions = { workspace = true }
+tempfile = "3.5.0"
