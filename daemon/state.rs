@@ -54,7 +54,6 @@ impl State {
 
         write_result.with_context(|| format!("Cannot write state to {}", state_file.display()))?;
         log::debug!("State stored in {}", state_file.display());
-
         Ok(())
     }
 }

@@ -154,7 +154,6 @@ mod tests {
         assert_eq!(reporter.tracker.borrow().counter(), 0, "initial count");
 
         reporter.job_completed();
-        println!("{:?}", reporter.tracker);
         assert_eq!(
             reporter.tracker.borrow().counter(),
             1,
@@ -162,7 +161,6 @@ mod tests {
         );
 
         let reporter = StationReporter::new(state_file, NO_DELAY, "test".into());
-        println!("{:?}", reporter.tracker);
         assert_eq!(
             reporter.tracker.borrow().counter(),
             1,
