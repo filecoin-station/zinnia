@@ -22,7 +22,11 @@ impl StationReporter {
     /// `job_report_delay` specifies how often the information about new jobs is printed.
     pub fn new(state_file: PathBuf, job_report_delay: Duration, module_name: String) -> Self {
         let log_target = format!("module:{module_name}");
-        let initial_job_count = State::load(&state_file).total_jobs_completed;
+        let initial_job_count = State::load(&state_file)
+            // NOTE(bajtos) We are intentionally calling unwrap() to crash the process in case
+            // it's not possible to read the state file or parse the content.
+            .unwrap()
+            .total_jobs_completed;
 
         Self {
             tracker: RefCell::new(JobCompletionTracker::new(
@@ -125,7 +129,11 @@ impl Reporter for StationReporter {
         let state = State {
             total_jobs_completed,
         };
-        state.store(&self.state_file);
+        state
+            .store(&self.state_file)
+            // NOTE(bajtos) We are intentionally calling unwrap() to crash the process in case
+            // we cannot store the state into the file.
+            .unwrap();
     }
 }
 
@@ -133,14 +141,14 @@ impl Reporter for StationReporter {
 mod tests {
     use super::*;
     use pretty_assertions::assert_eq;
-    use tempfile;
+    use tempfile::tempdir;
     use zinnia_runtime::anyhow::Result;
 
     const NO_DELAY: Duration = Duration::from_millis(0);
 
     #[test]
     fn persists_job_counter() -> Result<()> {
-        let state_dir = tempfile::tempdir()?;
+        let state_dir = tempdir()?;
         let state_file = state_dir.path().join("state.json");
         let reporter = StationReporter::new(state_file.clone(), NO_DELAY, "test".into());
         assert_eq!(reporter.tracker.borrow().counter(), 0, "initial count");
