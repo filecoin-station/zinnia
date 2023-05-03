@@ -4,10 +4,9 @@ use std::path::PathBuf;
 use std::time::Duration;
 
 use serde_json::{json, Map};
-use zinnia_runtime::anyhow::Result;
 use zinnia_runtime::{JobCompletionTracker, LogLevel, Reporter};
 
-use crate::state::{self, State};
+use crate::state::State;
 
 /// StationReporter reports activities to stdout as ND-JSON stream and all Console logs to stderr
 pub struct StationReporter {
@@ -23,7 +22,7 @@ impl StationReporter {
     /// `job_report_delay` specifies how often the information about new jobs is printed.
     pub fn new(state_file: PathBuf, job_report_delay: Duration, module_name: String) -> Self {
         let log_target = format!("module:{module_name}");
-        let initial_job_count = state::load(&state_file).total_jobs_completed;
+        let initial_job_count = State::load(&state_file).total_jobs_completed;
 
         Self {
             tracker: RefCell::new(JobCompletionTracker::new(
@@ -126,7 +125,7 @@ impl Reporter for StationReporter {
         let state = State {
             total_jobs_completed,
         };
-        state::store(&self.state_file, &state);
+        state.store(&self.state_file);
     }
 }
 
@@ -135,6 +134,7 @@ mod tests {
     use super::*;
     use pretty_assertions::assert_eq;
     use tempfile;
+    use zinnia_runtime::anyhow::Result;
 
     const NO_DELAY: Duration = Duration::from_millis(0);
 

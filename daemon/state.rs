@@ -16,62 +16,65 @@ impl Default for State {
     }
 }
 
-pub fn load(state_file: &Path) -> State {
-    log::debug!("Loading initial state from {}", state_file.display());
-    match std::fs::read_to_string(state_file) {
-        Err(err) => {
-            if err.kind() != std::io::ErrorKind::NotFound {
-                log::warn!(
-                    "Cannot read initial state from {}: {}",
-                    state_file.display(),
-                    err
-                );
-            }
-            State::default()
-        }
-        Ok(data) => match serde_json::from_str::<State>(&data) {
+impl State {
+    pub fn load(state_file: &Path) -> Self {
+        log::debug!("Loading initial state from {}", state_file.display());
+        match std::fs::read_to_string(state_file) {
             Err(err) => {
-                log::warn!(
-                    "Cannot parse initial state from {}: {}",
-                    state_file.display(),
-                    err
-                );
+                if err.kind() != std::io::ErrorKind::NotFound {
+                    log::warn!(
+                        "Cannot read initial state from {}: {}",
+                        state_file.display(),
+                        err
+                    );
+                }
                 State::default()
             }
-            Ok(state) => {
-                log::debug!("Initial state: {:?}", state);
-                state
+            Ok(data) => match serde_json::from_str::<State>(&data) {
+                Err(err) => {
+                    log::warn!(
+                        "Cannot parse initial state from {}: {}",
+                        state_file.display(),
+                        err
+                    );
+                    State::default()
+                }
+                Ok(state) => {
+                    log::debug!("Initial state: {:?}", state);
+                    state
+                }
+            },
+        }
+    }
+
+    pub fn store(&self, state_file: &Path) {
+        if let Some(parent) = state_file.parent() {
+            if let Err(err) = std::fs::create_dir_all(&parent) {
+                log::warn!(
+                    "Cannot create state directory {}: {}",
+                    parent.display(),
+                    err
+                );
+                return;
             }
-        },
-    }
-}
-
-pub fn store(state_file: &Path, state: &State) {
-    if let Some(parent) = state_file.parent() {
-        if let Err(err) = std::fs::create_dir_all(&parent) {
-            log::warn!(
-                "Cannot create state directory {}: {}",
-                parent.display(),
-                err
-            );
-            return;
-        }
-    }
-
-    let payload = match serde_json::to_string_pretty(&state) {
-        Err(err) => {
-            log::warn!("Cannot serialize state: {}", err);
-            return;
         }
 
-        Ok(payload) => payload,
-    };
+        let payload = match serde_json::to_string_pretty(self) {
+            Err(err) => {
+                log::warn!("Cannot serialize state: {}", err);
+                return;
+            }
 
-    let write_result = AtomicFile::new(state_file, OverwriteBehavior::AllowOverwrite)
-        .write(|f| f.write_all(payload.as_bytes()));
-    match write_result {
-        Err(err) => log::warn!("Cannot write state to {}: {}", state_file.display(), err),
-        Ok(()) => log::debug!("State stored in {}", state_file.display()),
+            Ok(payload) => payload,
+        };
+
+        let write_result = AtomicFile::new(state_file, OverwriteBehavior::AllowOverwrite)
+            .write(|f| f.write_all(payload.as_bytes()));
+
+        match write_result {
+            Err(err) => log::warn!("Cannot write state to {}: {}", state_file.display(), err),
+            Ok(()) => log::debug!("State stored in {}", state_file.display()),
+        }
     }
 }
 
@@ -86,13 +89,11 @@ mod tests {
     fn creates_missing_directories() -> Result<()> {
         let state_dir = tempfile::tempdir()?;
         let state_file = state_dir.path().join("subdir").join("state.json");
-        store(
-            &state_file,
-            &State {
-                total_jobs_completed: 1,
-            },
-        );
-        let loaded = load(&state_file);
+        let state = State {
+            total_jobs_completed: 1,
+        };
+        state.store(&state_file);
+        let loaded = State::load(&state_file);
         assert_eq!(loaded.total_jobs_completed, 1);
         Ok(())
     }
