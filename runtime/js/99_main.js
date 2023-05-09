@@ -23,8 +23,14 @@ const {
 import * as util from "ext:zinnia_runtime/06_util.js";
 import * as event from "ext:deno_web/02_event.js";
 import * as timers from "ext:deno_web/02_timers.js";
-import * as colors from "ext:deno_console/01_colors.js";
-import { inspectArgs, quoteString, wrapConsole } from "ext:deno_console/02_console.js";
+import {
+  getDefaultInspectOptions,
+  getNoColor,
+  inspectArgs,
+  quoteString,
+  setNoColor,
+  wrapConsole,
+} from "ext:deno_console/01_console.js";
 import * as performance from "ext:deno_web/15_performance.js";
 import {
   mainRuntimeGlobalProperties,
@@ -35,11 +41,11 @@ function formatException(error) {
   if (ObjectPrototypeIsPrototypeOf(ErrorPrototype, error)) {
     return null;
   } else if (typeof error == "string") {
-    return `Uncaught ${inspectArgs([quoteString(error)], {
-      colors: !colors.getNoColor(),
+    return `Uncaught ${inspectArgs([quoteString(error, getDefaultInspectOptions())], {
+      colors: !getNoColor(),
     })}`;
   } else {
-    return `Uncaught ${inspectArgs([error], { colors: !colors.getNoColor() })}`;
+    return `Uncaught ${inspectArgs([error], { colors: !getNoColor() })}`;
   }
 }
 
@@ -56,7 +62,8 @@ function runtimeStart(runtimeOptions) {
   // );
   // build.setBuildInfo(runtimeOptions.target);
   // util.setLogDebug(runtimeOptions.debugFlag, source);
-  colors.setNoColor(runtimeOptions.noColor || !runtimeOptions.isTty);
+  setNoColor(runtimeOptions.noColor || !runtimeOptions.isTty);
+
   // deno-lint-ignore prefer-primordials
   Error.prepareStackTrace = core.prepareStackTrace;
 }

@@ -43,6 +43,7 @@ deno_core::extension!(
         op_error_activity,
         op_zinnia_log,
     ],
+    esm_entry_point = "ext:zinnia_runtime/99_main.js",
     esm = [
       dir "js",
       "06_util.js",
