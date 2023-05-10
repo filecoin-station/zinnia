@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::rc::Rc;
 use std::time::Duration;
 
@@ -22,6 +22,7 @@ use tokio::io::AsyncReadExt;
 use zinnia_libp2p;
 
 pub type AnyError = deno_core::anyhow::Error;
+use deno_core::anyhow::{Context, Result};
 
 /// Common bootstrap options for MainWorker & WebWorker
 #[derive(Clone)]
@@ -44,7 +45,14 @@ pub struct BootstrapOptions {
 
 impl Default for BootstrapOptions {
     fn default() -> Self {
-        Self::new(Rc::new(ConsoleReporter::new(Duration::from_millis(500))))
+        Self::new(
+            // It's ok to call `unwrap` here.
+            // Some of the possible reasons for the current directory value being invalid:
+            // - Current directory does not exist.
+            // - There are insufficient permissions to access the current directory.
+            // std::env::current_dir().unwrap(),
+            Rc::new(ConsoleReporter::new(Duration::from_millis(500))),
+        )
     }
 }
 
@@ -100,9 +108,7 @@ pub async fn run_js_module(
         ],
         will_snapshot: false,
         inspector: false,
-        module_loader: Some(Rc::new(ZinniaModuleLoader {
-            main_js_module: module_specifier.clone(),
-        })),
+        module_loader: Some(Rc::new(ZinniaModuleLoader::new(module_specifier.clone())?)),
         ..Default::default()
     });
 
@@ -123,8 +129,31 @@ pub async fn run_js_module(
 }
 
 /// Our custom module loader.
-pub struct ZinniaModuleLoader {
-    main_js_module: ModuleSpecifier,
+struct ZinniaModuleLoader {
+    module_root: PathBuf,
+}
+
+impl ZinniaModuleLoader {
+    pub fn new(main_js_module: ModuleSpecifier) -> Result<Self> {
+        let module_root =
+            ZinniaModuleLoader::get_module_root(&main_js_module).with_context(|| {
+                format!(
+                    "Cannot determine module root for the main file: {}",
+                    main_js_module
+                )
+            })?;
+
+        Ok(Self { module_root })
+    }
+
+    fn get_module_root(main_js_module: &ModuleSpecifier) -> Result<PathBuf> {
+        Ok(main_js_module
+            .to_file_path()
+            .map_err(|_| anyhow!("Invalid main module specifier: not a local path."))?
+            .parent()
+            .ok_or_else(|| anyhow!("Invalid main module specifier: it has no parent directory!"))?
+            .to_owned())
+    }
 }
 
 impl ModuleLoader for ZinniaModuleLoader {
@@ -142,23 +171,20 @@ impl ModuleLoader for ZinniaModuleLoader {
         &self,
         module_specifier: &ModuleSpecifier,
         maybe_referrer: Option<&ModuleSpecifier>,
-        is_dyn_import: bool,
+        _is_dyn_import: bool,
     ) -> std::pin::Pin<Box<ModuleSourceFuture>> {
         let module_specifier = module_specifier.clone();
-        let main_js_module = self.main_js_module.clone();
+        let module_root = self.module_root.clone();
         let maybe_referrer = maybe_referrer.cloned();
         async move {
-            if is_dyn_import {
-                return Err(anyhow!(
-                    "Zinnia does not support dynamic imports. (URL: {})",
-                    module_specifier
-                ));
-            }
-
             let spec_str = module_specifier.as_str();
 
             let code = {
-                if spec_str.eq_ignore_ascii_case(main_js_module.as_str()) {
+                let is_module_local = module_specifier
+                    .to_file_path()
+                    .map(|p| p.starts_with(&module_root))
+                    .unwrap_or(false);
+                if is_module_local {
                     read_file_to_string(module_specifier.to_file_path().unwrap()).await?
                 } else if spec_str == "https://deno.land/std@0.177.0/testing/asserts.ts" {
                     return Err(anyhow!(
@@ -170,8 +196,11 @@ impl ModuleLoader for ZinniaModuleLoader {
                     // https://github.com/filecoin-station/zinnia/issues/43
                     include_str!("./vendored/asserts.bundle.js").to_string()
                 } else {
-                    let mut msg =
-                        "Zinnia does not support importing from other modules yet. ".to_string();
+                    let mut msg = if module_specifier.scheme() == "file" {
+                         format!("Cannot import files outside of module root directory {}. ",  module_root.display())
+                    } else {
+                        "Zinnia supports importing from relative paths only. ".to_string()
+                    };
                     msg.push_str(module_specifier.as_str());
                     if let Some(referrer) = &maybe_referrer {
                         msg.push_str(" imported from ");
