@@ -45,14 +45,7 @@ pub struct BootstrapOptions {
 
 impl Default for BootstrapOptions {
     fn default() -> Self {
-        Self::new(
-            // It's ok to call `unwrap` here.
-            // Some of the possible reasons for the current directory value being invalid:
-            // - Current directory does not exist.
-            // - There are insufficient permissions to access the current directory.
-            // std::env::current_dir().unwrap(),
-            Rc::new(ConsoleReporter::new(Duration::from_millis(500))),
-        )
+        Self::new(Rc::new(ConsoleReporter::new(Duration::from_millis(500))))
     }
 }
 
