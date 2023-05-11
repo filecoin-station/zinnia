@@ -185,15 +185,11 @@ impl ModuleLoader for ZinniaModuleLoader {
                 };
                 if is_module_local {
                     read_file_to_string(module_specifier.to_file_path().unwrap()).await?
-                } else if spec_str == "https://deno.land/std@0.177.0/testing/asserts.ts" {
+                } else if spec_str == "https://deno.land/std@0.177.0/testing/asserts.ts" || spec_str == "https://deno.land/std@0.181.0/testing/asserts.ts" {
                     return Err(anyhow!(
-                        "The vendored version of deno asserts was upgraded to 0.181.0. Please update your imports.\nModule URL: {spec_str}\nImported from: {}",
+                        "Zinnia no longer bundles Deno asserts. Please vendor the module yourself and load it using a relative path.\nModule URL: {spec_str}\nImported from: {}",
                         maybe_referrer.map(|u| u.to_string()).unwrap_or("(none)".into())
                     ));
-                } else if spec_str == "https://deno.land/std@0.181.0/testing/asserts.ts" {
-                    // Temporary workaround until we implement ES Modules
-                    // https://github.com/filecoin-station/zinnia/issues/43
-                    include_str!("./vendored/asserts.bundle.js").to_string()
                 } else {
                     let mut msg = if module_specifier.scheme() == "file" {
                          format!("Cannot import files outside of module root directory {}. ",  module_root.display())

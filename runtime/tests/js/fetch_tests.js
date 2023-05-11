@@ -1,4 +1,5 @@
-import { assert, assertEquals } from "https://deno.land/std@0.181.0/testing/asserts.ts";
+import { test } from "./helpers.js";
+import { assert, assertEquals } from "./vendored/asserts.bundle.js";
 
 await test("fetch", async () => {
   const res = await fetch("https://google.com/");
@@ -32,15 +33,3 @@ await test("Response", async () => {
   const response = new Response();
   await response.arrayBuffer();
 });
-
-// A dummy wrapper to create isolated scopes for individual tests
-// We should eventually replace this with a proper test runner
-// See https://github.com/filecoin-station/zinnia/issues/30
-async function test(name, fn) {
-  try {
-    return await fn();
-  } catch (err) {
-    err.message = `Test ${name} failed. ` + err.message;
-    throw err;
-  }
-}
