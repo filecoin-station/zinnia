@@ -145,7 +145,8 @@ impl ZinniaModuleLoader {
             .map_err(|_| anyhow!("Invalid main module specifier: not a local path."))?
             .parent()
             .ok_or_else(|| anyhow!("Invalid main module specifier: it has no parent directory!"))?
-            .to_owned())
+            // Resolve any symlinks inside the path to prevent modules from escaping our sandbox
+            .canonicalize()?)
     }
 }
 
@@ -173,10 +174,15 @@ impl ModuleLoader for ZinniaModuleLoader {
             let spec_str = module_specifier.as_str();
 
             let code = {
-                let is_module_local = module_specifier
-                    .to_file_path()
-                    .map(|p| p.starts_with(&module_root))
-                    .unwrap_or(false);
+                let is_module_local = match module_specifier.to_file_path() {
+                    Err(()) => false,
+                    Ok(p) => p
+                         // Resolve any symlinks inside the path to prevent modules from escaping our sandbox
+                        .canonicalize()
+                         // Check that the module path is inside the module root directory
+                        .map(|p| p.starts_with(&module_root))
+                        .unwrap_or(false),
+                };
                 if is_module_local {
                     read_file_to_string(module_specifier.to_file_path().unwrap()).await?
                 } else if spec_str == "https://deno.land/std@0.177.0/testing/asserts.ts" {
