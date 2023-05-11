@@ -1,4 +1,4 @@
-import { assert, assertEquals } from "https://deno.land/std@0.181.0/testing/asserts.ts";
+import { assert, assertEquals } from "./vendored/asserts.bundle.js";
 
 await test("fetch", async () => {
   const res = await fetch("https://google.com/");

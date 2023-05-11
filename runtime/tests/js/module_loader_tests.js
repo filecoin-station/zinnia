@@ -1,9 +1,4 @@
-import {
-  assertEquals,
-  assertMatch,
-  assertRejects,
-  assertThrows,
-} from "https://deno.land/std@0.181.0/testing/asserts.ts";
+import { assertEquals, assertMatch, assertRejects } from "./vendored/asserts.bundle.js";
 
 test("dynamically import file next to the main module file", async () => {
   const { KEY } = await import("./empty_module.js");

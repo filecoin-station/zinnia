@@ -10,7 +10,7 @@ import { fromFileUrl } from "https://deno.land/std@0.181.0/path/mod.ts";
 await vendor("https://deno.land/std@0.181.0/testing/asserts.ts", "asserts.bundle.js");
 
 async function vendor(url, outfile) {
-  const outpath = fromFileUrl(import.meta.resolve(`./vendored/${outfile}`));
+  const outpath = fromFileUrl(import.meta.resolve(`./tests/js/vendored/${outfile}`));
   const cmd = ["deno", "bundle", url, "--", outpath];
   const child = Deno.run({ cmd });
   const status = await child.status();

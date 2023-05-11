@@ -1,4 +1,4 @@
-import { assert, assertEquals } from "https://deno.land/std@0.181.0/testing/asserts.ts";
+import { assert, assertEquals } from "./vendored/asserts.bundle.js";
 
 await test("get peer id", () => {
   const id = Zinnia.peerId;
