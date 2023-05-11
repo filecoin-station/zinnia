@@ -1,4 +1,5 @@
 import { assertEquals } from "./vendored/asserts.bundle.js";
+import { test } from "./helpers.js";
 
 test("AbortController", () => {
   assertEquals(typeof AbortController, "function", "typeof AbortController");
@@ -27,15 +28,3 @@ test("URL", () => {
   const url = new URL("https://filstation.app");
   assertEquals(url.host, "filstation.app");
 });
-
-// A dummy wrapper to create isolated scopes for individual tests
-// We should eventually replace this with a proper test runner
-// See https://github.com/filecoin-station/zinnia/issues/30
-function test(name, fn) {
-  try {
-    return fn();
-  } catch (err) {
-    err.message = `Test ${name} failed. ` + err.message;
-    throw err;
-  }
-}

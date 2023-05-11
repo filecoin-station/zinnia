@@ -1,4 +1,5 @@
 import { assertStrictEquals } from "./vendored/asserts.bundle.js";
+import { test } from "./helpers.js";
 
 test("Zinnia.walletAddress", () => {
   // Runtime JS tests are executed with the default configuration
@@ -14,15 +15,3 @@ test("smoke tests for reporting APIs", () => {
   Zinnia.activity.error("activity.error");
   Zinnia.jobCompleted();
 });
-
-// A dummy wrapper to create isolated scopes for individual tests
-// We should eventually replace this with a proper test runner
-// See https://github.com/filecoin-station/zinnia/issues/30
-function test(name, fn) {
-  try {
-    fn();
-  } catch (err) {
-    err.message = `Test ${name} failed. ` + err.message;
-    throw err;
-  }
-}

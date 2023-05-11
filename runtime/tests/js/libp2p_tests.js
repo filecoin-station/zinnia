@@ -1,4 +1,5 @@
 import { assert, assertEquals } from "./vendored/asserts.bundle.js";
+import { test } from "./helpers.js";
 
 await test("get peer id", () => {
   const id = Zinnia.peerId;
@@ -80,15 +81,3 @@ await test("ping remote peer", async () => {
   // The chunk should be Uint8Array
   assertEquals(chunks[0].constructor, Uint8Array);
 });
-
-// A dummy wrapper to create isolated scopes for individual tests
-// We should eventually replace this with a proper test runner
-// See https://github.com/filecoin-station/zinnia/issues/30
-async function test(name, fn) {
-  try {
-    return await fn();
-  } catch (err) {
-    err.message = `Test ${name} failed. ` + err.message;
-    throw err;
-  }
-}
