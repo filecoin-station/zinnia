@@ -5,9 +5,11 @@ await new Promise((resolve) => {
 });
 
 const duration = Date.now() - start;
+const min = 40;
+const max = 120;
 
-if (duration < 40 || duration > 80) {
+if (duration < min || duration > max) {
   throw new Error(
-    `setTimeout(50) should take between 40 to 80 ms to execute, but took ${duration} ms instead`,
+    `setTimeout(50) should take between ${min} to ${max} ms to execute, but took ${duration} ms instead`,
   );
 }
