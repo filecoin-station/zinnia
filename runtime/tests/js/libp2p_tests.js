@@ -55,6 +55,10 @@ await test("requestProtocol validates requestPayload", async () => {
   );
 });
 
+await test("oops", async () => {
+  assertEquals("foo", "bar", "what?");
+});
+
 await test("ping remote peer", async () => {
   const request = new Uint8Array(32);
   crypto.getRandomValues(request);
