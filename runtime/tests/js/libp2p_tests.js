@@ -1,7 +1,7 @@
 import { assert, assertEquals } from "./vendored/asserts.bundle.js";
-import { test } from "./helpers.js";
+import { test } from "zinnia:test";
 
-await test("get peer id", () => {
+test("get peer id", () => {
   const id = Zinnia.peerId;
   assertEquals(typeof id, "string");
   assert(
@@ -11,7 +11,7 @@ await test("get peer id", () => {
   );
 });
 
-await test("requestProtocol validates remoteAddress", async () => {
+test("requestProtocol validates remoteAddress", async () => {
   return Zinnia.requestProtocol(123, "/proto", new Uint8Array()).then(
     (_) => {
       throw new Error("Zinnia.requestProtocol() should have failed");
@@ -22,7 +22,7 @@ await test("requestProtocol validates remoteAddress", async () => {
   );
 });
 
-await test("requestProtocol rejects remoteAddress that's not a valid multiaddr with a peer id", async () => {
+test("requestProtocol rejects remoteAddress that's not a valid multiaddr with a peer id", async () => {
   return Zinnia.requestProtocol("/ip4/127.0.0.1", "/proto", new Uint8Array()).then(
     (_) => {
       throw new Error("Zinnia.requestProtocol() should have failed");
@@ -33,7 +33,7 @@ await test("requestProtocol rejects remoteAddress that's not a valid multiaddr w
   );
 });
 
-await test("requestProtocol validates protocolName", async () => {
+test("requestProtocol validates protocolName", async () => {
   return Zinnia.requestProtocol("/ipv4", 123, new Uint8Array()).then(
     (_) => {
       throw new Error("Zinnia.requestProtocol() should have failed");
@@ -44,7 +44,7 @@ await test("requestProtocol validates protocolName", async () => {
   );
 });
 
-await test("requestProtocol validates requestPayload", async () => {
+test("requestProtocol validates requestPayload", async () => {
   return Zinnia.requestProtocol("/ipv4", "/proto", "some request payload").then(
     (_) => {
       throw new Error("Zinnia.requestProtocol() should have failed");
@@ -55,11 +55,7 @@ await test("requestProtocol validates requestPayload", async () => {
   );
 });
 
-await test("oops", async () => {
-  assertEquals("foo", "bar", "what?");
-});
-
-await test("ping remote peer", async () => {
+test("ping remote peer", async () => {
   const request = new Uint8Array(32);
   crypto.getRandomValues(request);
 

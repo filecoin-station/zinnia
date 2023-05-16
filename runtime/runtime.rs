@@ -157,6 +157,9 @@ impl ModuleLoader for ZinniaModuleLoader {
         referrer: &str,
         _kind: ResolutionKind,
     ) -> Result<ModuleSpecifier, AnyError> {
+        if specifier == "zinnia:test" {
+            return Ok(ModuleSpecifier::parse("ext:zinnia_runtime/test.js").unwrap());
+        }
         let resolved = resolve_import(specifier, referrer)?;
         Ok(resolved)
     }

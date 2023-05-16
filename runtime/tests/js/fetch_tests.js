@@ -1,7 +1,7 @@
-import { test } from "./helpers.js";
+import { test } from "zinnia:test";
 import { assert, assertEquals } from "./vendored/asserts.bundle.js";
 
-await test("fetch", async () => {
+test("fetch", async () => {
   const res = await fetch("https://google.com/");
   assertEquals(res.status, 200);
   const text = await res.text();
@@ -9,27 +9,27 @@ await test("fetch", async () => {
   assert(text.includes("<body"));
 });
 
-await test("FormData", async () => {
+test("FormData", async () => {
   const formData = new FormData();
   formData.append("name", "value");
 });
 
-await test("Headers", async () => {
+test("Headers", async () => {
   const headers = new Headers();
   headers.append("name", "value");
 });
 
-await test("ProgressEvent", async () => {
+test("ProgressEvent", async () => {
   const event = new ProgressEvent();
   assertEquals(event.total, 0);
 });
 
-await test("Request", async () => {
+test("Request", async () => {
   const request = new Request("https://example.com/");
   await request.arrayBuffer();
 });
 
-await test("Response", async () => {
+test("Response", async () => {
   const response = new Response();
   await response.arrayBuffer();
 });
