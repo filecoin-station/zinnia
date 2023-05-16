@@ -184,6 +184,8 @@ export function test(name, fn) {
 //
 // Helpers for ANSI colors
 //
+// Useful reference: https://stackoverflow.com/a/33206814/69868
+//
 function stylize(text, color, style = "") {
   return `\u001b[${style}${color}m${text}\u001b[0m`;
 }
