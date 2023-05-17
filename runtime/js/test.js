@@ -160,7 +160,7 @@ function reportTestResults() {
   );
   // Signal test failure by creating an unhandled error,
   // so that `zinnia` CLI returns a non-zero exit code.
-  // TODO(bajtos) Find a more elegant solution, e.g. add es areI for setting the exit code
+  // TODO(bajtos) Find a more elegant solution, e.g. add an API for setting the exit code
   if (failed) {
     setTimeout(() => {
       const err = new Error();
