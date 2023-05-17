@@ -78,18 +78,22 @@ impl Default for RecordingReporter {
 
 impl Reporter for RecordingReporter {
     fn log(&self, level: LogLevel, msg: &str) {
+        print!("{msg}");
         self.record(format!("console.{level}: {msg}"));
     }
 
     fn info_activity(&self, msg: &str) {
+        println!("INFO: {msg}");
         self.record(format!("INFO: {msg}"));
     }
 
     fn error_activity(&self, msg: &str) {
+        println!("ERROR: {msg}");
         self.record(format!("ERROR: {msg}"));
     }
 
     fn job_completed(&self) {
+        println!("JOB-COMPLETED");
         self.record("JOB-COMPLETED".into());
     }
 }

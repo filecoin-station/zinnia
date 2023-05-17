@@ -1,5 +1,5 @@
 import { assertEquals, assertMatch, assertRejects } from "./vendored/asserts.bundle.js";
-import { test } from "./helpers.js";
+import { test } from "zinnia:test";
 
 test("dynamically import file next to the main module file", async () => {
   const { KEY } = await import("./empty_module.js");
