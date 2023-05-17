@@ -145,9 +145,9 @@ function reportTestResults() {
 
   if (failed) {
     // extra spaces are intentional to show red background
-    console.error("\n%s", whiteOnRed(" FAILURES "));
+    console.log("\n%s", whiteOnRed(" FAILURES "));
     for (const failure of globalRoot.result.failed) {
-      console.error("\n%s", failure.render());
+      console.log("\n%s", failure.render());
     }
   }
 
@@ -170,8 +170,8 @@ function reportTestResults() {
       // move the cursor to column 0. This hides the error message when running in TTY terminals
       // and leaves only the test summary followed by an empty line.
       err.name = `[some tests failed]\u001b[2K\x0D`;
-      err.message = "";
-      err.stack = "";
+      err.message = undefined;
+      err.stack = undefined;
       throw err;
     });
   }
