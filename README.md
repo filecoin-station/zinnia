@@ -9,7 +9,7 @@
 	<br>
 </h1>
 
-> A runtime for interplanetary volunteer computing.
+> A sandboxed and resource-limited runtime for distributed workers.
 >
 > Powering 🛰️ [Filecoin Station](https://github.com/filecoin-station/filecoin-station).
 

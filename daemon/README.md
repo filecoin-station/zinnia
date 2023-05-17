@@ -11,8 +11,8 @@
 
 [![crates](https://img.shields.io/crates/v/zinnia.svg)](https://crates.io/crates/zinnia)
 
-Zinnia is a runtime for Filecoin Station modules. This crate provides a daemon to run Zinnia Modules
-inside Filecoin Station.
+Zinnia is a sandboxed and resource-limited runtime for distributed workers. This crate provides a
+daemon to run Zinnia Modules inside Filecoin Station.
 
 ## Installation
 

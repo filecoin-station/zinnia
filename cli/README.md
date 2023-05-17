@@ -11,8 +11,8 @@
 
 [![crates](https://img.shields.io/crates/v/zinnia.svg)](https://crates.io/crates/zinnia)
 
-Zinnia is a runtime for interplanetary volunteer computing. This crate provides the `zinnia`
-executable to run modules locally, e.g. while developing.
+Zinnia is a sandboxed and resource-limited runtime for distributed workers. This crate provides the
+`zinnia` executable to run modules locally, e.g. while developing.
 
 ## Installation
 
