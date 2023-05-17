@@ -1,5 +1,5 @@
-import { assertEquals, assertNotEquals } from "./vendored/asserts.bundle.js";
 import { test } from "zinnia:test";
+import { assertEquals, assertNotEquals } from "zinnia:assert";
 
 test("getRandomValues()", async () => {
   const first = new Uint8Array(4);

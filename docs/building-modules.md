@@ -321,3 +321,18 @@ Tracking issue: n/a
 #### Other
 
 - `XMLHttpRequest` Standard
+
+## Assertions
+
+Zinnia bundles assertion functions provided by Deno's `std/testing/asserts.ts`.
+
+Example:
+
+```js
+import { assertEquals } from "zinnia:assert";
+assertEquals(true, false);
+// ^ throws an error
+```
+
+You can find the API documentation at deno.land website:
+[https://deno.land/std@0.183.0/testing/asserts.ts](https://deno.land/std@0.183.0/testing/asserts.ts)

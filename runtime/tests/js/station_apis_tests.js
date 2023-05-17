@@ -1,5 +1,5 @@
-import { assertStrictEquals } from "./vendored/asserts.bundle.js";
 import { test } from "zinnia:test";
+import { assertStrictEquals } from "zinnia:assert";
 
 test("Zinnia.walletAddress", () => {
   // Runtime JS tests are executed with the default configuration

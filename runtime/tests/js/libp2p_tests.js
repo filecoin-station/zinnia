@@ -1,5 +1,5 @@
-import { assert, assertEquals } from "./vendored/asserts.bundle.js";
 import { test } from "zinnia:test";
+import { assert, assertEquals } from "zinnia:assert";
 
 test("get peer id", () => {
   const id = Zinnia.peerId;

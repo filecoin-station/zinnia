@@ -5,12 +5,20 @@
 // Run this script using the following command:
 //   deno run --allow-run runtime/vendor.js
 
-import { fromFileUrl } from "https://deno.land/std@0.181.0/path/mod.ts";
+const STD_VERSION = "0.183.0";
 
-await vendor("https://deno.land/std@0.181.0/testing/asserts.ts", "asserts.bundle.js");
+import { fromFileUrl } from "https://deno.land/std@0.181.0/path/mod.ts";
+import { green } from "https://deno.land/std@0.183.0/fmt/colors.ts";
+
+let assertsPath = await vendor(
+  `https://deno.land/std@${STD_VERSION}/testing/asserts.ts`,
+  "asserts.bundle.js",
+);
+await patchAssertsBundle(assertsPath);
+await patchDocs();
 
 async function vendor(url, outfile) {
-  const outpath = fromFileUrl(import.meta.resolve(`./tests/js/vendored/${outfile}`));
+  const outpath = fromFileUrl(import.meta.resolve(`./js/vendored/${outfile}`));
   const cmd = ["deno", "bundle", url, "--", outpath];
   const child = Deno.run({ cmd });
   const status = await child.status();
@@ -20,4 +28,30 @@ async function vendor(url, outfile) {
 
     throw new Error(`Process failed with ${reason}: ${cmd}`);
   }
+  return outpath;
+}
+
+async function patchAssertsBundle(assertsPath) {
+  return patchFile(assertsPath, (content) =>
+    content
+      .replace("const { Deno  } = globalThis;\n", "")
+      .replace(
+        'const noColor = typeof Deno?.noColor === "boolean" ? Deno.noColor : true;',
+        "const noColor = false;",
+      ),
+  );
+}
+
+async function patchDocs() {
+  let buildingModules = fromFileUrl(import.meta.resolve("../docs/building-modules.md"));
+  return patchFile(buildingModules, (content) =>
+    content.replace(/deno\.land\/std@\d+\.\d+\.\d+/g, `deno.land/std@${STD_VERSION}`),
+  );
+}
+
+async function patchFile(filePath, fn) {
+  const orig = await Deno.readTextFile(filePath);
+  const patched = fn(orig);
+  await Deno.writeTextFile(filePath, patched);
+  console.log("%s %s", green("Patched"), filePath);
 }
