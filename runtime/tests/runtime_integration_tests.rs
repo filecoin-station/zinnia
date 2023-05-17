@@ -136,7 +136,7 @@ fn load_activity_log(log_file: &str) -> String {
         .replace("\r\n", "\n")
 }
 
-fn format_recorded_activities(events: &Vec<String>) -> String {
+fn format_recorded_activities(events: &[String]) -> String {
     events
         .iter()
         .map(|e| format!("{}\n", e.trim_end()))
@@ -144,7 +144,7 @@ fn format_recorded_activities(events: &Vec<String>) -> String {
         .join("")
 }
 
-fn format_test_activities(events: &Vec<String>) -> String {
+fn format_test_activities(events: &[String]) -> String {
     // Find all durations (e.g. `0ms` or `241ms`)
     let duration_regex = regex::Regex::new(r"\d+ms").unwrap();
 
