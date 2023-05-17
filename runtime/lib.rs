@@ -4,6 +4,7 @@ pub mod runtime;
 pub use runtime::*;
 
 mod module_loader;
+pub use module_loader::get_module_root;
 
 mod vendored;
 pub use vendored::colors;

@@ -1,12 +1,12 @@
+use std::path::PathBuf;
 use std::rc::Rc;
-use std::time::Duration;
 
 use deno_core::{located_script_name, serde_json, JsRuntime, ModuleSpecifier, RuntimeOptions};
 
 use deno_web::BlobStore;
 
 use crate::module_loader::ZinniaModuleLoader;
-use crate::{colors, ConsoleReporter, Reporter};
+use crate::{colors, Reporter};
 
 use crate::ext::ZinniaPermissions;
 
@@ -27,6 +27,9 @@ pub struct BootstrapOptions {
     /// Seed value for initializing the random number generator
     pub rng_seed: Option<u64>,
 
+    /// Module root if you want to sandbox `import` of ES modules
+    pub module_root: Option<PathBuf>,
+
     /// Filecoin wallet address - typically the built-in wallet in Filecoin Station
     pub wallet_address: String,
 
@@ -34,19 +37,19 @@ pub struct BootstrapOptions {
     pub reporter: Rc<dyn Reporter>,
 }
 
-impl Default for BootstrapOptions {
-    fn default() -> Self {
-        Self::new(Rc::new(ConsoleReporter::new(Duration::from_millis(500))))
-    }
-}
-
 impl BootstrapOptions {
-    fn new(reporter: Rc<dyn Reporter>) -> Self {
+    pub fn new(
+        agent_version: String,
+        reporter: Rc<dyn Reporter>,
+        module_root: Option<PathBuf>,
+    ) -> Self {
         Self {
             no_color: !colors::use_color(),
             is_tty: colors::is_tty(),
-            agent_version: format!("zinnia_runtime/{}", env!("CARGO_PKG_VERSION")),
+            agent_version,
+            // agent_version: format!("zinnia_runtime/{}", env!("CARGO_PKG_VERSION")),
             rng_seed: None,
+            module_root,
             // See https://lotus.filecoin.io/lotus/manage/manage-fil/#public-key-address
             wallet_address: String::from("t1abjxfbp274xpdqcpuaykwkfb43omjotacm2p3za"),
             reporter,
@@ -92,7 +95,9 @@ pub async fn run_js_module(
         ],
         will_snapshot: false,
         inspector: false,
-        module_loader: Some(Rc::new(ZinniaModuleLoader::new(module_specifier.clone())?)),
+        module_loader: Some(Rc::new(ZinniaModuleLoader::new(
+            bootstrap_options.module_root.clone(),
+        ))),
         ..Default::default()
     });
 

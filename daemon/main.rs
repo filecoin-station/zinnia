@@ -11,7 +11,7 @@ use clap::Parser;
 
 use log::{error, info};
 use zinnia_runtime::anyhow::{anyhow, Context, Error, Result};
-use zinnia_runtime::{resolve_path, run_js_module, BootstrapOptions};
+use zinnia_runtime::{get_module_root, resolve_path, run_js_module, BootstrapOptions};
 
 use crate::station_reporter::{log_info_activity, StationReporter};
 
@@ -54,6 +54,8 @@ async fn run(config: CliArgs) -> Result<()> {
         file,
         &std::env::current_dir().context("unable to get current working directory")?,
     )?;
+    let module_root = get_module_root(&main_module)?;
+
     let config = BootstrapOptions {
         agent_version: format!(
             "zinniad/{} {module_name}/{module_version}",
@@ -65,7 +67,10 @@ async fn run(config: CliArgs) -> Result<()> {
             Duration::from_millis(200),
             module_name.into(),
         )),
-        ..Default::default()
+        module_root: Some(module_root),
+        no_color: true,
+        is_tty: false,
+        rng_seed: None,
     };
 
     // TODO: handle module exit and restart it

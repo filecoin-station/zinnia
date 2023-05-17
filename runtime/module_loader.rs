@@ -12,35 +12,27 @@ use tokio::fs::File;
 use tokio::io::AsyncReadExt;
 
 pub type AnyError = deno_core::anyhow::Error;
-use deno_core::anyhow::{Context, Result};
+use deno_core::anyhow::Result;
 
 /// Our custom module loader.
 pub struct ZinniaModuleLoader {
-    module_root: PathBuf,
+    module_root: Option<PathBuf>,
 }
 
 impl ZinniaModuleLoader {
-    pub fn new(main_js_module: ModuleSpecifier) -> Result<Self> {
-        let module_root =
-            ZinniaModuleLoader::get_module_root(&main_js_module).with_context(|| {
-                format!(
-                    "Cannot determine module root for the main file: {}",
-                    main_js_module
-                )
-            })?;
-
-        Ok(Self { module_root })
+    pub fn new(module_root: Option<PathBuf>) -> Self {
+        Self { module_root }
     }
+}
 
-    fn get_module_root(main_js_module: &ModuleSpecifier) -> Result<PathBuf> {
-        Ok(main_js_module
-            .to_file_path()
-            .map_err(|_| anyhow!("Invalid main module specifier: not a local path."))?
-            .parent()
-            .ok_or_else(|| anyhow!("Invalid main module specifier: it has no parent directory!"))?
-            // Resolve any symlinks inside the path to prevent modules from escaping our sandbox
-            .canonicalize()?)
-    }
+pub fn get_module_root(main_js_module: &ModuleSpecifier) -> Result<PathBuf> {
+    Ok(main_js_module
+        .to_file_path()
+        .map_err(|_| anyhow!("Invalid main module specifier: not a local path."))?
+        .parent()
+        .ok_or_else(|| anyhow!("Invalid main module specifier: it has no parent directory!"))?
+        // Resolve any symlinks inside the path to prevent modules from escaping our sandbox
+        .canonicalize()?)
 }
 
 impl ModuleLoader for ZinniaModuleLoader {
@@ -72,23 +64,28 @@ impl ModuleLoader for ZinniaModuleLoader {
             let code = {
                 let is_module_local = match module_specifier.to_file_path() {
                     Err(()) => false,
-                    Ok(p) => p
-                         // Resolve any symlinks inside the path to prevent modules from escaping our sandbox
-                        .canonicalize()
-                         // Check that the module path is inside the module root directory
-                        .map(|p| p.starts_with(&module_root))
-                        .unwrap_or(false),
+                    Ok(p) => {
+                        match &module_root {
+                            None => true,
+                            Some(root) => p
+                                 // Resolve any symlinks inside the path to prevent modules from escaping our sandbox
+                                .canonicalize()
+                                 // Check that the module path is inside the module root directory
+                                .map(|p| p.starts_with(root))
+                                .unwrap_or(false),
+                        }
+                    },
                 };
                 if is_module_local {
                     read_file_to_string(module_specifier.to_file_path().unwrap()).await?
                 } else if spec_str == "https://deno.land/std@0.177.0/testing/asserts.ts" || spec_str == "https://deno.land/std@0.181.0/testing/asserts.ts" {
                     return Err(anyhow!(
-                        "Zinnia no longer bundles Deno asserts. Please vendor the module yourself and load it using a relative path.\nModule URL: {spec_str}\nImported from: {}",
+                        "Zinnia bundles Deno asserts as 'zinnia:assert`. Please update your imports accordingly.\nModule URL: {spec_str}\nImported from: {}",
                         maybe_referrer.map(|u| u.to_string()).unwrap_or("(none)".into())
                     ));
                 } else {
-                    let mut msg = if module_specifier.scheme() == "file" {
-                         format!("Cannot import files outside of module root directory {}. ",  module_root.display())
+                    let mut msg = if module_specifier.scheme() == "file" && module_root.is_some() {
+                         format!("Cannot import files outside of module root directory {}. ",  module_root.unwrap().display())
                     } else {
                         "Zinnia supports importing from relative paths only. ".to_string()
                     };
@@ -121,4 +118,72 @@ async fn read_file_to_string(path: impl AsRef<Path>) -> Result<String, AnyError>
     f.read_to_end(&mut buffer).await?;
 
     Ok(String::from_utf8_lossy(&buffer).to_string())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use deno_core::anyhow::Context;
+    use pretty_assertions::assert_eq;
+
+    #[tokio::test]
+    async fn allows_import_of_files_inside_sandbox() {
+        let mut imported_file = get_js_dir();
+        imported_file.push("99_main.js");
+
+        let loader = ZinniaModuleLoader::new(Some(get_js_dir()));
+        let result = loader
+            .load(
+                &ModuleSpecifier::from_file_path(&imported_file).unwrap(),
+                None,
+                false,
+            )
+            .await
+            .with_context(|| format!("cannot import {}", imported_file.display()))
+            .unwrap();
+
+        assert_eq!(result.module_type, ModuleType::JavaScript);
+    }
+
+    #[tokio::test]
+    async fn rejects_import_of_files_outside_sandbox() {
+        let mut subdir = get_js_dir();
+        subdir.push("subdir");
+
+        let mut imported_file = get_js_dir();
+        imported_file.push("99_main.js");
+
+        let loader = ZinniaModuleLoader::new(Some(subdir));
+        let result = loader
+            .load(
+                &ModuleSpecifier::from_file_path(&imported_file).unwrap(),
+                None,
+                false,
+            )
+            .await;
+
+        match result {
+            Ok(_) => {
+                assert!(
+                    result.is_err(),
+                    "Expected import from '{}' to fail, it succeeded instead.",
+                    imported_file.display()
+                );
+            }
+            Err(err) => {
+                let msg = format!("{err}");
+                assert!(
+                    msg.contains("Cannot import files outside of module root directory"),
+                    "Expected import to fail with the sandboxing error, it failed with a different error instead:\n{}",
+                    msg,
+                );
+            }
+        }
+    }
+
+    fn get_js_dir() -> PathBuf {
+        let mut base_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        base_dir.push("js");
+        base_dir
+    }
 }
