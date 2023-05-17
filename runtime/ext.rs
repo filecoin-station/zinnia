@@ -50,6 +50,7 @@ deno_core::extension!(
       "98_global_scope.js",
       "internals.js",
       "test.js",
+      "vendored/asserts.bundle.js",
       "99_main.js",
     ],
     options = {

@@ -52,7 +52,12 @@ impl ModuleLoader for ZinniaModuleLoader {
     ) -> Result<ModuleSpecifier, AnyError> {
         if specifier == "zinnia:test" {
             return Ok(ModuleSpecifier::parse("ext:zinnia_runtime/test.js").unwrap());
+        } else if specifier == "zinnia:assert" {
+            return Ok(
+                ModuleSpecifier::parse("ext:zinnia_runtime/vendored/asserts.bundle.js").unwrap(),
+            );
         }
+
         let resolved = resolve_import(specifier, referrer)?;
         Ok(resolved)
     }

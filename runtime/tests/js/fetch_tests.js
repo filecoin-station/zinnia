@@ -1,5 +1,5 @@
 import { test } from "zinnia:test";
-import { assert, assertEquals } from "./vendored/asserts.bundle.js";
+import { assert, assertEquals } from "zinnia:assert";
 
 test("fetch", async () => {
   const res = await fetch("https://google.com/");
