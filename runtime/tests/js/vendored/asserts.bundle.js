@@ -2,8 +2,9 @@
 // deno-lint-ignore-file
 // This code was bundled using `deno bundle` and it's not recommended to edit it manually
 
-const { Deno  } = globalThis;
-const noColor = typeof Deno?.noColor === "boolean" ? Deno.noColor : true;
+// const { Deno  } = globalThis;
+// const noColor = typeof Deno?.noColor === "boolean" ? Deno.noColor : true;
+const noColor = false;
 let enabled = !noColor;
 function code(open, close) {
     return {

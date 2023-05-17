@@ -1,6 +1,7 @@
-import { assertEquals, assertNotEquals } from "https://deno.land/std@0.181.0/testing/asserts.ts";
+import { assertEquals, assertNotEquals } from "./vendored/asserts.bundle.js";
+import { test } from "zinnia:test";
 
-await test("getRandomValues()", async () => {
+test("getRandomValues()", async () => {
   const first = new Uint8Array(4);
   crypto.getRandomValues(first);
   const second = new Uint8Array(4);
@@ -9,7 +10,7 @@ await test("getRandomValues()", async () => {
   assertNotEquals(first, second);
 });
 
-await test("generateKey(), sign() and verify()", async () => {
+test("generateKey(), sign() and verify()", async () => {
   const keyPair = await crypto.subtle.generateKey(
     {
       name: "ECDSA",
@@ -32,15 +33,3 @@ await test("generateKey(), sign() and verify()", async () => {
 
   assertEquals(result, "signature verified");
 });
-
-// A dummy wrapper to create isolated scopes for individual tests
-// We should eventually replace this with a proper test runner
-// See https://github.com/filecoin-station/zinnia/issues/30
-async function test(name, fn) {
-  try {
-    return await fn();
-  } catch (err) {
-    err.message = `Test ${name} failed. ` + err.message;
-    throw err;
-  }
-}

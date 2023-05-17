@@ -1,6 +1,6 @@
 [package]
 name = "zinnia_libp2p"
-version = "0.7.0"
+version = "0.9.0"
 authors.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -17,7 +17,7 @@ deno_core.workspace = true
 log.workspace = true
 smallvec = "1.10.0"
 tokio = { workspace = true, features = ["rt", "macros", "sync", "time"] }
-tokio-util = "0.7.7"
+tokio-util = "0.7.8"
 either = "1.8.1"
 
 [dependencies.libp2p]

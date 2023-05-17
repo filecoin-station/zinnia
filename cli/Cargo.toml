@@ -1,6 +1,6 @@
 [package]
 name = "zinnia"
-version = "0.7.0"
+version = "0.9.0"
 authors.workspace = true
 default-run = "zinnia"
 edition.workspace = true
@@ -15,7 +15,7 @@ path = "main.rs"
 doc = false
 
 [dependencies]
-clap = { version = "4.2.4", features = ["derive"] }
+clap = { version = "4.2.7", features = ["derive"] }
 env_logger.workspace = true
 log.workspace = true
 tokio = { workspace = true }

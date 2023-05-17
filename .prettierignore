@@ -3,6 +3,7 @@
 !**/*.md
 !**/*.js
 runtime/vendored
+runtime/tests/js/vendored
 target
 
 # Let's keep LICENSE.md in the same formatting as we use in other PL repositories

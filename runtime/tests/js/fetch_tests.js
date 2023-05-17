@@ -1,6 +1,7 @@
-import { assert, assertEquals } from "https://deno.land/std@0.181.0/testing/asserts.ts";
+import { test } from "zinnia:test";
+import { assert, assertEquals } from "./vendored/asserts.bundle.js";
 
-await test("fetch", async () => {
+test("fetch", async () => {
   const res = await fetch("https://google.com/");
   assertEquals(res.status, 200);
   const text = await res.text();
@@ -8,39 +9,27 @@ await test("fetch", async () => {
   assert(text.includes("<body"));
 });
 
-await test("FormData", async () => {
+test("FormData", async () => {
   const formData = new FormData();
   formData.append("name", "value");
 });
 
-await test("Headers", async () => {
+test("Headers", async () => {
   const headers = new Headers();
   headers.append("name", "value");
 });
 
-await test("ProgressEvent", async () => {
+test("ProgressEvent", async () => {
   const event = new ProgressEvent();
   assertEquals(event.total, 0);
 });
 
-await test("Request", async () => {
+test("Request", async () => {
   const request = new Request("https://example.com/");
   await request.arrayBuffer();
 });
 
-await test("Response", async () => {
+test("Response", async () => {
   const response = new Response();
   await response.arrayBuffer();
 });
-
-// A dummy wrapper to create isolated scopes for individual tests
-// We should eventually replace this with a proper test runner
-// See https://github.com/filecoin-station/zinnia/issues/30
-async function test(name, fn) {
-  try {
-    return await fn();
-  } catch (err) {
-    err.message = `Test ${name} failed. ` + err.message;
-    throw err;
-  }
-}

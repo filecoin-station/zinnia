@@ -16,25 +16,31 @@ pub struct JobCompletionTracker {
 }
 
 impl JobCompletionTracker {
-    pub fn new(delay: Duration) -> Self {
+    pub fn new(initial_value: u64, delay: Duration) -> Self {
         Self {
             delay,
-            counter: 0,
+            counter: initial_value,
             last_report: None,
         }
     }
 
-    pub fn job_completed<F: FnOnce(u64)>(&mut self, log: F) {
+    pub fn counter(&self) -> u64 {
+        self.counter
+    }
+
+    pub fn job_completed<F: FnOnce(u64)>(&mut self, log: F) -> u64 {
         self.counter += 1;
 
         if let Some(last) = self.last_report {
             if last.0.elapsed() < self.delay {
-                return;
+                return self.counter;
             }
         }
         self.last_report.replace((Instant::now(), self.counter));
 
         log(self.counter);
+
+        self.counter
     }
 
     pub fn flush<F: FnOnce(u64)>(&mut self, log: F) {
@@ -63,31 +69,40 @@ impl ConsoleReporter {
     /// `job_report_delay` specifies how often the information about new jobs is printed.
     pub fn new(job_report_delay: Duration) -> Self {
         Self {
-            tracker: RefCell::new(JobCompletionTracker::new(job_report_delay)),
+            tracker: RefCell::new(JobCompletionTracker::new(0, job_report_delay)),
         }
     }
 
     fn print_jobs_completed(&self, total: u64) {
         let msg = format!("Jobs completed: {total}");
-        let _ = self.report("STATS", &msg, Color::Yellow);
-        // ^^^ We are ignoring errors because there isn't much to do in such case
+        self.report("STATS", &msg, Color::Yellow);
     }
 
-    fn report(&self, scope: &str, msg: &str, color: Color) -> Result<()> {
-        if use_color() {
-            let mut spec = ColorSpec::new();
-            // spec.set_fg(Some(color)).set_bold(true);
-            spec.set_fg(Some(color));
-            let mut ansi_writer = Ansi::new(stdout());
-            ansi_writer.set_color(&spec)?;
-            print_raw_report(&mut ansi_writer, scope, msg)?;
-            ansi_writer.reset()?;
-        } else {
-            print_raw_report(&mut stdout(), scope, msg)?;
-        }
-        stdout().flush()?;
-        Ok(())
+    fn report(&self, scope: &str, msg: &str, color: Color) {
+        print_report(scope, msg, color).unwrap_or_else(|err| {
+            // We are ignoring errors because there isn't much to do in such case
+            log::debug!(
+                "Cannot report event [scope:{scope} color:{color:?}] {msg:?}: {}",
+                err
+            )
+        })
     }
+}
+
+fn print_report(scope: &str, msg: &str, color: Color) -> Result<()> {
+    if use_color() {
+        let mut spec = ColorSpec::new();
+        // spec.set_fg(Some(color)).set_bold(true);
+        spec.set_fg(Some(color));
+        let mut ansi_writer = Ansi::new(stdout());
+        ansi_writer.set_color(&spec)?;
+        print_raw_report(&mut ansi_writer, scope, msg)?;
+        ansi_writer.reset()?;
+    } else {
+        print_raw_report(&mut stdout(), scope, msg)?;
+    }
+    stdout().flush()?;
+    Ok(())
 }
 
 fn print_raw_report<W: Write>(w: &mut W, scope: &str, msg: &str) -> std::io::Result<()> {
@@ -118,13 +133,11 @@ impl Reporter for ConsoleReporter {
     }
 
     fn info_activity(&self, msg: &str) {
-        let _ = self.report("INFO", msg, Color::Green);
-        // ^^^ We are ignoring errors because there isn't much to do in such case
+        self.report("INFO", msg, Color::Green);
     }
 
     fn error_activity(&self, msg: &str) {
-        let _ = self.report("ERROR", msg, Color::Red);
-        // ^^^ We are ignoring errors because there isn't much to do in such case
+        self.report("ERROR", msg, Color::Red);
     }
 
     fn job_completed(&self) {
@@ -145,7 +158,7 @@ mod tests {
 
     impl Default for JobCompletionTracker {
         fn default() -> Self {
-            Self::new(Duration::from_millis(1000))
+            Self::new(0, Duration::from_millis(1000))
         }
     }
 
@@ -169,7 +182,7 @@ mod tests {
     #[test]
     fn tracker_prints_new_jobs_after_delay() {
         let mut reported = 0;
-        let mut tracker = JobCompletionTracker::new(Duration::from_millis(1));
+        let mut tracker = JobCompletionTracker::new(0, Duration::from_millis(1));
         tracker.job_completed(|x| reported = x);
         std::thread::sleep(Duration::from_millis(2));
         tracker.job_completed(|x| reported = x);

@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::rc::Rc;
 use std::time::Duration;
 
@@ -22,6 +22,7 @@ use tokio::io::AsyncReadExt;
 use zinnia_libp2p;
 
 pub type AnyError = deno_core::anyhow::Error;
+use deno_core::anyhow::{Context, Result};
 
 /// Common bootstrap options for MainWorker & WebWorker
 #[derive(Clone)]
@@ -100,9 +101,7 @@ pub async fn run_js_module(
         ],
         will_snapshot: false,
         inspector: false,
-        module_loader: Some(Rc::new(ZinniaModuleLoader {
-            main_js_module: module_specifier.clone(),
-        })),
+        module_loader: Some(Rc::new(ZinniaModuleLoader::new(module_specifier.clone())?)),
         ..Default::default()
     });
 
@@ -123,8 +122,32 @@ pub async fn run_js_module(
 }
 
 /// Our custom module loader.
-pub struct ZinniaModuleLoader {
-    main_js_module: ModuleSpecifier,
+struct ZinniaModuleLoader {
+    module_root: PathBuf,
+}
+
+impl ZinniaModuleLoader {
+    pub fn new(main_js_module: ModuleSpecifier) -> Result<Self> {
+        let module_root =
+            ZinniaModuleLoader::get_module_root(&main_js_module).with_context(|| {
+                format!(
+                    "Cannot determine module root for the main file: {}",
+                    main_js_module
+                )
+            })?;
+
+        Ok(Self { module_root })
+    }
+
+    fn get_module_root(main_js_module: &ModuleSpecifier) -> Result<PathBuf> {
+        Ok(main_js_module
+            .to_file_path()
+            .map_err(|_| anyhow!("Invalid main module specifier: not a local path."))?
+            .parent()
+            .ok_or_else(|| anyhow!("Invalid main module specifier: it has no parent directory!"))?
+            // Resolve any symlinks inside the path to prevent modules from escaping our sandbox
+            .canonicalize()?)
+    }
 }
 
 impl ModuleLoader for ZinniaModuleLoader {
@@ -134,6 +157,9 @@ impl ModuleLoader for ZinniaModuleLoader {
         referrer: &str,
         _kind: ResolutionKind,
     ) -> Result<ModuleSpecifier, AnyError> {
+        if specifier == "zinnia:test" {
+            return Ok(ModuleSpecifier::parse("ext:zinnia_runtime/test.js").unwrap());
+        }
         let resolved = resolve_import(specifier, referrer)?;
         Ok(resolved)
     }
@@ -142,36 +168,37 @@ impl ModuleLoader for ZinniaModuleLoader {
         &self,
         module_specifier: &ModuleSpecifier,
         maybe_referrer: Option<&ModuleSpecifier>,
-        is_dyn_import: bool,
+        _is_dyn_import: bool,
     ) -> std::pin::Pin<Box<ModuleSourceFuture>> {
         let module_specifier = module_specifier.clone();
-        let main_js_module = self.main_js_module.clone();
+        let module_root = self.module_root.clone();
         let maybe_referrer = maybe_referrer.cloned();
         async move {
-            if is_dyn_import {
-                return Err(anyhow!(
-                    "Zinnia does not support dynamic imports. (URL: {})",
-                    module_specifier
-                ));
-            }
-
             let spec_str = module_specifier.as_str();
 
             let code = {
-                if spec_str.eq_ignore_ascii_case(main_js_module.as_str()) {
+                let is_module_local = match module_specifier.to_file_path() {
+                    Err(()) => false,
+                    Ok(p) => p
+                         // Resolve any symlinks inside the path to prevent modules from escaping our sandbox
+                        .canonicalize()
+                         // Check that the module path is inside the module root directory
+                        .map(|p| p.starts_with(&module_root))
+                        .unwrap_or(false),
+                };
+                if is_module_local {
                     read_file_to_string(module_specifier.to_file_path().unwrap()).await?
-                } else if spec_str == "https://deno.land/std@0.177.0/testing/asserts.ts" {
+                } else if spec_str == "https://deno.land/std@0.177.0/testing/asserts.ts" || spec_str == "https://deno.land/std@0.181.0/testing/asserts.ts" {
                     return Err(anyhow!(
-                        "The vendored version of deno asserts was upgraded to 0.181.0. Please update your imports.\nModule URL: {spec_str}\nImported from: {}",
+                        "Zinnia no longer bundles Deno asserts. Please vendor the module yourself and load it using a relative path.\nModule URL: {spec_str}\nImported from: {}",
                         maybe_referrer.map(|u| u.to_string()).unwrap_or("(none)".into())
                     ));
-                } else if spec_str == "https://deno.land/std@0.181.0/testing/asserts.ts" {
-                    // Temporary workaround until we implement ES Modules
-                    // https://github.com/filecoin-station/zinnia/issues/43
-                    include_str!("./vendored/asserts.bundle.js").to_string()
                 } else {
-                    let mut msg =
-                        "Zinnia does not support importing from other modules yet. ".to_string();
+                    let mut msg = if module_specifier.scheme() == "file" {
+                         format!("Cannot import files outside of module root directory {}. ",  module_root.display())
+                    } else {
+                        "Zinnia supports importing from relative paths only. ".to_string()
+                    };
                     msg.push_str(module_specifier.as_str());
                     if let Some(referrer) = &maybe_referrer {
                         msg.push_str(" imported from ");
