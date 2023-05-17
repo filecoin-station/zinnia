@@ -14,7 +14,6 @@ test("statically import a file inside the module tree", async () => {
 
 test("can import files outside the main module directory", async () => {
   await assertRejects(() => import("../../js/99_main.js"));
-  // assertMatch(err.message, /Cannot import files outside of module root directory/);
 });
 
 test("cannot import files over http", async () => {
