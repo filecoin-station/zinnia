@@ -152,11 +152,13 @@ function reportTestResults() {
   }
 
   console.log(
-    "\n%s | %s passed | %s failed %s",
+    "\n%s | %s passed | %s failed %s%s",
     failed ? red("FAIL") : green("ok"),
     passed,
     failed,
     grey(`(${duration}ms)`),
+    // Add another empty line when all tests passed, for consistency with the failure output
+    failed ? "" : "\n",
   );
   // Signal test failure by creating an unhandled error,
   // so that `zinnia` CLI returns a non-zero exit code.
@@ -164,7 +166,10 @@ function reportTestResults() {
   if (failed) {
     setTimeout(() => {
       const err = new Error();
-      err.name = "[some test(s) failed]";
+      // Hack: After the error message, send ASCII sequence to clear the line and
+      // move the cursor to column 0. This hides the error message when running in TTY terminals
+      // and leaves only the test summary followed by an empty line.
+      err.name = `[some tests failed]\u001b[2K\x0D`;
       err.message = "";
       err.stack = "";
       throw err;
