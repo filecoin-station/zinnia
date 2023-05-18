@@ -20,8 +20,14 @@ pub struct ZinniaModuleLoader {
 }
 
 impl ZinniaModuleLoader {
-    pub fn new(module_root: Option<PathBuf>) -> Self {
-        Self { module_root }
+    pub fn build(module_root: Option<PathBuf>) -> Result<Self> {
+        let module_root = match module_root {
+            None => None,
+            // We must canonicalize the module root path too. It's best to do it once at startup.
+            Some(r) => Some(r.canonicalize()?),
+        };
+
+        Ok(Self { module_root })
     }
 }
 
@@ -76,8 +82,7 @@ impl ModuleLoader for ZinniaModuleLoader {
                                 // Resolve any symlinks inside the path to prevent modules from escaping our sandbox
                                 .canonicalize()
                                 // Check that the module path is inside the module root directory
-                                // We must canonicalize the module root path too, because MS Windows.
-                                .and_then(|p| root.canonicalize().map(|r| p.starts_with(r)))
+                                .map(|p| p.starts_with(root))
                                 .unwrap_or(false),
                         }
                     },
@@ -137,7 +142,7 @@ mod tests {
         let mut imported_file = get_js_dir();
         imported_file.push("99_main.js");
 
-        let loader = ZinniaModuleLoader::new(Some(get_js_dir()));
+        let loader = ZinniaModuleLoader::build(Some(get_js_dir())).unwrap();
         let result = loader
             .load(
                 &ModuleSpecifier::from_file_path(&imported_file).unwrap(),
@@ -153,13 +158,16 @@ mod tests {
 
     #[tokio::test]
     async fn rejects_import_of_files_outside_sandbox() {
-        let mut subdir = get_js_dir();
-        subdir.push("subdir");
+        // project_root is `runtime/tests/js`
+        let mut project_root = get_js_dir().parent().unwrap().to_path_buf();
+        project_root.push("tests");
+        project_root.push("js");
 
+        // we are importing file `runtime/js/99_main.js` - it's outside for project_root
         let mut imported_file = get_js_dir();
         imported_file.push("99_main.js");
 
-        let loader = ZinniaModuleLoader::new(Some(subdir));
+        let loader = ZinniaModuleLoader::build(Some(project_root)).unwrap();
         let result = loader
             .load(
                 &ModuleSpecifier::from_file_path(&imported_file).unwrap(),

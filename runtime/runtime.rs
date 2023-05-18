@@ -47,7 +47,6 @@ impl BootstrapOptions {
             no_color: !colors::use_color(),
             is_tty: colors::is_tty(),
             agent_version,
-            // agent_version: format!("zinnia_runtime/{}", env!("CARGO_PKG_VERSION")),
             rng_seed: None,
             module_root,
             // See https://lotus.filecoin.io/lotus/manage/manage-fil/#public-key-address
@@ -95,9 +94,9 @@ pub async fn run_js_module(
         ],
         will_snapshot: false,
         inspector: false,
-        module_loader: Some(Rc::new(ZinniaModuleLoader::new(
+        module_loader: Some(Rc::new(ZinniaModuleLoader::build(
             bootstrap_options.module_root.clone(),
-        ))),
+        )?)),
         ..Default::default()
     });
 
