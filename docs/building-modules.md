@@ -322,11 +322,62 @@ Tracking issue: n/a
 
 - `XMLHttpRequest` Standard
 
-## Assertions
+## Testing
 
-Zinnia bundles assertion functions provided by Deno's `std/testing/asserts.ts`.
+Zinnia provides lightweight tooling for writing and running automated tests.
 
-Example:
+### Test Runner
+
+The built-in test runner is intentionally minimalistic for now. Let us know what features you would
+like us to add!
+
+Example test file (e.g. `test/smoke.test.js`):
+
+```js
+import { test } from "zinnia:test";
+
+test("a sync test", () => {
+  // run your test
+  // throw an error when an assertion fails
+});
+
+test("a test can be async too", async () => {
+  // run some async code
+  // throw an error when an assertion fails
+});
+```
+
+Notes:
+
+- Calling `test()` DOES NOT run the test immediately. It adds the test to the queue.
+- Therefore, you should never `await` the value returned by `test()` .
+- The tests are executed sequentially in the order in which they were registered via `test()` calls.
+
+You can run the tests using `zinnia run`:
+
+```bash
+❯ zinnia run test/smoke.test.js
+```
+
+To run a test suite consisting of multiple test files, create a top-level test suite file and import
+individual test files.
+
+For example, you can create `test-all.js` in your project root:
+
+```js
+import "./test/smoke.test.js";
+import "./test/user.test.js";
+// and so on
+```
+
+### Assertions
+
+You can use most assertion libraries that are compatible with browsers and Deno, for example
+[Chai](https://www.chaijs.com).
+
+Zinnia provides a built-in assertion library based on Deno's `std/testing/asserts.ts`.
+
+Example usage:
 
 ```js
 import { assertEquals } from "zinnia:assert";
