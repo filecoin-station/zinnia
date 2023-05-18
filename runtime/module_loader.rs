@@ -73,16 +73,11 @@ impl ModuleLoader for ZinniaModuleLoader {
                         match &module_root {
                             None => true,
                             Some(root) => module_path
-                                 // Resolve any symlinks inside the path to prevent modules from escaping our sandbox
+                                // Resolve any symlinks inside the path to prevent modules from escaping our sandbox
                                 .canonicalize()
-                                 // Check that the module path is inside the module root directory
-                                .map(|p| {
-                                    println!("load: {:?}", module_specifier);
-                                    println!("root: {:?}", module_root);
-                                    println!("module root: {:?}", root);
-                                    println!("path to load: {:?}", p);
-                                     p.starts_with(root)
-                                })
+                                // Check that the module path is inside the module root directory
+                                // We must canonicalize the module root path too, because MS Windows.
+                                .and_then(|p| root.canonicalize().map(|r| p.starts_with(r)))
                                 .unwrap_or(false),
                         }
                     },
