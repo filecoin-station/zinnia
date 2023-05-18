@@ -55,6 +55,8 @@ impl ModuleLoader for ZinniaModuleLoader {
         maybe_referrer: Option<&ModuleSpecifier>,
         _is_dyn_import: bool,
     ) -> std::pin::Pin<Box<ModuleSourceFuture>> {
+        println!("load: {module_specifier}");
+        println!("root: {:?}", self.module_root);
         let module_specifier = module_specifier.clone();
         let module_root = self.module_root.clone();
         let maybe_referrer = maybe_referrer.cloned();
@@ -64,14 +66,18 @@ impl ModuleLoader for ZinniaModuleLoader {
             let code = {
                 let is_module_local = match module_specifier.to_file_path() {
                     Err(()) => false,
-                    Ok(p) => {
+                    Ok(module_path) => {
                         match &module_root {
                             None => true,
-                            Some(root) => p
+                            Some(root) => module_path
                                  // Resolve any symlinks inside the path to prevent modules from escaping our sandbox
                                 .canonicalize()
                                  // Check that the module path is inside the module root directory
-                                .map(|p| p.starts_with(root))
+                                .map(|p| {
+                                    println!("module root: {:?}", root);
+                                    println!("path to load: {:?}", p);
+                                     p.starts_with(root)
+                                })
                                 .unwrap_or(false),
                         }
                     },
