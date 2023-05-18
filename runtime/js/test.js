@@ -121,10 +121,8 @@ class TestFailure {
 
   render() {
     let location = grey(`=> ${displayTestLocation(this.testCase.location)}`);
-    return `${this.testCase.name} ${location}\n${boldRed("error:")} ${
-      format_test_error(this.error)
-      // this.error.stack || this.error
-    }`;
+    let reason = format_test_error(this.error);
+    return `${this.testCase.name} ${location}\n${boldRed("error:")} ${reason}`;
   }
 }
 
