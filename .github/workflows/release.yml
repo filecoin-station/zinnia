@@ -86,11 +86,6 @@ jobs:
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$LOCAL_KEYCHAIN_PASSWORD" build.keychain
           security list-keychain -d user -s build.keychain
 
-      - name: Setup | Install Protoc
-        uses: arduino/setup-protoc@ab6203da1c3118e4406048171b09238ad31ad73e # latest
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Setup | Checkout
         uses: actions/checkout@v3
 
