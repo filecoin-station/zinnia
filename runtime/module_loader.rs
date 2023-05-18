@@ -44,7 +44,12 @@ impl ModuleLoader for ZinniaModuleLoader {
     ) -> Result<ModuleSpecifier, AnyError> {
         if specifier == "zinnia:test" {
             return Ok(ModuleSpecifier::parse("ext:zinnia_runtime/test.js").unwrap());
+        } else if specifier == "zinnia:assert" {
+            return Ok(
+                ModuleSpecifier::parse("ext:zinnia_runtime/vendored/asserts.bundle.js").unwrap(),
+            );
         }
+
         let resolved = resolve_import(specifier, referrer)?;
         Ok(resolved)
     }
@@ -55,8 +60,6 @@ impl ModuleLoader for ZinniaModuleLoader {
         maybe_referrer: Option<&ModuleSpecifier>,
         _is_dyn_import: bool,
     ) -> std::pin::Pin<Box<ModuleSourceFuture>> {
-        println!("load: {module_specifier}");
-        println!("root: {:?}", self.module_root);
         let module_specifier = module_specifier.clone();
         let module_root = self.module_root.clone();
         let maybe_referrer = maybe_referrer.cloned();
@@ -74,6 +77,8 @@ impl ModuleLoader for ZinniaModuleLoader {
                                 .canonicalize()
                                  // Check that the module path is inside the module root directory
                                 .map(|p| {
+                                    println!("load: {:?}", module_specifier);
+                                    println!("root: {:?}", module_root);
                                     println!("module root: {:?}", root);
                                     println!("path to load: {:?}", p);
                                      p.starts_with(root)

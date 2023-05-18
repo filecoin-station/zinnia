@@ -1,5 +1,5 @@
-import { assertEquals } from "./vendored/asserts.bundle.js";
 import { test } from "zinnia:test";
+import { assertEquals } from "zinnia:assert";
 
 test("AbortController", () => {
   assertEquals(typeof AbortController, "function", "typeof AbortController");
