@@ -2,6 +2,7 @@ use std::path::Path;
 use std::rc::Rc;
 
 use deno_core::anyhow::Result;
+use deno_core::error::JsError;
 use deno_core::url::Url;
 use deno_core::{op, OpState};
 use deno_fetch::FetchPermissions;
@@ -42,6 +43,7 @@ deno_core::extension!(
         op_info_activity,
         op_error_activity,
         op_zinnia_log,
+        op_format_test_error
     ],
     esm = [
       dir "js",
@@ -86,4 +88,9 @@ fn op_error_activity(state: &mut OpState, msg: &str) {
 fn op_zinnia_log(state: &mut OpState, msg: &str, level: LogLevel) {
     let reporter = state.borrow::<StoredReporter>();
     reporter.log(level, msg);
+}
+
+#[op]
+fn op_format_test_error(error: JsError) -> String {
+    crate::vendored::cli_tools::format_test_error(&error)
 }
