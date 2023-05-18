@@ -1,4 +1,4 @@
-# Building modules
+# Building Modules
 
 A Station Module is a long-running process that's performing jobs like network probes, content
 delivery, and computation.
@@ -10,7 +10,7 @@ In the long run, we want Zinnia to be aligned with the Web APIs as much as feasi
 
 For the shorter term, we are going to take shortcuts to deliver a useful platform quickly.
 
-## Getting started
+## Getting Started
 
 If you haven't done so, then install `zinnia` CLI per
 [our instructions](../cli/README.md#installation).
@@ -30,7 +30,13 @@ Hello universe!
 
 See [example modules](../examples) for more advanced examples.
 
-## Modules
+## Table of Contents
+
+- [Importing JavaScript Modules](#importing-javascript-modules)
+- [Platform APIs](#platform-apis)
+- [Testing Guide](#testing-guide)
+
+## Importing JavaScript Modules
 
 Zinnia supports ES Modules (also known as
 [JavaScript Modules](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules)).
@@ -76,6 +82,11 @@ import * as code from "../../other/code.js";
 ```
 
 ## Platform APIs
+
+- [Standard JavaScript APIs](#standard-javascript-apis)
+- [Web APIs](#web-apis)
+- [Unsupported Web APIs](#unsupported-web-apis)
+- [libp2p](#libp2p)
 
 ### Standard JavaScript APIs
 
@@ -187,7 +198,36 @@ individual methods in [MDN web docs](https://developer.mozilla.org/en-US/docs/We
 
 - [DOMException](https://developer.mozilla.org/en-US/docs/Web/API/DOMException)
 
-### libp2p
+### Unsupported Web APIs
+
+#### File API
+
+Tracking issue: n/a
+
+- [Blob](https://developer.mozilla.org/en-US/docs/Web/API/blob)
+- [File](https://developer.mozilla.org/en-US/docs/Web/API/File)
+- [FileReader](https://developer.mozilla.org/en-US/docs/Web/API/FileReader)
+
+#### Service Workers & Web Workers
+
+Tracking issue: n/a
+
+- [CacheStorage](https://developer.mozilla.org/en-US/docs/Web/API/CacheStorage)
+- [Cache](https://developer.mozilla.org/en-US/docs/Web/API/Cache)
+- [Worker](https://developer.mozilla.org/en-US/docs/Web/API/Worker)
+- [caches](https://developer.mozilla.org/en-US/docs/Web/API/caches)
+
+#### WebSockets Standard
+
+Tracking issue: n/a
+
+- [WebSocket](https://developer.mozilla.org/en-US/docs/Web/API/WebSocket)
+
+#### Other
+
+- `XMLHttpRequest` Standard
+
+## libp2p
 
 Zinnia comes with a built-in libp2p node based on
 [rust-libp2p](https://github.com/libp2p/rust-libp2p). The node is shared by all Station Modules
@@ -289,42 +329,12 @@ Report that a single job was completed.
 
 Call this function every time your module completes a job. It's ok to call it frequently.
 
-<!--
-UNSUPPORTED APIs
--->
-
-## Unsupported Web APIs
-
-#### File API
-
-Tracking issue: n/a
-
-- [Blob](https://developer.mozilla.org/en-US/docs/Web/API/blob)
-- [File](https://developer.mozilla.org/en-US/docs/Web/API/File)
-- [FileReader](https://developer.mozilla.org/en-US/docs/Web/API/FileReader)
-
-#### Service Workers & Web Workers
-
-Tracking issue: n/a
-
-- [CacheStorage](https://developer.mozilla.org/en-US/docs/Web/API/CacheStorage)
-- [Cache](https://developer.mozilla.org/en-US/docs/Web/API/Cache)
-- [Worker](https://developer.mozilla.org/en-US/docs/Web/API/Worker)
-- [caches](https://developer.mozilla.org/en-US/docs/Web/API/caches)
-
-#### WebSockets Standard
-
-Tracking issue: n/a
-
-- [WebSocket](https://developer.mozilla.org/en-US/docs/Web/API/WebSocket)
-
-#### Other
-
-- `XMLHttpRequest` Standard
-
-## Testing
+## Testing Guide
 
 Zinnia provides lightweight tooling for writing and running automated tests.
+
+- [Test Runner](#test-runner)
+- [Assertions](#assertions)
 
 ### Test Runner
 
