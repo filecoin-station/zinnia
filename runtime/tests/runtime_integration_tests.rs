@@ -101,11 +101,11 @@ async fn run_js_test_file(name: &str) -> Result<(Vec<String>, Option<AnyError>),
         &std::env::current_dir().context("unable to get current working directory")?,
     )?;
     let reporter = Rc::new(RecordingReporter::new());
-    let config = BootstrapOptions {
-        agent_version: format!("zinnia_runtime_tests/{}", env!("CARGO_PKG_VERSION")),
-        reporter: reporter.clone(),
-        ..Default::default()
-    };
+    let config = BootstrapOptions::new(
+        format!("zinnia_runtime_tests/{}", env!("CARGO_PKG_VERSION")),
+        reporter.clone(),
+        None,
+    );
     let run_result = run_js_module(&main_module, &config).await;
     let events = reporter.events.take();
 
