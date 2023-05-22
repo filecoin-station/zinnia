@@ -106,7 +106,7 @@ jobs:
       # Note that a build for one tag cannot access cache created by a build for a different tag,
       # therefore caching does not work for real release builds.
       - name: DEBUGGING | Cache Rust deps
-        uses: Swatinem/rust-cache@060bda31e0be4f453bb6ed2d7e5427b31734ad01 # v2.3.0
+        uses: Swatinem/rust-cache@988c164c3d0e93c4dbab36aaf5bbeb77425b2894 # v2.4.0
         if: ${{ !startsWith(github.ref, 'refs/tags/') }}
         with:
           shared-key: release-${{ matrix.target }}
