@@ -48,7 +48,6 @@ async fn run(config: CliArgs) -> Result<()> {
     // TODO: configurable module name and version
     // https://github.com/filecoin-station/zinnia/issues/147
     let module_name = file.trim_end_matches(".js");
-    let module_version = "unknown";
 
     let main_module = resolve_path(
         file,
@@ -57,10 +56,7 @@ async fn run(config: CliArgs) -> Result<()> {
     let module_root = get_module_root(&main_module)?;
 
     let config = BootstrapOptions {
-        agent_version: format!(
-            "zinniad/{} {module_name}/{module_version}",
-            env!("CARGO_PKG_VERSION")
-        ),
+        agent_version: format!("zinniad/{} {module_name}", env!("CARGO_PKG_VERSION")),
         wallet_address: config.wallet_address,
         reporter: Rc::new(StationReporter::new(
             state_file,
