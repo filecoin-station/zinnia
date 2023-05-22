@@ -15,7 +15,7 @@ path = "main.rs"
 doc = false
 
 [dependencies]
-clap = { version = "4.2.7", features = ["derive"] }
+clap = { version = "4.3.0", features = ["derive"] }
 env_logger.workspace = true
 log.workspace = true
 tokio = { workspace = true }
