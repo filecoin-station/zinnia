@@ -30,6 +30,7 @@ tokio = { workspace = true, features = ["fs"] }
 zinnia_libp2p.workspace = true
 
 [dev-dependencies]
+assert_fs = { workspace = true }
 console_static_text = "0.8.1"
 env_logger.workspace = true
 pretty_assertions = { workspace = true }

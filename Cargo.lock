@@ -5798,6 +5798,7 @@ dependencies = [
 name = "zinnia_runtime"
 version = "0.9.0"
 dependencies = [
+ "assert_fs",
  "atty",
  "chrono",
  "console_static_text",

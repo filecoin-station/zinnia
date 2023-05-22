@@ -1,7 +1,7 @@
 // A minimalistic test framework for testing Zinnia modules
 // Inspired by `node:test`, `Deno.test`, `mocha` and others
 
-import { DenoCore } from "ext:zinnia_runtime/internals.js";
+import { DenoCore, format_test_error } from "ext:zinnia_runtime/internals.js";
 
 /** @type {{
    pendingTests: TestCase[];
@@ -121,9 +121,8 @@ class TestFailure {
 
   render() {
     let location = grey(`=> ${displayTestLocation(this.testCase.location)}`);
-    return `${this.testCase.name} ${location}\n${boldRed("error:")} ${
-      this.error.stack || this.error
-    }`;
+    let reason = format_test_error(this.error);
+    return `${this.testCase.name} ${location}\n${boldRed("error:")} ${reason}`;
   }
 }
 

@@ -7,9 +7,8 @@ failing_tests.js
 
 failing test => file:///project-root/tests/js/test_runner_tests/failing_tests.js:7:1
 error: Error: this failed
+  throw new Error("this failed");
+        ^
     at TestCase.fn (file:///project-root/tests/js/test_runner_tests/failing_tests.js:8:9)
-    at TestCase.execute (ext:zinnia_runtime/test.js:57:27)
-    at runNextTest (ext:zinnia_runtime/test.js:134:14)
-    at eventLoopTick (ext:core/01_core.js:188:13)
 
 FAIL | 1 passed | 1 failed (XXms)
