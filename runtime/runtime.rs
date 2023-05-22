@@ -84,7 +84,10 @@ pub async fn run_js_module(
                 blob_store,
                 Some(module_specifier.clone()),
             ),
-            deno_fetch::deno_fetch::init_ops_and_esm::<ZinniaPermissions>(Default::default()),
+            deno_fetch::deno_fetch::init_ops_and_esm::<ZinniaPermissions>(deno_fetch::Options {
+                user_agent: bootstrap_options.agent_version.clone(),
+                ..Default::default()
+            }),
             deno_crypto::deno_crypto::init_ops_and_esm(bootstrap_options.rng_seed),
             // Zinnia-specific APIs
             zinnia_libp2p::zinnia_libp2p::init_ops_and_esm(zinnia_libp2p::PeerNodeConfig {
