@@ -111,3 +111,9 @@ function bootstrapMainRuntime(runtimeOptions) {
 globalThis.bootstrap = {
   mainRuntime: bootstrapMainRuntime,
 };
+
+// Workaround to silence Deno runtime assert
+// "Following modules were not evaluated; make sure they are imported from other code"
+import "ext:zinnia_runtime/internals.js";
+import "ext:zinnia_runtime/test.js";
+import "ext:zinnia_runtime/vendored/asserts.bundle.js";
