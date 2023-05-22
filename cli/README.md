@@ -11,20 +11,21 @@
 
 [![crates](https://img.shields.io/crates/v/zinnia.svg)](https://crates.io/crates/zinnia)
 
-Zinnia is a runtime for Filecoin Station modules. This crate provides the actual `zinnia`
-executable.
+Zinnia is a sandboxed and resource-limited runtime for distributed workers. This crate provides the
+`zinnia` executable to run modules locally, e.g. while developing.
 
 ## Installation
 
 You can download the `zinnia` binary from
 [our GitHub Releases](https://github.com/filecoin-station/zinnia/releases/latest).
 
-| OS      | Platform      | Filename                                                                                                               |
-| ------- | ------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| Windows | Intel, 64bit  | [zinnia-windows-x64.zip](https://github.com/filecoin-station/zinnia/releases/latest/download/zinnia-windows-x64.zip)   |
-| macOS   | Intel, 64bit  | [zinnia-macos-x64.zip](https://github.com/filecoin-station/zinnia/releases/latest/download/zinnia-macos-x64.zip)       |
-| macOS   | Apple Silicon | [zinnia-macos-arm64.zip](https://github.com/filecoin-station/zinnia/releases/latest/download/zinnia-macos-arm64.zip)   |
-| Linux   | Intel, 64bit  | [zinnia-linux-x64.tar.gz](https://github.com/filecoin-station/zinnia/releases/latest/download/zinnia-linux-x64.tar.gz) |
+| OS      | Platform      | Filename                                                                                                                   |
+| ------- | ------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Windows | Intel, 64bit  | [zinnia-windows-x64.zip](https://github.com/filecoin-station/zinnia/releases/latest/download/zinnia-windows-x64.zip)       |
+| macOS   | Intel, 64bit  | [zinnia-macos-x64.zip](https://github.com/filecoin-station/zinnia/releases/latest/download/zinnia-macos-x64.zip)           |
+| macOS   | Apple Silicon | [zinnia-macos-arm64.zip](https://github.com/filecoin-station/zinnia/releases/latest/download/zinnia-macos-arm64.zip)       |
+| Linux   | Intel, 64bit  | [zinnia-linux-x64.tar.gz](https://github.com/filecoin-station/zinnia/releases/latest/download/zinnia-linux-x64.tar.gz)     |
+| Linux   | ARM, 64bit    | [zinnia-linux-arm64.tar.gz](https://github.com/filecoin-station/zinnia/releases/latest/download/zinnia-linux-arm64.tar.gz) |
 
 ### Build from source
 

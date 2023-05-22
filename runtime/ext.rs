@@ -49,6 +49,9 @@ deno_core::extension!(
       "06_util.js",
       "90_zinnia_apis.js",
       "98_global_scope.js",
+      "internals.js",
+      "test.js",
+      "vendored/asserts.bundle.js",
       "99_main.js",
     ],
     options = {

@@ -30,6 +30,51 @@ Hello universe!
 
 See [example modules](../examples) for more advanced examples.
 
+## Modules
+
+Zinnia supports ES Modules (also known as
+[JavaScript Modules](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules)).
+
+For sandboxing reasons, module imports are limited to files in the root directory of the Zinnia
+module being executed.
+
+Consider the following directory layout:
+
+```
+src
+  my-module
+    util
+      log.js
+      helpers.js
+    main.js
+    lib.js
+  other
+    code.js
+```
+
+When you execute `zinna run src/my-module/main.js`:
+
+- In `main.js`, you can import any JavaScript file inside `src/my-module` directory and its
+  subdirectories (e.g. `src/my-module/util`).
+- The same restriction applies transitively other imported files too.
+
+Example:
+
+```js
+// These imports are allowed in `main.js`
+import { processJob } from "./lib.js";
+import { log } from "./util/log.js";
+
+// This will be rejected at runtime
+import * as code from "../other/code.js";
+
+// This will work in `util/log.js`
+import { format } from "../lib.js";
+
+// This will be rejected
+import * as code from "../../other/code.js";
+```
+
 ## Platform APIs
 
 ### Standard JavaScript APIs
@@ -276,3 +321,18 @@ Tracking issue: n/a
 #### Other
 
 - `XMLHttpRequest` Standard
+
+## Assertions
+
+Zinnia bundles assertion functions provided by Deno's `std/testing/asserts.ts`.
+
+Example:
+
+```js
+import { assertEquals } from "zinnia:assert";
+assertEquals(true, false);
+// ^ throws an error
+```
+
+You can find the API documentation at deno.land website:
+[https://deno.land/std@0.183.0/testing/asserts.ts](https://deno.land/std@0.183.0/testing/asserts.ts)

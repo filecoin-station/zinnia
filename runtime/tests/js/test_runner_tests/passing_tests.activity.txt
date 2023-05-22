@@ -1,0 +1,6 @@
+
+passing_tests.js
+  ✔ smoke test (XXms)
+  ✔ another test (XXms)
+
+ok | 2 passed | 0 failed (XXms)

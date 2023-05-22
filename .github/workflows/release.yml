@@ -86,11 +86,6 @@ jobs:
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$LOCAL_KEYCHAIN_PASSWORD" build.keychain
           security list-keychain -d user -s build.keychain
 
-      - name: Setup | Install Protoc
-        uses: arduino/setup-protoc@ab6203da1c3118e4406048171b09238ad31ad73e # latest
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Setup | Checkout
         uses: actions/checkout@v3
 
@@ -111,7 +106,7 @@ jobs:
       # Note that a build for one tag cannot access cache created by a build for a different tag,
       # therefore caching does not work for real release builds.
       - name: DEBUGGING | Cache Rust deps
-        uses: Swatinem/rust-cache@6fd3edff6979b79f87531400ad694fb7f2c84b1f # v2.2.1
+        uses: Swatinem/rust-cache@988c164c3d0e93c4dbab36aaf5bbeb77425b2894 # v2.4.0
         if: ${{ !startsWith(github.ref, 'refs/tags/') }}
         with:
           shared-key: release-${{ matrix.target }}
