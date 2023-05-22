@@ -47,7 +47,6 @@ impl BootstrapOptions {
             no_color: !colors::use_color(),
             is_tty: colors::is_tty(),
             agent_version,
-            // agent_version: format!("zinnia_runtime/{}", env!("CARGO_PKG_VERSION")),
             rng_seed: None,
             module_root,
             // See https://lotus.filecoin.io/lotus/manage/manage-fil/#public-key-address
@@ -84,7 +83,10 @@ pub async fn run_js_module(
                 blob_store,
                 Some(module_specifier.clone()),
             ),
-            deno_fetch::deno_fetch::init_ops_and_esm::<ZinniaPermissions>(Default::default()),
+            deno_fetch::deno_fetch::init_ops_and_esm::<ZinniaPermissions>(deno_fetch::Options {
+                user_agent: bootstrap_options.agent_version.clone(),
+                ..Default::default()
+            }),
             deno_crypto::deno_crypto::init_ops_and_esm(bootstrap_options.rng_seed),
             // Zinnia-specific APIs
             zinnia_libp2p::zinnia_libp2p::init_ops_and_esm(zinnia_libp2p::PeerNodeConfig {
@@ -95,9 +97,9 @@ pub async fn run_js_module(
         ],
         will_snapshot: false,
         inspector: false,
-        module_loader: Some(Rc::new(ZinniaModuleLoader::new(
+        module_loader: Some(Rc::new(ZinniaModuleLoader::build(
             bootstrap_options.module_root.clone(),
-        ))),
+        )?)),
         ..Default::default()
     });
 
