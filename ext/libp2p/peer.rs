@@ -178,7 +178,7 @@ impl Resource for PeerNode {
 
 pub fn create_transport(
     id_keys: &Keypair,
-) -> Result<transport::Boxed<(PeerId, StreamMuxerBox)>, noise::NoiseError> {
+) -> Result<transport::Boxed<(PeerId, StreamMuxerBox)>, noise::Error> {
     // Setup the transport + multiplex + auth
     // Zinnia will hard-code this configuration initially.
     // We need to pick reasonable defaults that will allow Zinnia nodes to interoperate with
@@ -187,9 +187,9 @@ pub fn create_transport(
         libp2p::tcp::Config::new(),
     ))?
     .upgrade(upgrade::Version::V1Lazy)
-    .authenticate(noise::NoiseAuthenticated::xx(id_keys)?)
+    .authenticate(noise::Config::new(id_keys)?)
     .multiplex(upgrade::SelectUpgrade::new(
-        yamux::YamuxConfig::default(),
+        yamux::Config::default(),
         libp2p::mplex::MplexConfig::default(),
     ))
     .timeout(std::time::Duration::from_secs(5))
