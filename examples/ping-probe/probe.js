@@ -80,6 +80,9 @@ while (true) {
     console.error("Cannot record stats: %s", err);
   }
 
+  // Notify Filecoin Station
+  Zinnia.jobCompleted();
+
   // Wait one second before running another probe
   await sleep(1000);
 }
