@@ -40,9 +40,7 @@ impl StationReporter {
 
         // Report the initial job count to prevent Station Desktop from showing incorrect job count
         // until a Zinnia module completes the first job
-        if initial_job_count > 0 {
-            reporter.print_jobs_completed(initial_job_count);
-        }
+        reporter.print_jobs_completed(initial_job_count);
 
         reporter
     }
