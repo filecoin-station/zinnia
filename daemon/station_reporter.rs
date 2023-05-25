@@ -28,7 +28,7 @@ impl StationReporter {
             .unwrap()
             .total_jobs_completed;
 
-        Self {
+        let reporter = Self {
             tracker: RefCell::new(JobCompletionTracker::new(
                 initial_job_count,
                 job_report_delay,
@@ -36,7 +36,13 @@ impl StationReporter {
             module_name,
             log_target,
             state_file,
-        }
+        };
+
+        // Report the initial job count to prevent Station Desktop from showing incorrect job count
+        // until a Zinnia module completes the first job
+        reporter.print_jobs_completed(initial_job_count);
+
+        reporter
     }
 
     fn print_jobs_completed(&self, total: u64) {
