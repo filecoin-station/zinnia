@@ -26,7 +26,7 @@ assert_cmd = "2.0.11"
 assert_fs = { workspace = true }
 lazy_static = "1.4.0"
 pretty_assertions = { workspace = true }
-regex = "1.8.2"
+regex = "1.8.3"
 
 [package.metadata.winres]
 # This section defines the metadata that appears in the deno.exe PE header.
