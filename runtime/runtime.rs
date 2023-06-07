@@ -73,7 +73,7 @@ impl BootstrapOptions {
     }
 }
 
-pub async fn run_js_module<'a>(
+pub async fn run_js_module(
     module_specifier: &ModuleSpecifier,
     bootstrap_options: &BootstrapOptions,
 ) -> Result<(), AnyError> {
