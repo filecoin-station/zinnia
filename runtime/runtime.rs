@@ -67,7 +67,7 @@ impl BootstrapOptions {
           "noColor": self.no_color,
           "isTty": self.is_tty,
           "walletAddress": self.wallet_address,
-          "lassieUrl": format!("http://127.0.0.1:{}", self.lassie_daemon.port()),
+          "lassieUrl": format!("http://127.0.0.1:{}/", self.lassie_daemon.port()),
         });
         serde_json::to_string_pretty(&payload).unwrap()
     }

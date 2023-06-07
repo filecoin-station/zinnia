@@ -89,6 +89,7 @@ js_tests!(libp2p_tests);
 js_tests!(station_apis_tests);
 js_tests!(station_reporting_tests check_activity);
 js_tests!(module_loader_tests);
+js_tests!(ipfs_retrieval_tests);
 
 test_runner_tests!(passing_tests);
 test_runner_tests!(failing_tests expect_failure);
