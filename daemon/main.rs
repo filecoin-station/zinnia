@@ -4,14 +4,14 @@ mod station_reporter;
 
 use std::path::PathBuf;
 use std::rc::Rc;
+use std::sync::Arc;
 use std::time::Duration;
 
 use args::CliArgs;
 use clap::Parser;
 
-use log::{error, info};
 use zinnia_runtime::anyhow::{anyhow, Context, Error, Result};
-use zinnia_runtime::{get_module_root, resolve_path, run_js_module, BootstrapOptions};
+use zinnia_runtime::{get_module_root, lassie, resolve_path, run_js_module, BootstrapOptions};
 
 use crate::station_reporter::{log_info_activity, StationReporter};
 
@@ -27,7 +27,7 @@ async fn main() {
 }
 
 async fn run(config: CliArgs) -> Result<()> {
-    info!("Starting zinniad with config {config:?}");
+    log::info!("Starting zinniad with config {config:?}");
 
     if config.files.is_empty() {
         return Err(anyhow!("You must provide at least one module to run."));
@@ -40,6 +40,15 @@ async fn run(config: CliArgs) -> Result<()> {
 
     let state_file = PathBuf::from(config.state_root).join("state.json");
     log::debug!("Using state file: {}", state_file.display());
+
+    let lassie_config = lassie::DaemonConfig {
+        temp_dir: Some(PathBuf::from(config.cache_root).join("lassie")),
+        port: 0,
+    };
+    let lassie_daemon = Arc::new(
+        lassie::Daemon::start(lassie_config)
+            .context("cannot initialize the IPFS retrieval client Lassie")?,
+    );
 
     log_info_activity("Module Runtime started.");
 
@@ -63,6 +72,7 @@ async fn run(config: CliArgs) -> Result<()> {
             Duration::from_millis(200),
             module_name.into(),
         )),
+        lassie_daemon,
         module_root: Some(module_root),
         no_color: true,
         is_tty: false,
@@ -88,6 +98,6 @@ fn exit_with_error(error: Error) {
     let error_string = format!("{error:?}");
     let error_code = 1;
 
-    error!("{}", error_string.trim_start_matches("error: "));
+    log::error!("{}", error_string.trim_start_matches("error: "));
     std::process::exit(error_code);
 }

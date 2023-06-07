@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 use std::rc::Rc;
+use std::sync::Arc;
 
 use deno_core::{located_script_name, serde_json, JsRuntime, ModuleSpecifier, RuntimeOptions};
 
@@ -35,12 +36,17 @@ pub struct BootstrapOptions {
 
     /// Report activities
     pub reporter: Rc<dyn Reporter>,
+
+    /// Lassie daemon to use as the IPFS retrieval client. We must use Arc here to allow sharing of
+    /// the singleton Lassie instance between multiple threads spawned by Rust's test runner.
+    pub lassie_daemon: Arc<lassie::Daemon>,
 }
 
 impl BootstrapOptions {
     pub fn new(
         agent_version: String,
         reporter: Rc<dyn Reporter>,
+        lassie_daemon: Arc<lassie::Daemon>,
         module_root: Option<PathBuf>,
     ) -> Self {
         Self {
@@ -52,6 +58,7 @@ impl BootstrapOptions {
             // See https://lotus.filecoin.io/lotus/manage/manage-fil/#public-key-address
             wallet_address: String::from("t1abjxfbp274xpdqcpuaykwkfb43omjotacm2p3za"),
             reporter,
+            lassie_daemon,
         }
     }
 
@@ -60,12 +67,13 @@ impl BootstrapOptions {
           "noColor": self.no_color,
           "isTty": self.is_tty,
           "walletAddress": self.wallet_address,
+          "lassieUrl": format!("http://127.0.0.1:{}", self.lassie_daemon.port()),
         });
         serde_json::to_string_pretty(&payload).unwrap()
     }
 }
 
-pub async fn run_js_module(
+pub async fn run_js_module<'a>(
     module_specifier: &ModuleSpecifier,
     bootstrap_options: &BootstrapOptions,
 ) -> Result<(), AnyError> {

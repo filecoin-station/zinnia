@@ -14,6 +14,8 @@ use zinnia_runtime::{anyhow, deno_core, run_js_module, AnyError, BootstrapOption
 
 use pretty_assertions::assert_eq;
 
+mod helpers;
+
 macro_rules! js_tests(
     ( $name:ident ) => {
     #[tokio::test]
@@ -106,6 +108,7 @@ async fn run_js_test_file(name: &str) -> Result<(Vec<String>, Option<AnyError>),
     let config = BootstrapOptions::new(
         format!("zinnia_runtime_tests/{}", env!("CARGO_PKG_VERSION")),
         reporter.clone(),
+        helpers::lassie_daemon(),
         None,
     );
     let run_result = run_js_module(&main_module, &config).await;

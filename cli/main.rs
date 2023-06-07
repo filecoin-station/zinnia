@@ -1,6 +1,7 @@
 mod args;
 
 use std::rc::Rc;
+use std::sync::Arc;
 use std::time::Duration;
 
 use args::{CliArgs, Commands};
@@ -9,7 +10,9 @@ use clap::Parser;
 use zinnia_runtime::anyhow::{Context, Error, Result};
 use zinnia_runtime::deno_core::error::JsError;
 use zinnia_runtime::fmt_errors::format_js_error;
-use zinnia_runtime::{colors, resolve_path, run_js_module, BootstrapOptions, ConsoleReporter};
+use zinnia_runtime::{
+    colors, lassie, resolve_path, run_js_module, BootstrapOptions, ConsoleReporter,
+};
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
@@ -32,9 +35,19 @@ async fn main_impl() -> Result<()> {
                 &file,
                 &std::env::current_dir().context("unable to get current working directory")?,
             )?;
+
+            let lassie_daemon = Arc::new(
+                lassie::Daemon::start(lassie::DaemonConfig {
+                    temp_dir: None, // TODO: Should we use something like ~/.cache/zinnia/lassie?
+                    port: 0,
+                })
+                .context("cannot initialize the IPFS retrieval client Lassie")?,
+            );
+
             let config = BootstrapOptions::new(
                 format!("zinnia/{}", env!("CARGO_PKG_VERSION")),
                 Rc::new(ConsoleReporter::new(Duration::from_millis(500))),
+                lassie_daemon,
                 None,
             );
             run_js_module(&main_module, &config).await?;
