@@ -25,4 +25,4 @@ zinnia_runtime = { workspace = true }
 
 [dev-dependencies]
 pretty_assertions = { workspace = true }
-tempfile = "3.5.0"
+tempfile = "3.6.0"
