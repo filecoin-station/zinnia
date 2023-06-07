@@ -10,6 +10,8 @@ use zinnia_runtime::{anyhow, deno_core, run_js_module, BootstrapOptions, Recordi
 
 #[tokio::test]
 async fn fetch_reports_user_agent() -> Result<()> {
+    let _ = env_logger::builder().is_test(true).try_init();
+
     let user_agent = "zinnia_fetch_api_tests agent/007";
     let server_port = start_echo_server().await?;
 

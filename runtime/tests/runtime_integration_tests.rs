@@ -93,6 +93,8 @@ test_runner_tests!(failing_tests expect_failure);
 
 // Run all tests in a single JS file
 async fn run_js_test_file(name: &str) -> Result<(Vec<String>, Option<AnyError>), AnyError> {
+    let _ = env_logger::builder().is_test(true).try_init();
+
     let mut full_path = get_base_dir();
     full_path.push(name);
 
