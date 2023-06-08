@@ -87,6 +87,7 @@ import * as code from "../../other/code.js";
 - [Web APIs](#web-apis)
 - [Unsupported Web APIs](#unsupported-web-apis)
 - [libp2p](#libp2p)
+- [IPFS retrieval client](#ipfs-retrieval-client)
 
 ### Standard JavaScript APIs
 
@@ -328,6 +329,32 @@ Saturn Node is not able to connect to the network.
 Report that a single job was completed.
 
 Call this function every time your module completes a job. It's ok to call it frequently.
+
+### IPFS Retrieval Client
+
+Zinnia provides a built-in IPFS retrieval client making it easy to fetch content-addressed data from
+IPFS and Filecoin networks. You can retrieve data for a given CID using the web platform API `fetch`
+and using the URL scheme `ipfs://`.
+
+Example:
+
+```js
+const response = await fetch("ipfs://bafybeib36krhffuh3cupjml4re2wfxldredkir5wti3dttulyemre7xkni");
+assert(response.ok);
+const data = await response.arrayBuffer();
+// data contains binary data in the CAR format
+```
+
+> Note: At the moment, Zinnia does not provide any tools to interpret the returned CAR data. We are
+> discussing support for reading UnixFS data in
+> [zinnia#245](https://github.com/filecoin-station/zinnia/issues/246).
+
+Under the hood, Zinnia handles `ipfs://bafy...` requests by calling Lassie HTTP API. You can learn
+more about supported parameters (request headers, query string arguments), response headers and
+possible error status codes in
+[Lassie's HTTP Specification](https://github.com/filecoin-project/lassie/blob/main/docs/HTTP_SPEC.md).
+The format of CAR data returned by the retrieval client is described in
+[Lassie's Returned CAR Specification](https://github.com/filecoin-project/lassie/blob/main/docs/CAR.md).
 
 ## Testing Guide
 
