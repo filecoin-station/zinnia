@@ -33,6 +33,12 @@ If you have Rust tooling installed on your machine (see
 [Install Rust](https://www.rust-lang.org/tools/install)), you can build & install Zinnia from the
 source code.
 
+In addition to the Rust build toolchain, you also need Go installed. See
+[Go Downloads](https://go.dev/dl/).
+
+On Windows, Go uses `gcc` to create C libraries. Go recommends installing
+[TDM GCC](https://jmeubank.github.io/tdm-gcc/).
+
 ```sh
 $ cargo install zinnia
 ```
