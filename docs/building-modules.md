@@ -345,8 +345,8 @@ const data = await response.arrayBuffer();
 // data contains binary data in the CAR format
 ```
 
-> Note: At the moment, Zinnia does not provide any tools for interpreting the returned CAR data. We are
-> discussing support for reading UnixFS data in
+> Note: At the moment, Zinnia does not provide any tools for interpreting the returned CAR data. We
+> are discussing support for reading UnixFS data in
 > [zinnia#245](https://github.com/filecoin-station/zinnia/issues/246).
 
 Under the hood, Zinnia handles `ipfs://bafy...` requests by calling Lassie's HTTP API. You can learn
