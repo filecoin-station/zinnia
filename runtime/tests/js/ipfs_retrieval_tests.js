@@ -6,14 +6,10 @@ const EXPECTED_CAR_BASE64 =
 
 test("can retrieve CID content as a CAR file", async () => {
   const requestUrl = "ipfs://bafybeib36krhffuh3cupjml4re2wfxldredkir5wti3dttulyemre7xkni";
-
   const response = await fetch(requestUrl);
-  if (!response.ok) {
-    throw new AssertionError(
-      `Fetch request failed with status code ${response.status}: ${await response.body()}`,
-    );
-  }
-  const payload = await response.arrayBuffer();
+  assertResponseIsOk(response);
+
+  payload = await response.arrayBuffer();
   assertEquals(payload.byteLength, 167, "CAR size in bytes");
 
   const payload_encoded = btoa(String.fromCharCode(...new Uint8Array(payload)));
@@ -25,11 +21,7 @@ test("can retrieve CID content as a CAR file", async () => {
 test("can retrieve IPFS content using URL", async () => {
   const requestUrl = new URL("ipfs://bafybeib36krhffuh3cupjml4re2wfxldredkir5wti3dttulyemre7xkni");
   const response = await fetch(requestUrl);
-  if (!response.ok) {
-    throw new AssertionError(
-      `Fetch request failed with status code ${response.status}: ${await response.body()}`,
-    );
-  }
+  assertResponseIsOk(response);
 
   const payload = await response.arrayBuffer();
   assertEquals(payload.byteLength, 167, "CAR size in bytes");
@@ -40,14 +32,21 @@ test("can retrieve IPFS content using URL", async () => {
 test("can retrieve IPFS content using Fetch Request object", async () => {
   const request = new Request("ipfs://bafybeib36krhffuh3cupjml4re2wfxldredkir5wti3dttulyemre7xkni");
   const response = await fetch(request);
-  if (!response.ok) {
-    throw new AssertionError(
-      `Fetch request failed with status code ${response.status}: ${await response.body()}`,
-    );
-  }
+  assertResponseIsOk(response);
 
   const payload = await response.arrayBuffer();
   assertEquals(payload.byteLength, 167, "CAR size in bytes");
 
   assertEquals(response.url, request.url);
 });
+
+/**
+ * @param {Response} response Fetch API response
+ */
+async function assertResponseIsOk(response) {
+  if (!response.ok) {
+    throw new AssertionError(
+      `Fetch request failed with status code ${response.status}: ${await response.text()}`,
+    );
+  }
+}
