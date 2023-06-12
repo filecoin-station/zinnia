@@ -3,7 +3,7 @@ import { fromInnerResponse, toInnerResponse } from "ext:deno_fetch/23_response.j
 import { toInnerRequest, fromInnerRequest, Request } from "ext:deno_fetch/23_request.js";
 import { guardFromHeaders } from "ext:deno_fetch/20_headers.js";
 
-let ipfsScheme = "ipfs://";
+const ipfsScheme = "ipfs://";
 let ipfsBaseUrl = undefined;
 
 export function setLassieUrl(/** @type {string} */ value) {

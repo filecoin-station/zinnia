@@ -334,7 +334,7 @@ Call this function every time your module completes a job. It's ok to call it fr
 
 Zinnia provides a built-in IPFS retrieval client making it easy to fetch content-addressed data from
 IPFS and Filecoin networks. You can retrieve data for a given CID using the web platform API `fetch`
-and using the URL scheme `ipfs://`.
+together with the URL scheme `ipfs://`.
 
 Example:
 
@@ -345,11 +345,11 @@ const data = await response.arrayBuffer();
 // data contains binary data in the CAR format
 ```
 
-> Note: At the moment, Zinnia does not provide any tools to interpret the returned CAR data. We are
+> Note: At the moment, Zinnia does not provide any tools for interpreting the returned CAR data. We are
 > discussing support for reading UnixFS data in
 > [zinnia#245](https://github.com/filecoin-station/zinnia/issues/246).
 
-Under the hood, Zinnia handles `ipfs://bafy...` requests by calling Lassie HTTP API. You can learn
+Under the hood, Zinnia handles `ipfs://bafy...` requests by calling Lassie's HTTP API. You can learn
 more about supported parameters (request headers, query string arguments), response headers and
 possible error status codes in
 [Lassie's HTTP Specification](https://github.com/filecoin-project/lassie/blob/main/docs/HTTP_SPEC.md).
