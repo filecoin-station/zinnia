@@ -9,7 +9,7 @@ test("can retrieve CID content as a CAR file", async () => {
   const response = await fetch(requestUrl);
   assertResponseIsOk(response);
 
-  payload = await response.arrayBuffer();
+  const payload = await response.arrayBuffer();
   assertEquals(payload.byteLength, 167, "CAR size in bytes");
 
   const payload_encoded = btoa(String.fromCharCode(...new Uint8Array(payload)));
