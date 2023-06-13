@@ -91,7 +91,7 @@ jobs:
 
       - uses: actions/setup-go@v4
         with:
-          go-version: latest
+          go-version: stable
           cache: false # caching requires a go.sum file, which we don't have in our project
 
       - name: Setup | Rust
