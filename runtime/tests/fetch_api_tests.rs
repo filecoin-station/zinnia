@@ -8,8 +8,12 @@ use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpListener;
 use zinnia_runtime::{anyhow, deno_core, run_js_module, BootstrapOptions, RecordingReporter};
 
+mod helpers;
+
 #[tokio::test]
 async fn fetch_reports_user_agent() -> Result<()> {
+    let _ = env_logger::builder().is_test(true).try_init();
+
     let user_agent = "zinnia_fetch_api_tests agent/007";
     let server_port = start_echo_server().await?;
 
@@ -29,7 +33,12 @@ assertArrayIncludes(request_lines, ["user-agent: {user_agent}"]);
         &std::env::current_dir().context("unable to get current working directory")?,
     )?;
     let reporter = Rc::new(RecordingReporter::new());
-    let config = BootstrapOptions::new(user_agent.into(), reporter.clone(), None);
+    let config = BootstrapOptions::new(
+        user_agent.into(),
+        reporter.clone(),
+        helpers::lassie_daemon(),
+        None,
+    );
     run_js_module(&main_module, &config).await?;
     // the test passes when the JavaScript code does not throw
     Ok(())

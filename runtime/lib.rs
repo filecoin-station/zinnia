@@ -18,4 +18,6 @@ mod reporter;
 pub use console_reporter::*;
 pub use reporter::*;
 
+pub use lassie;
+
 mod ext;

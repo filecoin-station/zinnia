@@ -52,6 +52,7 @@ deno_core::extension!(
       "90_zinnia_apis.js",
       "98_global_scope.js",
       "internals.js",
+      "fetch.js",
       "test.js",
       "vendored/asserts.bundle.js",
       "99_main.js",

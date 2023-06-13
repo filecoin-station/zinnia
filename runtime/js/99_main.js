@@ -36,6 +36,7 @@ import {
   mainRuntimeGlobalProperties,
   windowOrWorkerGlobalScope,
 } from "ext:zinnia_runtime/98_global_scope.js";
+import { setLassieUrl } from "ext:zinnia_runtime/fetch.js";
 
 function formatException(error) {
   if (ObjectPrototypeIsPrototypeOf(ErrorPrototype, error)) {
@@ -66,6 +67,8 @@ function runtimeStart(runtimeOptions) {
 
   // deno-lint-ignore prefer-primordials
   Error.prepareStackTrace = core.prepareStackTrace;
+
+  setLassieUrl(runtimeOptions.lassieUrl);
 }
 
 let hasBootstrapped = false;

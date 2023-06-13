@@ -2179,6 +2179,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "lassie"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5726517411b49924096cc729c41092c134b4e82d710f37af0936db83e02657ff"
+dependencies = [
+ "cc",
+ "log",
+]
+
+[[package]]
 name = "lazy-regex"
 version = "2.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5682,6 +5692,7 @@ dependencies = [
  "deno_web",
  "deno_webidl",
  "env_logger",
+ "lassie",
  "log",
  "once_cell",
  "pretty_assertions",

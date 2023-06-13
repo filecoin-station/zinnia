@@ -14,6 +14,8 @@ use zinnia_runtime::{anyhow, deno_core, run_js_module, AnyError, BootstrapOption
 
 use pretty_assertions::assert_eq;
 
+mod helpers;
+
 macro_rules! js_tests(
     ( $name:ident ) => {
     #[tokio::test]
@@ -87,12 +89,15 @@ js_tests!(libp2p_tests);
 js_tests!(station_apis_tests);
 js_tests!(station_reporting_tests check_activity);
 js_tests!(module_loader_tests);
+js_tests!(ipfs_retrieval_tests);
 
 test_runner_tests!(passing_tests);
 test_runner_tests!(failing_tests expect_failure);
 
 // Run all tests in a single JS file
 async fn run_js_test_file(name: &str) -> Result<(Vec<String>, Option<AnyError>), AnyError> {
+    let _ = env_logger::builder().is_test(true).try_init();
+
     let mut full_path = get_base_dir();
     full_path.push(name);
 
@@ -104,6 +109,7 @@ async fn run_js_test_file(name: &str) -> Result<(Vec<String>, Option<AnyError>),
     let config = BootstrapOptions::new(
         format!("zinnia_runtime_tests/{}", env!("CARGO_PKG_VERSION")),
         reporter.clone(),
+        helpers::lassie_daemon(),
         None,
     );
     let run_result = run_js_module(&main_module, &config).await;
