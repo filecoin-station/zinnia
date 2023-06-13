@@ -12,8 +12,8 @@ export function setLassieUrl(/** @type {string} */ value) {
 
 export function fetch(resource, options) {
   let request = new Request(resource, options);
-  // The `resource` arg can be a string or any other object with a stringifier — including a URL
-  // object — that provides the URL of the resource you want to fetch; or a Request object.
+  // The `resource` arg can be a string or any other object with a stringifier - including a URL
+  // object - that provides the URL of the resource you want to fetch; or a Request object.
   // See https://developer.mozilla.org/en-US/docs/Web/API/fetch#parameters
   // Fortunately, Request's constructor handles the conversions, and Request#url is always a string.
   // See https://developer.mozilla.org/en-US/docs/Web/API/Request/url
