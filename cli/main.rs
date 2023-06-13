@@ -38,7 +38,23 @@ async fn main_impl() -> Result<()> {
 
             let lassie_daemon = Arc::new(
                 lassie::Daemon::start(lassie::DaemonConfig {
-                    temp_dir: None, // TODO: Should we use something like ~/.cache/zinnia/lassie?
+                    // This configuration applies to `zinnia` CLI only. The `zinniad` daemon running
+                    // inside Station uses a different temp_dir config based on the env var
+                    // `CACHE_ROOT` provided by the Station.
+                    //
+                    // By default, Lassie stores its temporary files in the system temp directory.
+                    // That's good enough for now. We can improve this later based on user feedback,
+                    // for example:
+                    // - we can honour CACHE_ROOT
+                    // - we can default to something like
+                    //   `~/.cache/zinnia/lassie` on Unix,
+                    //   `%APPLOCALDATA%\zinnia\lassie' on Windows.
+                    //
+                    // Important: if we tell Lassie to use a specific temp dir that's not
+                    // automatically cleaned by the operating system, we will need to clean any
+                    // leftover files ourselves. See the GH issue for deleting leftover files
+                    // when `zinniad` starts: https://github.com/filecoin-station/zinnia/issues/245
+                    temp_dir: None,
                     port: 0,
                 })
                 .context("cannot initialize the IPFS retrieval client Lassie")?,
