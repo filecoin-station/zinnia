@@ -117,6 +117,14 @@ jobs:
           shared-key: release-${{ matrix.target }}
           cache-on-failure: true
 
+      # On Windows, Lassie build script copies golassie.dll to the target directory. When
+      # Swatinem/rust-cache loads cached data, it does not restore that DLL file. To fix the
+      # problem, we remove the cached Lassie version to force `cargo build` to re-run the build
+      # script, which will copy `golassie.dll`.
+      - name: DEBUGGING | Force rebuild of Lassie
+        if: ${{ !startsWith(github.ref, 'refs/tags/') && matrix.os == 'windows-latest' }}
+        run:  cargo clean --release --target ${{ matrix.target }} -p lassie
+
       - name: Build | Build
         run: ${{ matrix.builder || 'cargo' }} build --release --locked --target ${{ matrix.target }}
 
@@ -124,8 +132,9 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: |
           cd target/${{ matrix.target }}/release
-          7z a ../../../zinnia-${{ matrix.name }} zinnia.exe
-          7z a ../../../zinniad-${{ matrix.name }} zinniad.exe
+          dir
+          7z a ../../../zinnia-${{ matrix.name }} zinnia.exe golassie.dll
+          7z a ../../../zinniad-${{ matrix.name }} zinniad.exe golassie.dll
 
       - name: Post Build | Prepare artifacts [Linux]
         if: matrix.os == 'ubuntu-latest'
