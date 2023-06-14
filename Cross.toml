@@ -1,9 +1,6 @@
 [target.x86_64-unknown-linux-gnu]
-pre-build = [
-    "rm -rf /usr/local/go && curl -L https://go.dev/dl/go1.20.5.linux-amd64.tar.gz | tar -xz -C /usr/local && ln -s /usr/local/go/bin/go /usr/local/bin/ && go version"
-]
+dockerfile = "cross/Dockerfile"
 
 [target.aarch64-unknown-linux-gnu]
-pre-build = [
-    "rm -rf /usr/local/go && curl -L https://go.dev/dl/go1.20.5.linux-arm64.tar.gz | tar -xz -C /usr/local && ln -s /usr/local/go/bin/go /usr/local/bin/ && go version"
-]
+dockerfile = "cross/Dockerfile"
+
