@@ -118,7 +118,7 @@ jobs:
           cache-on-failure: true
 
       # On Windows, Lassie build script copies golassie.dll to the target directory. When
-      # Swatinem/rust-cache loads cached data, it does not restore that DLL file.  To fix that
+      # Swatinem/rust-cache loads cached data, it does not restore that DLL file. To fix the
       # problem, we remove the cached Lassie version to force `cargo build` to re-run the build
       # script, which will copy `golassie.dll`.
       - name: DEBUGGING | Force rebuild of Lassie
