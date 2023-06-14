@@ -103,7 +103,6 @@ pub async fn run_js_module(
             }),
             crate::ext::zinnia_runtime::init_ops_and_esm(reporter),
         ],
-        will_snapshot: false,
         inspector: false,
         module_loader: Some(Rc::new(ZinniaModuleLoader::build(
             bootstrap_options.module_root.clone(),

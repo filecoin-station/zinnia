@@ -1056,18 +1056,18 @@ checksum = "8d7439c3735f405729d52c3fbbe4de140eaf938a1fe47d227c27f8254d4302a5"
 
 [[package]]
 name = "deno_console"
-version = "0.105.0"
+version = "0.108.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1ce6d5caccaac26056182333e915d28b3b5b332b199dd12ab3467590cbda0039"
+checksum = "86d8ba61442961d84a85029ed7caf940ff417f94083c1ec4a804d99f7a8e1f28"
 dependencies = [
  "deno_core",
 ]
 
 [[package]]
 name = "deno_core"
-version = "0.187.0"
+version = "0.190.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "922ed10fa6019414f58095894140e77479662833a62c568b023226e8be103e93"
+checksum = "2874134a910db7ce562244ea1ed1c5efec42fdd7613b34025c2fc46505deb5db"
 dependencies = [
  "anyhow",
  "bytes",
@@ -1091,9 +1091,9 @@ dependencies = [
 
 [[package]]
 name = "deno_crypto"
-version = "0.119.0"
+version = "0.122.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9603a2705c5cce5995b98b8fecb743c1fa59d4907b50955160d67e3f5ab6c23e"
+checksum = "6a2e48c8b709828a196a3edf981b22d00a739ef3aaaf7daae379da3e9d47785f"
 dependencies = [
  "aes 0.8.2",
  "aes-gcm 0.10.2",
@@ -1128,9 +1128,9 @@ dependencies = [
 
 [[package]]
 name = "deno_fetch"
-version = "0.129.0"
+version = "0.132.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7badcac1f31ec0b764e499b295d5915cef12a7f5807cd36fef8a94bb61642043"
+checksum = "2cf8b4727fdfb6161ca448473328f82ded9c3ac23e8cbe00ac1f5eefdab2fee7"
 dependencies = [
  "bytes",
  "data-url",
@@ -1147,9 +1147,9 @@ dependencies = [
 
 [[package]]
 name = "deno_ops"
-version = "0.65.0"
+version = "0.68.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "47d3fbb72196f1880ff7a2824e4f3e111f6601b78f38e715ae3d3d412d9e0a42"
+checksum = "06fcc21a49a44b972f54ec5f300e1e52fb386688f59fbf1734e47a69328338b8"
 dependencies = [
  "lazy-regex",
  "once_cell",
@@ -1163,9 +1163,9 @@ dependencies = [
 
 [[package]]
 name = "deno_tls"
-version = "0.92.0"
+version = "0.95.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9f63c6cb5a5bd9ed2422b2d21c6e675edbc54a2dd20caa65f187040f3a525951"
+checksum = "6c1f710f9f42c68e0568f7e95848a789e19d019cff3d26f6c96867db8e5ca788"
 dependencies = [
  "deno_core",
  "once_cell",
@@ -1179,9 +1179,9 @@ dependencies = [
 
 [[package]]
 name = "deno_url"
-version = "0.105.0"
+version = "0.108.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8e3451bf3b98d028a4f61fae2bba1d58aad1ba790cfe0d14a0b11cd17623f1ee"
+checksum = "4c8240b5e47b6a97e68a64db82492719d83516e2ab292875ae4b7e635a6676e7"
 dependencies = [
  "deno_core",
  "serde",
@@ -1191,9 +1191,9 @@ dependencies = [
 
 [[package]]
 name = "deno_web"
-version = "0.136.0"
+version = "0.139.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "08198c3ae53f5b722907ebde32d340c6f9223fa347689619cb5d500ee9a176bd"
+checksum = "4cbfcfecf1b546b542d31ff776399fe0045164fe7f1b7c05d784f58b4c76cdff"
 dependencies = [
  "async-trait",
  "base64-simd",
@@ -1208,9 +1208,9 @@ dependencies = [
 
 [[package]]
 name = "deno_webidl"
-version = "0.105.0"
+version = "0.108.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3d2c11261edf0f1459f6b7dab67db6241af2c74b1e764d117c607aa649aea338"
+checksum = "bc0e30e2bf5df141b9dac6f43137104f1f7174033122d5c2c6fd4a352ad25fca"
 dependencies = [
  "deno_core",
 ]
@@ -4094,9 +4094,9 @@ dependencies = [
 
 [[package]]
 name = "serde_v8"
-version = "0.98.0"
+version = "0.101.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ac09be069e49932c7c1df9b25c9e76ecb235e2127530462885926431c00d05f3"
+checksum = "613ea53a4a3a9abe264072a12989a67cf8988619e189fd5d1220dbe18e366d04"
 dependencies = [
  "bytes",
  "derive_more",
@@ -4833,9 +4833,9 @@ dependencies = [
 
 [[package]]
 name = "v8"
-version = "0.71.2"
+version = "0.73.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1a4bbfd886a9c2f87170438c0cdb6b1ddbfe80412ab591c83d24c7e48e487313"
+checksum = "e1bd3f04ba5065795dae6e3db668ff0b628920fbd2e39c1755e9b62d93660c3c"
 dependencies = [
  "bitflags",
  "fslock",
