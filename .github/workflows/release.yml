@@ -126,8 +126,8 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: |
           cd target/${{ matrix.target }}/release
-          7z a ../../../zinnia-${{ matrix.name }} zinnia.exe
-          7z a ../../../zinniad-${{ matrix.name }} zinniad.exe
+          7z a ../../../zinnia-${{ matrix.name }} zinnia.exe golassie.dll
+          7z a ../../../zinniad-${{ matrix.name }} zinniad.exe golassie.dll
 
       - name: Post Build | Prepare artifacts [Linux]
         if: matrix.os == 'ubuntu-latest'
