@@ -3,4 +3,3 @@ dockerfile = "cross/Dockerfile"
 
 [target.aarch64-unknown-linux-gnu]
 dockerfile = "cross/Dockerfile"
-
