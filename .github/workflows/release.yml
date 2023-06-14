@@ -126,6 +126,7 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: |
           cd target/${{ matrix.target }}/release
+          dir
           7z a ../../../zinnia-${{ matrix.name }} zinnia.exe golassie.dll
           7z a ../../../zinniad-${{ matrix.name }} zinniad.exe golassie.dll
 
