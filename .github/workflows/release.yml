@@ -2,8 +2,13 @@ name: Release
 
 on:
   push:
-    tags:
-      - '*'
+    tags: ['*']
+    # When making changes to this file, temporarily uncomment the next line to run the release
+    # workflow for your pull request. This will run additional steps prefixed with `Debugging` and
+    # attach the release artifacts to GHA workflow run Summary page, where you can download them for
+    # inspection.
+    # REMEMBER TO REVERT BACK THE CHANGE BEFORE LANDING YOUR PULL REQUEST!
+    # branches: ['*']
 
 env:
   CARGO_INCREMENTAL: 0
@@ -110,7 +115,7 @@ jobs:
       # When debugging this workflow, cache the build artefacts
       # Note that a build for one tag cannot access cache created by a build for a different tag,
       # therefore caching does not work for real release builds.
-      - name: DEBUGGING | Cache Rust deps
+      - name: Debugging | Cache Rust deps
         uses: Swatinem/rust-cache@988c164c3d0e93c4dbab36aaf5bbeb77425b2894 # v2.4.0
         if: ${{ !startsWith(github.ref, 'refs/tags/') }}
         with:
@@ -121,7 +126,7 @@ jobs:
       # Swatinem/rust-cache loads cached data, it does not restore that DLL file. To fix the
       # problem, we remove the cached Lassie version to force `cargo build` to re-run the build
       # script, which will copy `golassie.dll`.
-      - name: DEBUGGING | Force rebuild of Lassie
+      - name: Debugging | Force rebuild of Lassie
         if: ${{ !startsWith(github.ref, 'refs/tags/') && matrix.os == 'windows-latest' }}
         run:  cargo clean --release --target ${{ matrix.target }} -p lassie
 
@@ -199,7 +204,7 @@ jobs:
           fail_on_unmatched_files: true
 
       # When debugging this workflow, attach the artifacts to the workflow run
-      - name: DEBUGGING | Upload artifacts to workflow run
+      - name: Debugging | Upload artifacts to workflow run
         if: ${{ !startsWith(github.ref, 'refs/tags/') }}
         uses: actions/upload-artifact@v3
         with:
