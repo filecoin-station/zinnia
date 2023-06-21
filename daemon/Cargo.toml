@@ -15,7 +15,7 @@ doc = false
 
 [dependencies]
 atomicwrites = "0.4.1"
-clap = { version = "4.3.4", features = ["derive", "env"] }
+clap = { version = "4.3.5", features = ["derive", "env"] }
 env_logger.workspace = true
 log.workspace = true
 serde.workspace = true
