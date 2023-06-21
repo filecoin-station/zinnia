@@ -2,11 +2,11 @@ mod args;
 mod state;
 mod station_reporter;
 
+use std::fs;
 use std::path::PathBuf;
 use std::rc::Rc;
 use std::sync::Arc;
 use std::time::Duration;
-use std::fs;
 
 use args::CliArgs;
 use clap::Parser;
