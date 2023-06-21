@@ -6,6 +6,7 @@ use std::path::PathBuf;
 use std::rc::Rc;
 use std::sync::Arc;
 use std::time::Duration;
+use std::fs;
 
 use args::CliArgs;
 use clap::Parser;
@@ -40,9 +41,11 @@ async fn run(config: CliArgs) -> Result<()> {
 
     let state_file = PathBuf::from(config.state_root).join("state.json");
     log::debug!("Using state file: {}", state_file.display());
+    let temp_dir = PathBuf::from(config.cache_root).join("lassie");
+    fs::create_dir_all(&temp_dir)?;
 
     let lassie_config = lassie::DaemonConfig {
-        temp_dir: Some(PathBuf::from(config.cache_root).join("lassie")),
+        temp_dir: Some(temp_dir),
         port: 0,
     };
     let lassie_daemon = Arc::new(
