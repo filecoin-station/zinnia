@@ -93,6 +93,7 @@ import * as code from "../../other/code.js";
 - [libp2p](#libp2p)
 - [Integration with Filecoin Station](#integration-with-filecoin-station)
 - [IPFS retrieval client](#ipfs-retrieval-client)
+- [Miscelaneous APIs]()
 
 ### Standard JavaScript APIs
 
@@ -360,6 +361,16 @@ possible error status codes in
 [Lassie's HTTP Specification](https://github.com/filecoin-project/lassie/blob/main/docs/HTTP_SPEC.md).
 The format of CAR data returned by the retrieval client is described in
 [Lassie's Returned CAR Specification](https://github.com/filecoin-project/lassie/blob/main/docs/CAR.md).
+
+### Miscelaneous APIs
+
+#### `Zinnia.versions.zinna`
+
+The version of Zinnia runtime, e.g. `"0.11.0"`.
+
+#### `Zinnia.versions.v8`
+
+The version of V8 engine, e.g. `"11.5.150.2"`.
 
 ## Testing Guide
 

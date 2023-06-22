@@ -1,10 +1,22 @@
 const primordials = globalThis.__bootstrap.primordials;
-const { ObjectDefineProperties, ObjectCreate } = primordials;
+const { ObjectDefineProperties, ObjectCreate, ObjectFreeze } = primordials;
 
 const { ops } = globalThis.Deno.core;
 
 import { readOnly } from "ext:zinnia_runtime/06_util.js";
 import * as libp2p from "ext:zinnia_libp2p/01_peer.js";
+
+const versions = {
+  zinnia: "",
+  v8: "",
+};
+
+function setVersions(zinniaVersion, v8Version) {
+  versions.zinnia = zinniaVersion;
+  versions.v8 = v8Version;
+
+  ObjectFreeze(versions);
+}
 
 const zinniaNs = ObjectCreate(null);
 ObjectDefineProperties(zinniaNs, libp2p.defaultPeerProps);
@@ -18,6 +30,7 @@ ObjectDefineProperties(activityApi, {
 ObjectDefineProperties(zinniaNs, {
   activity: readOnly(activityApi),
   jobCompleted: readOnly(reportJobCompleted),
+  versions: readOnly(versions),
 });
 
 function reportInfoActivity(msg) {
@@ -39,4 +52,4 @@ function log(msg, level) {
   ops.op_zinnia_log(msg, level);
 }
 
-export { zinniaNs, log };
+export { zinniaNs, log, setVersions };

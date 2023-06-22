@@ -40,6 +40,9 @@ pub struct BootstrapOptions {
     /// Lassie daemon to use as the IPFS retrieval client. We must use Arc here to allow sharing of
     /// the singleton Lassie instance between multiple threads spawned by Rust's test runner.
     pub lassie_daemon: Arc<lassie::Daemon>,
+
+    zinnia_version: &'static str,
+    v8_version: &'static str,
 }
 
 impl BootstrapOptions {
@@ -59,6 +62,9 @@ impl BootstrapOptions {
             wallet_address: String::from("t1abjxfbp274xpdqcpuaykwkfb43omjotacm2p3za"),
             reporter,
             lassie_daemon,
+            // FIXME: add ".1-dev" unless we are building a release
+            zinnia_version: env!("CARGO_PKG_VERSION"),
+            v8_version: deno_core::v8_version(),
         }
     }
 
@@ -68,6 +74,8 @@ impl BootstrapOptions {
           "isTty": self.is_tty,
           "walletAddress": self.wallet_address,
           "lassieUrl": format!("http://127.0.0.1:{}/", self.lassie_daemon.port()),
+          "zinniaVersion": self.zinnia_version,
+          "v8Version": self.v8_version,
         });
         serde_json::to_string_pretty(&payload).unwrap()
     }

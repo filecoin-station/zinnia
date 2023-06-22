@@ -68,25 +68,24 @@ async fn run(config: CliArgs) -> Result<()> {
     )?;
     let module_root = get_module_root(&main_module)?;
 
-    let config = BootstrapOptions {
-        agent_version: format!("zinniad/{} {module_name}", env!("CARGO_PKG_VERSION")),
-        wallet_address: config.wallet_address,
-        reporter: Rc::new(StationReporter::new(
+    let mut runtime_config = BootstrapOptions::new(
+        format!("zinniad/{} {module_name}", env!("CARGO_PKG_VERSION")),
+        Rc::new(StationReporter::new(
             state_file,
             Duration::from_millis(200),
             module_name.into(),
         )),
         lassie_daemon,
-        module_root: Some(module_root),
-        no_color: true,
-        is_tty: false,
-        rng_seed: None,
-    };
+        Some(module_root),
+    );
+    runtime_config.wallet_address = config.wallet_address;
+    runtime_config.no_color = true;
+    runtime_config.is_tty = false;
 
     // TODO: handle module exit and restart it
     // https://github.com/filecoin-station/zinnia/issues/146
     log::info!("Starting module {main_module}");
-    run_js_module(&main_module, &config).await?;
+    run_js_module(&main_module, &runtime_config).await?;
 
     Ok(())
 }
