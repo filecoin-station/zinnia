@@ -25,6 +25,5 @@ zinnia_runtime = { workspace = true }
 
 [dev-dependencies]
 assert_cmd = { workspace = true }
-assert_fs = { workspace = true }
 pretty_assertions = { workspace = true }
 tempfile = "3.6.0"
