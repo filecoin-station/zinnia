@@ -130,6 +130,7 @@ fn setup_lassie_tempdir(lassie_temp_dir: &Path) -> Result<()> {
             Err(err) => log::warn!("Cannot parse dir entry in Lassie tempdir: {:?}", err),
             Ok(f) => {
                 let p = f.path();
+                // We are assuming that Lassie creates only files, never subdirectories
                 log::trace!("Removing Lassie temp file {:?}", p);
                 if let Err(err) = fs::remove_file(&p) {
                     log::warn!("Cannot remove Lassie temp file {:?}: {:?}", p, err)
