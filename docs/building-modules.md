@@ -41,8 +41,12 @@ See [example modules](../examples) for more advanced examples.
 Zinnia supports ES Modules (also known as
 [JavaScript Modules](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules)).
 
-For sandboxing reasons, module imports are limited to files in the root directory of the Zinnia
-module being executed.
+### Sandboxing in Filecoin Station
+
+Filecoin Station limits module imports to files in the root directory of the Zinnia module being
+executed.
+
+This limitation DOES NOT apply when running your code using `zinnia run`.
 
 Consider the following directory layout:
 
@@ -58,11 +62,11 @@ src
     code.js
 ```
 
-When you execute `zinna run src/my-module/main.js`:
+When you execute `zinnad src/my-module/main.js`:
 
 - In `main.js`, you can import any JavaScript file inside `src/my-module` directory and its
   subdirectories (e.g. `src/my-module/util`).
-- The same restriction applies transitively other imported files too.
+- The same restriction applies transitively to other imported files too.
 
 Example:
 
