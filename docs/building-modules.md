@@ -91,6 +91,7 @@ import * as code from "../../other/code.js";
 - [Web APIs](#web-apis)
 - [Unsupported Web APIs](#unsupported-web-apis)
 - [libp2p](#libp2p)
+- [Integration with Filecoin Station](#integration-with-filecoin-station)
 - [IPFS retrieval client](#ipfs-retrieval-client)
 
 ### Standard JavaScript APIs
@@ -232,7 +233,7 @@ Tracking issue: n/a
 
 - `XMLHttpRequest` Standard
 
-## libp2p
+### libp2p
 
 Zinnia comes with a built-in libp2p node based on
 [rust-libp2p](https://github.com/libp2p/rust-libp2p). The node is shared by all Station Modules
@@ -297,7 +298,7 @@ for await (const chunk of response) {
 }
 ```
 
-#### Integration with Filecoin Station
+### Integration with Filecoin Station
 
 #### `Zinnia.walletAddress`
 
