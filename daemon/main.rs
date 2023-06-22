@@ -68,19 +68,21 @@ async fn run(config: CliArgs) -> Result<()> {
     )?;
     let module_root = get_module_root(&main_module)?;
 
-    let mut runtime_config = BootstrapOptions::new(
-        format!("zinniad/{} {module_name}", env!("CARGO_PKG_VERSION")),
-        Rc::new(StationReporter::new(
+    let runtime_config = BootstrapOptions {
+        zinnia_version: env!("CARGO_PKG_VERSION"),
+        agent_version: format!("zinniad/{} {module_name}", env!("CARGO_PKG_VERSION")),
+        wallet_address: config.wallet_address,
+        reporter: Rc::new(StationReporter::new(
             state_file,
             Duration::from_millis(200),
             module_name.into(),
         )),
         lassie_daemon,
-        Some(module_root),
-    );
-    runtime_config.wallet_address = config.wallet_address;
-    runtime_config.no_color = true;
-    runtime_config.is_tty = false;
+        module_root: Some(module_root),
+        no_color: true,
+        is_tty: false,
+        rng_seed: None,
+    };
 
     // TODO: handle module exit and restart it
     // https://github.com/filecoin-station/zinnia/issues/146

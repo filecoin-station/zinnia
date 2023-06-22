@@ -60,13 +60,17 @@ async fn main_impl() -> Result<()> {
                 .context("cannot initialize the IPFS retrieval client Lassie")?,
             );
 
-            let config = BootstrapOptions::new(
-                format!("zinnia/{}", env!("CARGO_PKG_VERSION")),
-                Rc::new(ConsoleReporter::new(Duration::from_millis(500))),
-                lassie_daemon,
-                None,
-            );
-            run_js_module(&main_module, &config).await?;
+            let runtime_config = BootstrapOptions {
+                zinnia_version: env!("CARGO_PKG_VERSION"),
+                ..BootstrapOptions::new(
+                    format!("zinnia/{}", env!("CARGO_PKG_VERSION")),
+                    Rc::new(ConsoleReporter::new(Duration::from_millis(500))),
+                    lassie_daemon,
+                    None,
+                )
+            };
+
+            run_js_module(&main_module, &runtime_config).await?;
             Ok(())
         }
     }
