@@ -3,7 +3,7 @@ mod state;
 mod station_reporter;
 
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::rc::Rc;
 use std::sync::Arc;
 use std::time::Duration;
@@ -42,7 +42,8 @@ async fn run(config: CliArgs) -> Result<()> {
     let state_file = PathBuf::from(config.state_root).join("state.json");
     log::debug!("Using state file: {}", state_file.display());
     let lassie_temp_dir = PathBuf::from(config.cache_root).join("lassie");
-    fs::create_dir_all(&lassie_temp_dir)?;
+
+    setup_lassie_tempdir(&lassie_temp_dir)?;
 
     let lassie_config = lassie::DaemonConfig {
         temp_dir: Some(lassie_temp_dir),
@@ -103,4 +104,40 @@ fn exit_with_error(error: Error) {
 
     log::error!("{}", error_string.trim_start_matches("error: "));
     std::process::exit(error_code);
+}
+
+fn setup_lassie_tempdir(lassie_temp_dir: &Path) -> Result<()> {
+    if !lassie_temp_dir.is_dir() {
+        log::debug!("Creating Lassie tempdir {:?}", lassie_temp_dir,);
+        fs::create_dir_all(lassie_temp_dir)?;
+        return Ok(());
+    }
+
+    log::debug!(
+        "Cleaning left-over files in Lassie tempdir {:?}",
+        lassie_temp_dir
+    );
+
+    let lassie_files = fs::read_dir(lassie_temp_dir).with_context(|| {
+        format!(
+            "cannot list files in Lassie's temp dir {:?}",
+            lassie_temp_dir
+        )
+    })?;
+
+    for ent in lassie_files {
+        match ent {
+            Err(err) => log::warn!("Cannot parse dir entry in Lassie tempdir: {:?}", err),
+            Ok(f) => {
+                let p = f.path();
+                // We are assuming that Lassie creates only files, never subdirectories
+                log::trace!("Removing Lassie temp file {:?}", p);
+                if let Err(err) = fs::remove_file(&p) {
+                    log::warn!("Cannot remove Lassie temp file {:?}: {:?}", p, err)
+                }
+            }
+        };
+    }
+
+    Ok(())
 }
