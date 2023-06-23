@@ -82,6 +82,7 @@ macro_rules! test_runner_tests(
 );
 
 js_tests!(globals_tests);
+js_tests!(versions_tests);
 js_tests!(timers_tests);
 js_tests!(webapis_tests);
 js_tests!(webcrypto_tests);

@@ -68,7 +68,8 @@ async fn run(config: CliArgs) -> Result<()> {
     )?;
     let module_root = get_module_root(&main_module)?;
 
-    let config = BootstrapOptions {
+    let runtime_config = BootstrapOptions {
+        zinnia_version: env!("CARGO_PKG_VERSION"),
         agent_version: format!("zinniad/{} {module_name}", env!("CARGO_PKG_VERSION")),
         wallet_address: config.wallet_address,
         reporter: Rc::new(StationReporter::new(
@@ -86,7 +87,7 @@ async fn run(config: CliArgs) -> Result<()> {
     // TODO: handle module exit and restart it
     // https://github.com/filecoin-station/zinnia/issues/146
     log::info!("Starting module {main_module}");
-    run_js_module(&main_module, &config).await?;
+    run_js_module(&main_module, &runtime_config).await?;
 
     Ok(())
 }

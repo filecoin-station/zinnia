@@ -37,6 +37,7 @@ import {
   windowOrWorkerGlobalScope,
 } from "ext:zinnia_runtime/98_global_scope.js";
 import { setLassieUrl } from "ext:zinnia_runtime/fetch.js";
+import { setVersions } from "ext:zinnia_runtime/90_zinnia_apis.js";
 
 function formatException(error) {
   if (ObjectPrototypeIsPrototypeOf(ErrorPrototype, error)) {
@@ -69,6 +70,7 @@ function runtimeStart(runtimeOptions) {
   Error.prepareStackTrace = core.prepareStackTrace;
 
   setLassieUrl(runtimeOptions.lassieUrl);
+  setVersions(runtimeOptions.zinniaVersion, runtimeOptions.v8Version);
 }
 
 let hasBootstrapped = false;
