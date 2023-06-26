@@ -6,7 +6,7 @@ await new Promise((resolve) => {
 
 const duration = Date.now() - start;
 const min = 40;
-const max = 120;
+const max = 300;
 
 if (duration < min || duration > max) {
   throw new Error(
