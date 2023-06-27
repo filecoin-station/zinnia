@@ -54,7 +54,8 @@ See [Building Modules](./docs/building-modules.md).
   [Tokio](https://tokio.rs)
 - **Networking**: [deno_fetch](https://crates.io/crates/deno_fetch),
   [rust-libp2p](https://github.com/libp2p/rust-libp2p)
-- **IPFS:** _TBD_
+- **IPFS:** [Rusty Lassie](https://github.com/filecoin-station/rusty-lassie) for retrievals. _TBD:
+  Publish content to IPFS_
 - **Block (K/V) storage:** _TBD_
 
 ## Contributing
