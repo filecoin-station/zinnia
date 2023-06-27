@@ -55,7 +55,10 @@ async fn main_impl() -> Result<()> {
                     // leftover files ourselves. See the GH issue for deleting leftover files
                     // when `zinniad` starts: https://github.com/filecoin-station/zinnia/issues/245
                     temp_dir: None,
+                    // Listen on an ephemeral port selected by the operating system
                     port: 0,
+                    // Use the default Lassie configuration for everything else
+                    ..lassie::DaemonConfig::default()
                 })
                 .context("cannot initialize the IPFS retrieval client Lassie")?,
             );

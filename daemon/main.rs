@@ -47,7 +47,10 @@ async fn run(config: CliArgs) -> Result<()> {
 
     let lassie_config = lassie::DaemonConfig {
         temp_dir: Some(lassie_temp_dir),
+        // Listen on an ephemeral port selected by the operating system
         port: 0,
+        // Use the default Lassie configuration for everything else
+        ..lassie::DaemonConfig::default()
     };
     let lassie_daemon = Arc::new(
         lassie::Daemon::start(lassie_config)
