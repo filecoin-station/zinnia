@@ -94,18 +94,18 @@ async fn run(config: CliArgs) -> Result<RunOutput> {
     // TODO: handle module exit and restart it
     // https://github.com/filecoin-station/zinnia/issues/146
     log::info!("Starting module {main_module}");
-    run_js_module(&main_module, &runtime_config).await?;
+    #[allow(clippy::let_unit_value)]
+    let module_output = run_js_module(&main_module, &runtime_config).await?;
 
     Ok(RunOutput {
-        module_result: (),
+        module_output,
         lassie_daemon,
     })
 }
 
 #[allow(dead_code)]
 struct RunOutput {
-    // TBD
-    module_result: (),
+    module_output: (),
     // for testing
     lassie_daemon: Arc<lassie::Daemon>,
 }

@@ -41,8 +41,7 @@ async fn main_impl() -> Result<()> {
 
 #[allow(dead_code)]
 struct RunOutput {
-    // TBD
-    module_result: (),
+    module_output: (),
     // for testing
     lassie_daemon: Arc<lassie::Daemon>,
 }
@@ -91,10 +90,11 @@ async fn run_module(file: String) -> Result<RunOutput> {
         )
     };
 
-    run_js_module(&main_module, &runtime_config).await?;
+    #[allow(clippy::let_unit_value)]
+    let module_output = run_js_module(&main_module, &runtime_config).await?;
 
     Ok(RunOutput {
-        module_result: (),
+        module_output,
         lassie_daemon,
     })
 }
