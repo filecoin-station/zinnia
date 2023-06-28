@@ -12,7 +12,10 @@ use args::CliArgs;
 use clap::Parser;
 
 use zinnia_runtime::anyhow::{anyhow, Context, Error, Result};
-use zinnia_runtime::{get_module_root, lassie, resolve_path, run_js_module, BootstrapOptions};
+use zinnia_runtime::{
+    generate_lassie_access_token, get_module_root, lassie, resolve_path, run_js_module,
+    BootstrapOptions,
+};
 
 use crate::station_reporter::{log_info_activity, StationReporter};
 
@@ -27,7 +30,7 @@ async fn main() {
     }
 }
 
-async fn run(config: CliArgs) -> Result<()> {
+async fn run(config: CliArgs) -> Result<RunOutput> {
     log::info!("Starting zinniad with config {config:?}");
 
     if config.files.is_empty() {
@@ -49,6 +52,7 @@ async fn run(config: CliArgs) -> Result<()> {
         temp_dir: Some(lassie_temp_dir),
         // Listen on an ephemeral port selected by the operating system
         port: 0,
+        access_token: Some(generate_lassie_access_token()),
         // Use the default Lassie configuration for everything else
         ..lassie::DaemonConfig::default()
     };
@@ -80,7 +84,7 @@ async fn run(config: CliArgs) -> Result<()> {
             Duration::from_millis(200),
             module_name.into(),
         )),
-        lassie_daemon,
+        lassie_daemon: Arc::clone(&lassie_daemon),
         module_root: Some(module_root),
         no_color: true,
         is_tty: false,
@@ -90,9 +94,20 @@ async fn run(config: CliArgs) -> Result<()> {
     // TODO: handle module exit and restart it
     // https://github.com/filecoin-station/zinnia/issues/146
     log::info!("Starting module {main_module}");
-    run_js_module(&main_module, &runtime_config).await?;
+    #[allow(clippy::let_unit_value)]
+    let module_output = run_js_module(&main_module, &runtime_config).await?;
 
-    Ok(())
+    Ok(RunOutput {
+        module_output,
+        lassie_daemon,
+    })
+}
+
+#[allow(dead_code)]
+struct RunOutput {
+    module_output: (),
+    // for testing
+    lassie_daemon: Arc<lassie::Daemon>,
 }
 
 fn setup_logger() {
@@ -144,4 +159,64 @@ fn setup_lassie_tempdir(lassie_temp_dir: &Path) -> Result<()> {
     }
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use assert_fs::prelude::*;
+    use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
+
+    #[tokio::test]
+    async fn lassie_auth_is_configured() {
+        // Step 1: execute `zinnia run` with a dummy module that does nothing
+        let mod_js =
+            assert_fs::NamedTempFile::new("dummy.js").expect("cannot create temp dummy.js");
+
+        mod_js
+            .write_str("/* no-op */")
+            .expect("cannot write to dummy.js");
+
+        let temp = assert_fs::TempDir::new().expect("cannot create a new temp directory");
+
+        let args = CliArgs {
+            cache_root: temp.join("cache").to_string_lossy().into(),
+            state_root: temp.join("state").to_string_lossy().into(),
+            wallet_address: "f1test".to_string(),
+            files: vec![mod_js.path().to_string_lossy().to_string()],
+        };
+        let RunOutput { lassie_daemon, .. } = run(args).await.expect("cannot run dummy.js");
+
+        assert!(
+            lassie_daemon.access_token().is_some(),
+            "lassie_daemon access_token was not set"
+        );
+
+        // Make a retrieval request to Lassie but do not provide any access token
+        let mut stream =
+            tokio::net::TcpStream::connect(format!("127.0.0.1:{}", lassie_daemon.port()))
+                .await
+                .expect("cannot connect to Lassie HTTP daemon");
+
+        stream
+            .write_all(
+                concat!(
+                "GET /ipfs/bafybeib36krhffuh3cupjml4re2wfxldredkir5wti3dttulyemre7xkni HTTP/1.1\n",
+                "Host: 127.0.0.1\n",
+                "\n",
+                )
+                .as_bytes(),
+            )
+            .await
+            .expect("cannot write HTTP request");
+
+        let status = BufReader::new(stream)
+            .lines()
+            .next_line()
+            .await
+            .expect("cannot read the first line of the HTTP response")
+            .expect("server returned at least one line");
+
+        assert_eq!(status, "HTTP/1.1 401 Unauthorized")
+    }
 }

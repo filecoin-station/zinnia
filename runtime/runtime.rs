@@ -73,6 +73,10 @@ impl BootstrapOptions {
           "isTty": self.is_tty,
           "walletAddress": self.wallet_address,
           "lassieUrl": format!("http://127.0.0.1:{}/", self.lassie_daemon.port()),
+          "lassieAuth": match self.lassie_daemon.access_token() {
+            Some(token) => serde_json::Value::String(format!("Bearer {token}")),
+            None => serde_json::Value::Null,
+          },
           "zinniaVersion": self.zinnia_version,
           "v8Version": deno_core::v8_version(),
         });
@@ -131,4 +135,15 @@ pub async fn run_js_module(
     zinnia_libp2p::shutdown(runtime.op_state()).await?;
 
     Ok(())
+}
+
+use deno_crypto::rand::{self, distributions::Alphanumeric, Rng};
+
+/// A helper function to generate an access token for protecting Lassie's HTTP API
+pub fn generate_lassie_access_token() -> String {
+    rand::thread_rng()
+        .sample_iter(&Alphanumeric)
+        .take(24)
+        .map(char::from)
+        .collect()
 }
