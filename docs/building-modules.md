@@ -362,6 +362,25 @@ possible error status codes in
 The format of CAR data returned by the retrieval client is described in
 [Lassie's Returned CAR Specification](https://github.com/filecoin-project/lassie/blob/main/docs/CAR.md).
 
+#### Timeouts
+
+The IPFS retrieval client is configured to time out after one day. When this happens, the response
+body stream is terminated in a way that triggers a reading error.
+
+We strongly recommend to configure a client-side timeout using
+[`AbortController`](https://developer.mozilla.org/en-US/docs/Web/API/AbortController) or
+[`AbortSignal.timeout()`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal/timeout_static).
+
+Example:
+
+```js
+const requestUrl = "ipfs://bafybeib36krhffuh3cupjml4re2wfxldredkir5wti3dttulyemre7xkni";
+const response = await fetch(requestUrl, {
+  signal: AbortSignal.timeout(500), // abort after 500ms
+});
+// etc.
+```
+
 ### Miscelaneous APIs
 
 #### `Zinnia.versions.zinna`
