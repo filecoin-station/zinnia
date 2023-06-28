@@ -1,6 +1,7 @@
 use std::path::PathBuf;
 use std::rc::Rc;
 use std::sync::Arc;
+use std::time::Duration;
 
 use deno_core::{located_script_name, serde_json, JsRuntime, ModuleSpecifier, RuntimeOptions};
 
@@ -139,6 +140,8 @@ pub async fn run_js_module(
 
 use deno_crypto::rand::{self, distributions::Alphanumeric, Rng};
 
+const ONE_DAY: Duration = Duration::from_secs(24 * 3600);
+
 /// A baseline configuration for Lassie shared by `zinnia` and `zinniad` CLIs.
 pub fn lassie_config() -> lassie::DaemonConfig {
     let access_token = rand::thread_rng()
@@ -150,6 +153,8 @@ pub fn lassie_config() -> lassie::DaemonConfig {
     lassie::DaemonConfig {
         port: 0,
         access_token: Some(access_token),
+        provider_timeout: Some(ONE_DAY),
+        global_timeout: Some(ONE_DAY),
         ..Default::default()
     }
 }
