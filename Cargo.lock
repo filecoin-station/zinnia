@@ -5786,6 +5786,7 @@ name = "zinniad"
 version = "0.12.0"
 dependencies = [
  "assert_cmd",
+ "assert_fs",
  "atomicwrites",
  "clap",
  "env_logger",
