@@ -174,7 +174,7 @@ mod tests {
             assert_fs::NamedTempFile::new("dummy.js").expect("cannot create temp dummy.js");
 
         mod_js
-            .write_str(&format!("/* no-op */",))
+            .write_str("/* no-op */")
             .expect("cannot write to dummy.js");
 
         let temp = assert_fs::TempDir::new().expect("cannot create a new temp directory");
