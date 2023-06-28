@@ -139,11 +139,17 @@ pub async fn run_js_module(
 
 use deno_crypto::rand::{self, distributions::Alphanumeric, Rng};
 
-/// A helper function to generate an access token for protecting Lassie's HTTP API
-pub fn generate_lassie_access_token() -> String {
-    rand::thread_rng()
+/// A baseline configuration for Lassie shared by `zinnia` and `zinniad` CLIs.
+pub fn lassie_config() -> lassie::DaemonConfig {
+    let access_token = rand::thread_rng()
         .sample_iter(&Alphanumeric)
         .take(24)
         .map(char::from)
-        .collect()
+        .collect();
+
+    lassie::DaemonConfig {
+        port: 0,
+        access_token: Some(access_token),
+        ..Default::default()
+    }
 }
