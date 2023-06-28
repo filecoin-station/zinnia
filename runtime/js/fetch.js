@@ -2,12 +2,17 @@ import { fetch as fetchImpl } from "ext:deno_fetch/26_fetch.js";
 import { fromInnerResponse, toInnerResponse } from "ext:deno_fetch/23_response.js";
 import { toInnerRequest, fromInnerRequest, Request } from "ext:deno_fetch/23_request.js";
 import { guardFromHeaders } from "ext:deno_fetch/20_headers.js";
+import { byteLowerCase } from "ext:deno_web/00_infra.js";
 
 const ipfsScheme = "ipfs://";
 let ipfsBaseUrl = undefined;
 
-export function setLassieUrl(/** @type {string} */ value) {
-  ipfsBaseUrl = value + "ipfs/";
+/** @type {string|null} */
+let lassieAuth = null;
+
+export function setLassieConfig(/** @type {string} */ url, /** @type {string|null} */ auth) {
+  ipfsBaseUrl = url + "ipfs/";
+  lassieAuth = auth;
 }
 
 export function fetch(resource, options) {
@@ -51,6 +56,13 @@ function buildIpfsRequest(request) {
   inner.urlListProcessed = /** @type {string[]} */ (inner.urlListProcessed).map((url) =>
     url.startsWith(ipfsScheme) ? ipfsBaseUrl + url.slice(ipfsScheme.length) : url,
   );
+
+  if (inner.headerList.some(([name, _value]) => byteLowerCase(name) == "authorization")) {
+    throw new Error("IPFS retrieval requests don't support Authorization header yet");
+  }
+  if (lassieAuth) {
+    inner.headerList.push(["authorization", lassieAuth]);
+  }
 
   return fromInnerRequest(inner, request.signal, guardFromHeaders(request.headers));
 }
