@@ -11,8 +11,7 @@ use zinnia_runtime::anyhow::{Context, Error, Result};
 use zinnia_runtime::deno_core::error::JsError;
 use zinnia_runtime::fmt_errors::format_js_error;
 use zinnia_runtime::{
-    colors, generate_lassie_access_token, lassie, resolve_path, run_js_module, BootstrapOptions,
-    ConsoleReporter,
+    colors, lassie, lassie_config, resolve_path, run_js_module, BootstrapOptions, ConsoleReporter,
 };
 
 #[tokio::main(flavor = "current_thread")]
@@ -71,11 +70,7 @@ async fn run_module(file: String) -> Result<RunOutput> {
             // leftover files ourselves. See the GH issue for deleting leftover files
             // when `zinniad` starts: https://github.com/filecoin-station/zinnia/issues/245
             temp_dir: None,
-            // Listen on an ephemeral port selected by the operating system
-            port: 0,
-            access_token: Some(generate_lassie_access_token()),
-            // Use the default Lassie configuration for everything else
-            ..lassie::DaemonConfig::default()
+            ..lassie_config()
         })
         .context("cannot initialize the IPFS retrieval client Lassie")?,
     );

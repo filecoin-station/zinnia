@@ -13,8 +13,7 @@ use clap::Parser;
 
 use zinnia_runtime::anyhow::{anyhow, Context, Error, Result};
 use zinnia_runtime::{
-    generate_lassie_access_token, get_module_root, lassie, resolve_path, run_js_module,
-    BootstrapOptions,
+    get_module_root, lassie, lassie_config, resolve_path, run_js_module, BootstrapOptions,
 };
 
 use crate::station_reporter::{log_info_activity, StationReporter};
@@ -50,11 +49,7 @@ async fn run(config: CliArgs) -> Result<RunOutput> {
 
     let lassie_config = lassie::DaemonConfig {
         temp_dir: Some(lassie_temp_dir),
-        // Listen on an ephemeral port selected by the operating system
-        port: 0,
-        access_token: Some(generate_lassie_access_token()),
-        // Use the default Lassie configuration for everything else
-        ..lassie::DaemonConfig::default()
+        ..lassie_config()
     };
     let lassie_daemon = Arc::new(
         lassie::Daemon::start(lassie_config)
