@@ -170,7 +170,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actionsx/prettier@e90ec5455552f0f640781bdd5f5d2415acb52f1a # latest
+      - uses: actionsx/prettier@3d9f7c3fa44c9cb819e68292a328d7f4384be206 # latest
         with:
           # prettier CLI arguments.
           args: --check .
