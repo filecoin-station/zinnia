@@ -33,7 +33,7 @@ jobs:
 
       - uses: actions/setup-go@v4
         with:
-          go-version: stable
+          go-version: '1.20'
           cache: false # caching requires a go.sum file, which we don't have in our project
 
       - uses: dtolnay/rust-toolchain@0e66bd3e6b38ec0ad5312288c83e47c143e6b09e # v1
@@ -71,7 +71,7 @@ jobs:
 
       - uses: actions/setup-go@v4
         with:
-          go-version: stable
+          go-version: '1.20'
           cache: false # caching requires a go.sum file, which we don't have in our project
 
       - uses: dtolnay/rust-toolchain@0e66bd3e6b38ec0ad5312288c83e47c143e6b09e # v1
@@ -112,7 +112,7 @@ jobs:
 
       - uses: actions/setup-go@v4
         with:
-          go-version: stable
+          go-version: '1.20'
           cache: false # caching requires a go.sum file, which we don't have in our project
 
       - uses: dtolnay/rust-toolchain@0e66bd3e6b38ec0ad5312288c83e47c143e6b09e # v1
@@ -154,7 +154,7 @@ jobs:
 
       - uses: actions/setup-go@v4
         with:
-          go-version: stable
+          go-version: '1.20'
           cache: false # caching requires a go.sum file, which we don't have in our project
 
       - uses: dtolnay/rust-toolchain@0e66bd3e6b38ec0ad5312288c83e47c143e6b09e # v1
