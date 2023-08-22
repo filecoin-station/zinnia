@@ -27,4 +27,4 @@ zinnia_runtime = { workspace = true }
 assert_cmd = { workspace = true }
 assert_fs = { workspace = true }
 pretty_assertions = { workspace = true }
-tempfile = "3.7.1"
+tempfile = "3.8.0"
