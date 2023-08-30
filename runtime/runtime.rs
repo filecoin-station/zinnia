@@ -89,7 +89,7 @@ pub async fn run_js_module(
     module_specifier: &ModuleSpecifier,
     bootstrap_options: &BootstrapOptions,
 ) -> Result<(), AnyError> {
-    let blob_store = BlobStore::default();
+    let blob_store = Arc::new(BlobStore::default());
     let reporter = Rc::clone(&bootstrap_options.reporter);
 
     // Initialize a runtime instance
