@@ -1,0 +1,13 @@
+# See https://github.com/rustsec/rustsec/blob/main/cargo-audit/audit.toml.example
+[advisories]
+ignore = [
+  # Double Public Key Signing Function Oracle Attack on `ed25519-dalek`
+  # https://rustsec.org/advisories/RUSTSEC-2022-0093
+  # Note(bajtos): We don't use ed25510-dalek in Zinnia AFAIK
+  "RUSTSEC-2022-0093",
+  # webpki: CPU denial of service in certificate path building
+  # https://rustsec.org/advisories/RUSTSEC-2023-0052
+  # Note(bajtos): This dependency is used by deno_fetch and libp2p-webrtc
+  # and there is no upgrade available to fix this issue :shrug:
+  "RUSTSEC-2023-0052",
+]
