@@ -77,7 +77,7 @@ async fn echo_server(listener: TcpListener) {
                     header_sent = true;
                     socket
                         .write_all(
-                            vec![
+                            [
                                 "HTTP/1.1 200 OK\r\n",
                                 "Connection: close\r\n",
                                 "\r\n", // an empty line delimits response header from the body

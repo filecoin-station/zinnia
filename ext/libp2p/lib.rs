@@ -3,7 +3,7 @@ use std::rc::Rc;
 
 use deno_core::anyhow::{anyhow, Context, Result};
 use deno_core::error::AnyError;
-use deno_core::{op, OpState, ZeroCopyBuf};
+use deno_core::{op, JsBuffer, OpState};
 use libp2p::identity::PeerId;
 use libp2p::multiaddr::Protocol;
 use libp2p::Multiaddr;
@@ -58,7 +58,7 @@ pub async fn op_p2p_request_protocol(
     state: Rc<RefCell<OpState>>,
     remote_address: String,
     protocol_name: String,
-    request_payload: ZeroCopyBuf,
+    request_payload: JsBuffer,
 ) -> Result<Vec<u8>> {
     let mut peer_addr: Multiaddr = remote_address
         .parse()
