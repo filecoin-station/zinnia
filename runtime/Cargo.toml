@@ -36,4 +36,4 @@ assert_fs = { workspace = true }
 console_static_text = "0.8.1"
 env_logger.workspace = true
 pretty_assertions = { workspace = true }
-regex = "1.9.3"
+regex = "1.9.4"
