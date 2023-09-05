@@ -92,7 +92,7 @@ jobs:
           security list-keychain -d user -s build.keychain
 
       - name: Setup | Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - uses: actions/setup-go@v4
         with:
