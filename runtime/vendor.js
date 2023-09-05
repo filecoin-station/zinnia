@@ -33,11 +33,10 @@ async function vendor(url, outfile) {
 
 async function patchAssertsBundle(assertsPath) {
   return patchFile(assertsPath, (content) =>
-    content
-      .replace(
-        'const noColor = typeof Deno?.noColor === "boolean" ? Deno.noColor : false;',
-        "const noColor = false;",
-      ),
+    content.replace(
+      'const noColor = typeof Deno?.noColor === "boolean" ? Deno.noColor : false;',
+      "const noColor = false;",
+    ),
   );
 }
 
