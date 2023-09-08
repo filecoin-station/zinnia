@@ -13,7 +13,7 @@ path = "lib.rs"
 
 [dependencies]
 atty = "0.2.14"
-chrono = { version= "0.4.29", default-features = false, features = [ "clock", "std" ] }
+chrono = { version= "0.4.30", default-features = false, features = [ "clock", "std" ] }
 deno_console = "0.118.0"
 deno_core.workspace = true
 deno_crypto = "0.132.0"
