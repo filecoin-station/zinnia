@@ -23,7 +23,7 @@ pretty_assertions = "1.4.0"
 env_logger = "0.10.0"
 serde = "1.0.188"
 serde_repr = "0.1.16"
-tokio = { version = "1.32.0", features = ["fs", "rt", "macros"] }
+tokio = { version = "1.33.0", features = ["fs", "rt", "macros"] }
 
 # workspace-local
 zinnia_runtime = { version = "0.14.0", path = "./runtime" }
