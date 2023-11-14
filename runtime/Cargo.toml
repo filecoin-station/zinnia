@@ -27,7 +27,7 @@ log.workspace = true
 once_cell = "1.18.0"
 serde.workspace = true
 serde_repr.workspace = true
-termcolor = "1.3.0"
+termcolor = "1.4.0"
 tokio = { workspace = true, features = ["fs"] }
 zinnia_libp2p.workspace = true
 
