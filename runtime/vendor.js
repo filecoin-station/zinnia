@@ -5,7 +5,7 @@
 // Run this script using the following command:
 //   deno run --allow-run runtime/vendor.js
 
-const STD_VERSION = "0.201.0";
+const STD_VERSION = "0.207.0";
 
 import { fromFileUrl } from "https://deno.land/std@0.181.0/path/mod.ts";
 import { green } from "https://deno.land/std@0.183.0/fmt/colors.ts";
