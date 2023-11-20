@@ -28,7 +28,7 @@ import {
   getNoColor,
   inspectArgs,
   quoteString,
-  setNoColor,
+  setNoColorFn,
   wrapConsole,
 } from "ext:deno_console/01_console.js";
 import * as performance from "ext:deno_web/15_performance.js";
@@ -64,10 +64,9 @@ function runtimeStart(runtimeOptions) {
   // );
   // build.setBuildInfo(runtimeOptions.target);
   // util.setLogDebug(runtimeOptions.debugFlag, source);
-  setNoColor(runtimeOptions.noColor || !runtimeOptions.isTty);
-
-  // deno-lint-ignore prefer-primordials
-  Error.prepareStackTrace = core.prepareStackTrace;
+  // FIXME: rework to lazy load, see
+  // https://github.com/denoland/deno/commit/1ef617e8f3d48098e69e222b6eb6fe981aeca1c3
+  setNoColorFn(() => runtimeOptions.noColor || !runtimeOptions.isTty);
 
   setLassieConfig(runtimeOptions.lassieUrl, runtimeOptions.lassieAuth);
   setVersions(runtimeOptions.zinniaVersion, runtimeOptions.v8Version);

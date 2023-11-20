@@ -4,11 +4,11 @@ use std::rc::Rc;
 use deno_core::anyhow::Result;
 use deno_core::error::JsError;
 use deno_core::url::Url;
-use deno_core::{op, OpState};
+use deno_core::{op2, OpState};
 use deno_fetch::FetchPermissions;
 use deno_web::TimersPermission;
 
-use crate::{LogLevel, Reporter};
+use crate::Reporter;
 
 /// Hard-coded permissions
 pub struct ZinniaPermissions;
@@ -24,7 +24,6 @@ impl TimersPermission for ZinniaPermissions {
         // > adding jitter to them.
         false
     }
-    fn check_unstable(&self, _state: &deno_core::OpState, _api_name: &'static str) {}
 }
 
 impl FetchPermissions for ZinniaPermissions {
@@ -68,31 +67,32 @@ deno_core::extension!(
 
 type StoredReporter = Rc<dyn Reporter>;
 
-#[op]
+#[op2(fast)]
 fn op_job_completed(state: &mut OpState) {
     let reporter = state.borrow::<StoredReporter>();
     reporter.job_completed();
 }
 
-#[op]
-fn op_info_activity(state: &mut OpState, msg: &str) {
+#[op2(fast)]
+fn op_info_activity(state: &mut OpState, #[string] msg: &str) {
     let reporter = state.borrow::<StoredReporter>();
     reporter.info_activity(msg);
 }
 
-#[op]
-fn op_error_activity(state: &mut OpState, msg: &str) {
+#[op2(fast)]
+fn op_error_activity(state: &mut OpState, #[string] msg: &str) {
     let reporter = state.borrow::<StoredReporter>();
     reporter.error_activity(msg);
 }
 
-#[op]
-fn op_zinnia_log(state: &mut OpState, msg: &str, level: LogLevel) {
+#[op2(fast)]
+fn op_zinnia_log(state: &mut OpState, #[string] msg: &str, #[smi] level: i32) {
     let reporter = state.borrow::<StoredReporter>();
-    reporter.log(level, msg);
+    reporter.log(level.into(), msg);
 }
 
-#[op]
-fn op_format_test_error(error: JsError) -> String {
+#[op2]
+#[string]
+fn op_format_test_error(#[serde] error: JsError) -> String {
     crate::vendored::cli_tools::format_test_error(&error)
 }

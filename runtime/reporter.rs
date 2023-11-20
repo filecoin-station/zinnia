@@ -35,6 +35,18 @@ impl From<LogLevel> for log::Level {
     }
 }
 
+impl From<i32> for LogLevel {
+    fn from(value: i32) -> Self {
+        match value {
+            0 => LogLevel::Debug,
+            1 => LogLevel::Info,
+            2 => LogLevel::Warn,
+            3 => LogLevel::Error,
+            _ => panic!("Invalid LogLevel value {}", value),
+        }
+    }
+}
+
 // Report events, activities and messages from the running module
 pub trait Reporter {
     /// Print a debug log message. This is typically triggered by Console APIs like `console.log`.

@@ -1,9 +1,25 @@
-// https://github.com/denoland/deno/blob/v1.33.3/cli/tools/test.rs
+// https://github.com/denoland/deno/blob/v1.38.2/cli/tools/test.rs
 //
 // Copyright 2018-2023 the Deno authors. All rights reserved. MIT license.
 
 use crate::fmt_errors::format_js_error;
-use deno_core::error::JsError;
+use deno_core::{error::JsError, url::Url};
+
+#[allow(dead_code)]
+pub fn to_relative_path_or_remote_url(cwd: &Url, path_or_url: &str) -> String {
+    let Ok(url) = Url::parse(path_or_url) else {
+        return "<anonymous>".to_string();
+    };
+    if url.scheme() == "file" {
+        if let Some(mut r) = cwd.make_relative(&url) {
+            if !r.starts_with("../") {
+                r = format!("./{r}");
+            }
+            return r;
+        }
+    }
+    path_or_url.to_string()
+}
 
 fn abbreviate_test_error(js_error: &JsError) -> JsError {
     let mut js_error = js_error.clone();

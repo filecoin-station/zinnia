@@ -1,4 +1,4 @@
-// https://github.com/denoland/deno/blob/v1.31.2/runtime/fmt_errors.rs
+// https://github.com/denoland/deno/blob/v1.38.2/runtime/fmt_errors.rs
 //
 // Copyright 2018-2023 the Deno authors. All rights reserved. MIT license.
 //! This mod provides DenoError to unify errors across Deno.
@@ -14,7 +14,7 @@ use std::fmt::Write as _;
 /// Compares all properties of JsError, except for JsError::cause.
 /// This function is used to detect that 2 JsError objects in a JsError::cause
 /// chain are identical, ie. there is a recursive cause.
-/// 02_console.js, which also detects recursive causes, can use JS object
+/// 01_console.js, which also detects recursive causes, can use JS object
 /// comparisons to compare errors. We don't have access to JS object identity in
 /// format_js_error().
 fn errors_are_equal_without_cause(a: &JsError, b: &JsError) -> bool {
@@ -47,7 +47,8 @@ pub fn format_location(frame: &JsStackFrame) -> String {
     let _internal = frame
         .file_name
         .as_ref()
-        .map_or(false, |f| f.starts_with("ext:"));
+        .map(|f| f.starts_with("ext:"))
+        .unwrap_or(false);
     if frame.is_native {
         return cyan("native").to_string();
     }
@@ -74,7 +75,8 @@ fn format_frame(frame: &JsStackFrame) -> String {
     let _internal = frame
         .file_name
         .as_ref()
-        .map_or(false, |f| f.starts_with("ext:"));
+        .map(|f| f.starts_with("ext:"))
+        .unwrap_or(false);
     let is_method_call = !(frame.is_top_level.unwrap_or_default() || frame.is_constructor);
     let mut result = String::new();
     if frame.is_async {
@@ -252,7 +254,10 @@ fn format_js_error_inner(
     if let Some(aggregated) = &js_error.aggregated {
         let aggregated_message = format_aggregated_error(
             aggregated,
-            circular.as_ref().map_or(0, |circular| circular.index),
+            circular
+                .as_ref()
+                .map(|circular| circular.index)
+                .unwrap_or(0),
         );
         s.push_str(&aggregated_message);
     }
@@ -274,9 +279,10 @@ fn format_js_error_inner(
         write!(s, "\n    at {}", format_frame(frame)).unwrap();
     }
     if let Some(cause) = &js_error.cause {
-        let is_caused_by_circular = circular.as_ref().map_or(false, |circular| {
-            errors_are_equal_without_cause(circular.reference.from, js_error)
-        });
+        let is_caused_by_circular = circular
+            .as_ref()
+            .map(|circular| errors_are_equal_without_cause(circular.reference.from, js_error))
+            .unwrap_or(false);
 
         let error_string = if is_caused_by_circular {
             cyan(format!("[Circular *{}]", circular.unwrap().index)).to_string()
@@ -302,4 +308,24 @@ pub fn format_js_error(js_error: &JsError) -> String {
     });
 
     format_js_error_inner(js_error, circular, true)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_format_none_source_line() {
+        let actual = format_maybe_source_line(None, None, false, 0);
+        assert_eq!(actual, "");
+    }
+
+    #[test]
+    fn test_format_some_source_line() {
+        let actual = format_maybe_source_line(Some("console.log('foo');"), Some(9), true, 0);
+        assert_eq!(
+            console_static_text::ansi::strip_ansi_codes(&actual),
+            "\nconsole.log(\'foo\');\n        ^"
+        );
+    }
 }

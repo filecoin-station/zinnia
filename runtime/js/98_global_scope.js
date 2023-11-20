@@ -23,6 +23,7 @@ import * as fileReader from "ext:deno_web/10_filereader.js";
 import * as formData from "ext:deno_fetch/21_formdata.js";
 import * as request from "ext:deno_fetch/23_request.js";
 import * as response from "ext:deno_fetch/23_response.js";
+import * as eventSource from "ext:deno_fetch/27_eventsource.js";
 import * as fetch from "ext:zinnia_runtime/fetch.js";
 import * as messagePort from "ext:deno_web/13_message_port.js";
 import * as webidl from "ext:deno_webidl/00_webidl.js";
@@ -103,6 +104,7 @@ const windowOrWorkerGlobalScope = {
   Crypto: util.nonEnumerable(crypto.Crypto),
   SubtleCrypto: util.nonEnumerable(crypto.SubtleCrypto),
   fetch: util.writable(fetch.fetch),
+  EventSource: util.writable(eventSource.EventSource),
   performance: util.writable(performance.performance),
   reportError: util.writable(event.reportError),
   setInterval: util.writable(timers.setInterval),
