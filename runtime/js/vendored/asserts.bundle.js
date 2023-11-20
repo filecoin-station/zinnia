@@ -109,7 +109,7 @@ function equal(c, d) {
     }(c, d);
 }
 function format(v) {
-    const { Deno  } = globalThis;
+    const { Deno } = globalThis;
     return typeof Deno?.inspect === "function" ? Deno.inspect(v, {
         depth: Infinity,
         sorted: true,
@@ -140,7 +140,7 @@ function assertArrayIncludes(actual, expected, msg) {
     msg = `Expected actual: "${format(actual)}" to include: "${format(expected)}"${msgSuffix}\nmissing: ${format(missing)}`;
     throw new AssertionError(msg);
 }
-const { Deno  } = globalThis;
+const { Deno } = globalThis;
 const noColor = false;
 let enabled = !noColor;
 function code(open, close) {
@@ -193,7 +193,7 @@ function bgGreen(str) {
 }
 const ANSI_PATTERN = new RegExp([
     "[\\u001B\\u009B][[\\]()#;?]*(?:(?:(?:(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]+)*|[a-zA-Z\\d]+(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]*)*)?\\u0007)",
-    "(?:(?:\\d{1,4}(?:;\\d{0,4})*)?[\\dA-PR-TZcf-nq-uy=><~]))"
+    "(?:(?:\\d{1,4}(?:;\\d{0,4})*)?[\\dA-PR-TXZcf-nq-uy=><~]))"
 ].join("|"), "g");
 const stripColor = stripAnsiCode;
 function stripAnsiCode(string) {
@@ -372,7 +372,7 @@ function diffstr(A, B) {
     function unescape(string) {
         return string.replaceAll("\b", "\\b").replaceAll("\f", "\\f").replaceAll("\t", "\\t").replaceAll("\v", "\\v").replaceAll(/\r\n|\r|\n/g, (str)=>str === "\r" ? "\\r" : str === "\n" ? "\\n\n" : "\\r\\n\r\n");
     }
-    function tokenize(string, { wordDiff =false  } = {}) {
+    function tokenize(string, { wordDiff = false } = {}) {
         if (wordDiff) {
             const tokens = string.split(/([^\S\r\n]+|[()[\]{}'"\r\n]|\b)/);
             const words = /^[a-zA-Z\u{C0}-\u{FF}\u{D8}-\u{F6}\u{F8}-\u{2C6}\u{2C8}-\u{2D7}\u{2DE}-\u{2FF}\u{1E00}-\u{1EFF}]+$/u;
@@ -400,7 +400,7 @@ function diffstr(A, B) {
         }
     }
     function createDetails(line, tokens) {
-        return tokens.filter(({ type  })=>type === line.type || type === DiffType.common).map((result, i, t)=>{
+        return tokens.filter(({ type })=>type === line.type || type === DiffType.common).map((result, i, t)=>{
             if (result.type === DiffType.common && t[i - 1] && t[i - 1]?.type === t[i + 1]?.type && /\s+/.test(result.value)) {
                 return {
                     ...result,
@@ -420,18 +420,24 @@ function diffstr(A, B) {
             removed.push(result);
         }
     }
-    const aLines = added.length < removed.length ? added : removed;
-    const bLines = aLines === removed ? added : removed;
+    const hasMoreRemovedLines = added.length < removed.length;
+    const aLines = hasMoreRemovedLines ? added : removed;
+    const bLines = hasMoreRemovedLines ? removed : added;
     for (const a of aLines){
         let tokens = [], b;
         while(bLines.length){
             b = bLines.shift();
-            tokens = diff(tokenize(a.value, {
-                wordDiff: true
-            }), tokenize(b?.value ?? "", {
-                wordDiff: true
-            }));
-            if (tokens.some(({ type , value  })=>type === DiffType.common && value.trim().length)) {
+            const tokenized = [
+                tokenize(a.value, {
+                    wordDiff: true
+                }),
+                tokenize(b?.value ?? "", {
+                    wordDiff: true
+                })
+            ];
+            if (hasMoreRemovedLines) tokenized.reverse();
+            tokens = diff(tokenized[0], tokenized[1]);
+            if (tokens.some(({ type, value })=>type === DiffType.common && value.trim().length)) {
                 break;
             }
         }
@@ -442,7 +448,7 @@ function diffstr(A, B) {
     }
     return diffResult;
 }
-function createColor(diffType, { background =false  } = {}) {
+function createColor(diffType, { background = false } = {}) {
     background = false;
     switch(diffType){
         case DiffType.added:
@@ -463,7 +469,7 @@ function createSign(diffType) {
             return "    ";
     }
 }
-function buildMessage(diffResult, { stringDiff =false  } = {}) {
+function buildMessage(diffResult, { stringDiff = false } = {}) {
     const messages = [], diffMessages = [];
     messages.push("");
     messages.push("");
@@ -488,7 +494,7 @@ function assertEquals(actual, expected, msg, options = {}) {
     if (equal(actual, expected)) {
         return;
     }
-    const { formatter =format  } = options;
+    const { formatter = format } = options;
     const msgSuffix = msg ? `: ${msg}` : ".";
     let message = `Values are not equal${msgSuffix}`;
     const actualString = formatter(actual);
