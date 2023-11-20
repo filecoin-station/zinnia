@@ -3,7 +3,7 @@ use std::rc::Rc;
 
 use deno_core::anyhow::{anyhow, Context, Result};
 use deno_core::error::AnyError;
-use deno_core::{op, JsBuffer, OpState};
+use deno_core::{op2, JsBuffer, OpState};
 use libp2p::identity::PeerId;
 use libp2p::multiaddr::Protocol;
 use libp2p::Multiaddr;
@@ -45,7 +45,8 @@ deno_core::extension!(
     },
 );
 
-#[op]
+#[op2]
+#[string]
 pub fn op_p2p_get_peer_id(state: &mut OpState) -> Result<String> {
     let rid = state.borrow::<DefaultNodeResourceId>().0;
     let node = state.resource_table.get::<PeerNode>(rid)?;
@@ -53,12 +54,13 @@ pub fn op_p2p_get_peer_id(state: &mut OpState) -> Result<String> {
     Ok(id.to_string())
 }
 
-#[op]
+#[op2(async)]
+#[buffer]
 pub async fn op_p2p_request_protocol(
     state: Rc<RefCell<OpState>>,
-    remote_address: String,
-    protocol_name: String,
-    request_payload: JsBuffer,
+    #[string] remote_address: String,
+    #[string] protocol_name: String,
+    #[buffer] request_payload: JsBuffer,
 ) -> Result<Vec<u8>> {
     let mut peer_addr: Multiaddr = remote_address
         .parse()
