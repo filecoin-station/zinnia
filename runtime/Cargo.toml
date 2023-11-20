@@ -37,3 +37,6 @@ console_static_text = "0.8.1"
 env_logger.workspace = true
 pretty_assertions = { workspace = true }
 regex = "1.10.2"
+
+[lints]
+workspace = true
