@@ -36,3 +36,5 @@ LegalCopyright = "© Protocol Labs & Zinnia contributors. Permissive License Sta
 ProductName = "Filecoin Station"
 FileDescription = "Zinnia: Secure sandboxed runtime for Filecoin Station modules."
 
+[lints]
+workspace = true

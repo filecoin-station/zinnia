@@ -9,4 +9,4 @@ rustflags = [
 # Temporary solution to have clippy config in a single place until
 # Cargo and/or Clippy supports lint config file.
 # See https://github.com/rust-lang/rust-clippy/blob/8a9860901f0ae9782ff23fb793838a16f733a60b/book/src/development/proposals/roadmap-2021.md#lintstoml-configuration
-custom-clippy = "clippy --workspace --all-features --all-targets -- -A clippy::type_complexity -A clippy::pedantic -D warnings"
+custom-clippy = "clippy --workspace --all-features --all-targets"

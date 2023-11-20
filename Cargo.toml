@@ -38,3 +38,10 @@ codegen-units = 1
 opt-level = "z"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[workspace.lints.rust]
+warnings="deny"
+
+[workspace.lints.clippy]
+type_complexity="allow"
+pedantic="allow"
