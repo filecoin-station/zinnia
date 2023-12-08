@@ -24,7 +24,7 @@ deno_webidl = "0.124.0"
 lassie = "0.7.0"
 # lassie = { git = "https://github.com/filecoin-station/rusty-lassie.git" }
 log.workspace = true
-once_cell = "1.18.0"
+once_cell = "1.19.0"
 serde.workspace = true
 serde_repr.workspace = true
 termcolor = "1.4.0"
