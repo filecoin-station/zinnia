@@ -27,8 +27,8 @@ serde_repr = "0.1.17"
 tokio = { version = "1.35.0", features = ["fs", "rt", "macros"] }
 
 # workspace-local
-zinnia_runtime = { version = "0.15.0", path = "./runtime" }
-zinnia_libp2p = { version = "0.15.0", path = "./ext/libp2p" }
+zinnia_runtime = { version = "0.16.0", path = "./runtime" }
+zinnia_libp2p = { version = "0.16.0", path = "./ext/libp2p" }
 
 [profile.release]
 codegen-units = 1
