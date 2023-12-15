@@ -206,7 +206,7 @@ jobs:
       # When debugging this workflow, attach the artifacts to the workflow run
       - name: Debugging | Upload artifacts to workflow run
         if: ${{ !startsWith(github.ref, 'refs/tags/') }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: archives-${{ matrix.name }}
           path: "*-${{ matrix.name }}"
