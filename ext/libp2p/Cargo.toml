@@ -12,7 +12,7 @@ name = "zinnia_libp2p"
 path = "lib.rs"
 
 [dependencies]
-async-trait = "0.1.75"
+async-trait = "0.1.76"
 deno_core.workspace = true
 log.workspace = true
 smallvec = "1.11.2"
