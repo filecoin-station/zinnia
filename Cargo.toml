@@ -16,7 +16,7 @@ repository = "https://github.com/filecoin-station/zinnia"
 
 [workspace.dependencies]
 assert_cmd = "2.0.13"
-assert_fs = "1.1.0"
+assert_fs = "1.1.1"
 console_static_text = "=0.8.1"
 deno_core = "0.232.0"
 log = "0.4.20"
