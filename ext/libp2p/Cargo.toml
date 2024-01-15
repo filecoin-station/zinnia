@@ -15,7 +15,7 @@ path = "lib.rs"
 async-trait = "0.1.77"
 deno_core.workspace = true
 log.workspace = true
-smallvec = "1.11.2"
+smallvec = "1.12.0"
 tokio = { workspace = true, features = ["rt", "macros", "sync", "time"] }
 tokio-util = "0.7.10"
 either = "1.9.0"
