@@ -56,7 +56,7 @@ async fn run(config: CliArgs) -> Result<RunOutput> {
             .context("cannot initialize the IPFS retrieval client Lassie")?,
     );
 
-    log_info_activity("Module Runtime started.");
+    log_info_activity("Module Runtime started");
 
     let file = &config.files[0];
 
