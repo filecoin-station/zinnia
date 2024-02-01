@@ -71,6 +71,15 @@ fn print_event(data: &serde_json::Value) {
         });
 }
 
+pub fn log_started_activity() {
+    let event = json!({
+        "type": "activity:started",
+        "module": serde_json::Value::Null,
+    });
+    print_event(&event);
+}
+
+#[allow(unused)]
 pub fn log_info_activity(msg: &str) {
     let event = json!({
         "type": "activity:info",
