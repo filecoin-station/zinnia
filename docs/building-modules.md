@@ -458,4 +458,4 @@ assertEquals(true, false);
 ```
 
 You can find the API documentation at deno.land website:
-[https://deno.land/std@0.207.0/testing/asserts.ts](https://deno.land/std@0.207.0/testing/asserts.ts)
+[https://deno.land/std@0.214.0/testing/asserts.ts](https://deno.land/std@0.214.0/testing/asserts.ts)

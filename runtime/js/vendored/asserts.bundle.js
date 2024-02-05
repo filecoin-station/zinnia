@@ -3,9 +3,9 @@
 // This code was bundled using `deno bundle` and it's not recommended to edit it manually
 
 class AssertionError extends Error {
-    name = "AssertionError";
     constructor(message){
         super(message);
+        this.name = "AssertionError";
     }
 }
 function assertAlmostEquals(actual, expected, tolerance = 1e-7, msg) {
@@ -116,7 +116,8 @@ function format(v) {
         trailingComma: true,
         compact: false,
         iterableLimit: Infinity,
-        getters: true
+        getters: true,
+        strAbbreviateSize: Infinity
     }) : `"${String(v).replace(/(?=["\\])/g, "\\")}"`;
 }
 function assertArrayIncludes(actual, expected, msg) {
@@ -195,16 +196,14 @@ const ANSI_PATTERN = new RegExp([
     "[\\u001B\\u009B][[\\]()#;?]*(?:(?:(?:(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]+)*|[a-zA-Z\\d]+(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]*)*)?\\u0007)",
     "(?:(?:\\d{1,4}(?:;\\d{0,4})*)?[\\dA-PR-TXZcf-nq-uy=><~]))"
 ].join("|"), "g");
-const stripColor = stripAnsiCode;
 function stripAnsiCode(string) {
     return string.replace(ANSI_PATTERN, "");
 }
-var DiffType;
-(function(DiffType) {
-    DiffType["removed"] = "removed";
-    DiffType["common"] = "common";
-    DiffType["added"] = "added";
-})(DiffType || (DiffType = {}));
+const DiffType = {
+    removed: "removed",
+    common: "common",
+    added: "added"
+};
 const REMOVED = 1;
 const COMMON = 2;
 const ADDED = 3;
@@ -212,13 +211,21 @@ function createCommon(A, B, reverse) {
     const common = [];
     if (A.length === 0 || B.length === 0) return [];
     for(let i = 0; i < Math.min(A.length, B.length); i += 1){
-        if (A[reverse ? A.length - i - 1 : i] === B[reverse ? B.length - i - 1 : i]) {
-            common.push(A[reverse ? A.length - i - 1 : i]);
+        const a = reverse ? A[A.length - i - 1] : A[i];
+        const b = reverse ? B[B.length - i - 1] : B[i];
+        if (a !== undefined && a === b) {
+            common.push(a);
         } else {
             return common;
         }
     }
     return common;
+}
+function ensureDefined(item) {
+    if (item === undefined) {
+        throw Error("Unexpected missing FarthestPoint");
+    }
+    return item;
 }
 function diff(A, B) {
     const prefixCommon = createCommon(A, B);
@@ -308,7 +315,8 @@ function diff(A, B) {
                 id: 0
             };
         }
-        if (down && down.y === -1 || k === M || (slide && slide.y) > (down && down.y) + 1) {
+        const isAdding = down?.y === -1 || k === M || (slide?.y || 0) > (down?.y || 0) + 1;
+        if (slide && isAdding) {
             const prev = slide.id;
             ptr++;
             routes[ptr] = prev;
@@ -317,7 +325,7 @@ function diff(A, B) {
                 y: slide.y,
                 id: ptr
             };
-        } else {
+        } else if (down && !isAdding) {
             const prev = down.id;
             ptr++;
             routes[ptr] = prev;
@@ -326,6 +334,8 @@ function diff(A, B) {
                 y: down.y + 1,
                 id: ptr
             };
+        } else {
+            throw new Error("Unexpected missing FarthestPoint");
         }
     }
     function snake(k, slide, down, _offset, A, B) {
@@ -346,7 +356,8 @@ function diff(A, B) {
         }
         return fp;
     }
-    while(fp[delta + offset].y < N){
+    let currentFP = ensureDefined(fp[delta + offset]);
+    while(currentFP && currentFP.y < N){
         p = p + 1;
         for(let k = -p; k < delta; ++k){
             fp[k + offset] = snake(k, fp[k - 1 + offset], fp[k + 1 + offset], offset, A, B);
@@ -355,13 +366,14 @@ function diff(A, B) {
             fp[k + offset] = snake(k, fp[k - 1 + offset], fp[k + 1 + offset], offset, A, B);
         }
         fp[delta + offset] = snake(delta, fp[delta - 1 + offset], fp[delta + 1 + offset], offset, A, B);
+        currentFP = ensureDefined(fp[delta + offset]);
     }
     return [
         ...prefixCommon.map((c)=>({
                 type: DiffType.common,
                 value: c
             })),
-        ...backTrace(A, B, fp[delta + offset], swapped),
+        ...backTrace(A, B, currentFP, swapped),
         ...suffixCommon.map((c)=>({
                 type: DiffType.common,
                 value: c
@@ -377,23 +389,26 @@ function diffstr(A, B) {
             const tokens = string.split(/([^\S\r\n]+|[()[\]{}'"\r\n]|\b)/);
             const words = /^[a-zA-Z\u{C0}-\u{FF}\u{D8}-\u{F6}\u{F8}-\u{2C6}\u{2C8}-\u{2D7}\u{2DE}-\u{2FF}\u{1E00}-\u{1EFF}]+$/u;
             for(let i = 0; i < tokens.length - 1; i++){
-                if (!tokens[i + 1] && tokens[i + 2] && words.test(tokens[i]) && words.test(tokens[i + 2])) {
-                    tokens[i] += tokens[i + 2];
+                const token = tokens[i];
+                const tokenPlusTwo = tokens[i + 2];
+                if (!tokens[i + 1] && token && tokenPlusTwo && words.test(token) && words.test(tokenPlusTwo)) {
+                    tokens[i] += tokenPlusTwo;
                     tokens.splice(i + 1, 2);
                     i--;
                 }
             }
             return tokens.filter((token)=>token);
         } else {
-            const tokens = [], lines = string.split(/(\n|\r\n)/);
+            const tokens = [];
+            const lines = string.split(/(\n|\r\n)/);
             if (!lines[lines.length - 1]) {
                 lines.pop();
             }
-            for(let i = 0; i < lines.length; i++){
+            for (const [i, line] of lines.entries()){
                 if (i % 2) {
-                    tokens[tokens.length - 1] += lines[i];
+                    tokens[tokens.length - 1] += line;
                 } else {
-                    tokens.push(lines[i]);
+                    tokens.push(line);
                 }
             }
             return tokens;
@@ -401,10 +416,11 @@ function diffstr(A, B) {
     }
     function createDetails(line, tokens) {
         return tokens.filter(({ type })=>type === line.type || type === DiffType.common).map((result, i, t)=>{
-            if (result.type === DiffType.common && t[i - 1] && t[i - 1]?.type === t[i + 1]?.type && /\s+/.test(result.value)) {
+            const token = t[i - 1];
+            if (result.type === DiffType.common && token && token.type === t[i + 1]?.type && /\s+/.test(result.value)) {
                 return {
                     ...result,
-                    type: t[i - 1].type
+                    type: token.type
                 };
             }
             return result;
@@ -523,6 +539,18 @@ function assertFalse(expr, msg = "") {
         throw new AssertionError(msg);
     }
 }
+function assertGreaterOrEqual(actual, expected, msg) {
+    if (actual >= expected) return;
+    const actualString = format(actual);
+    const expectedString = format(expected);
+    throw new AssertionError(msg ?? `Expect ${actualString} >= ${expectedString}`);
+}
+function assertGreater(actual, expected, msg) {
+    if (actual > expected) return;
+    const actualString = format(actual);
+    const expectedString = format(expected);
+    throw new AssertionError(msg ?? `Expect ${actualString} > ${expectedString}`);
+}
 function assertInstanceOf(actual, expectedType, msg = "") {
     if (actual instanceof expectedType) return;
     const msgSuffix = msg ? `: ${msg}` : ".";
@@ -546,19 +574,38 @@ function assertInstanceOf(actual, expectedType, msg = "") {
     }
     throw new AssertionError(msg);
 }
-function assertIsError(error, ErrorClass, msgIncludes, msg) {
+function assertIsError(error, ErrorClass, msgMatches, msg) {
     const msgSuffix = msg ? `: ${msg}` : ".";
-    if (error instanceof Error === false) {
+    if (!(error instanceof Error)) {
         throw new AssertionError(`Expected "error" to be an Error object${msgSuffix}}`);
     }
     if (ErrorClass && !(error instanceof ErrorClass)) {
         msg = `Expected error to be instance of "${ErrorClass.name}", but was "${typeof error === "object" ? error?.constructor?.name : "[not an object]"}"${msgSuffix}`;
         throw new AssertionError(msg);
     }
-    if (msgIncludes && (!(error instanceof Error) || !stripColor(error.message).includes(stripColor(msgIncludes)))) {
-        msg = `Expected error message to include ${JSON.stringify(msgIncludes)}, but got ${error instanceof Error ? JSON.stringify(error.message) : '"[not an Error]"'}${msgSuffix}`;
+    let msgCheck;
+    if (typeof msgMatches === "string") {
+        msgCheck = stripAnsiCode(error.message).includes(stripAnsiCode(msgMatches));
+    }
+    if (msgMatches instanceof RegExp) {
+        msgCheck = msgMatches.test(stripAnsiCode(error.message));
+    }
+    if (msgMatches && !msgCheck) {
+        msg = `Expected error message to include ${msgMatches instanceof RegExp ? msgMatches.toString() : JSON.stringify(msgMatches)}, but got ${error instanceof Error ? JSON.stringify(error.message) : '"[not an Error]"'}${msgSuffix}`;
         throw new AssertionError(msg);
     }
+}
+function assertLessOrEqual(actual, expected, msg) {
+    if (actual <= expected) return;
+    const actualString = format(actual);
+    const expectedString = format(expected);
+    throw new AssertionError(msg ?? `Expect ${actualString} <= ${expectedString}`);
+}
+function assertLess(actual, expected, msg) {
+    if (actual < expected) return;
+    const actualString = format(actual);
+    const expectedString = format(expected);
+    throw new AssertionError(msg ?? `Expect ${actualString} < ${expectedString}`);
 }
 function assertMatch(actual, expected, msg) {
     if (!expected.test(actual)) {
@@ -576,12 +623,12 @@ function assertNotEquals(actual, expected, msg) {
     try {
         actualString = String(actual);
     } catch  {
-        actualString = "[Cannot display]";
+        actualString = CAN_NOT_DISPLAY;
     }
     try {
         expectedString = String(expected);
     } catch  {
-        expectedString = "[Cannot display]";
+        expectedString = CAN_NOT_DISPLAY;
     }
     const msgSuffix = msg ? `: ${msg}` : ".";
     throw new AssertionError(`Expected actual: ${actualString} not to be: ${expectedString}${msgSuffix}`);
@@ -603,7 +650,7 @@ function assertNotStrictEquals(actual, expected, msg) {
         return;
     }
     const msgSuffix = msg ? `: ${msg}` : ".";
-    throw new AssertionError(`Expected "actual" to be strictly unequal to: ${format(actual)}${msgSuffix}\n`);
+    throw new AssertionError(`Expected "actual" to not be strictly equal to: ${format(actual)}${msgSuffix}\n`);
 }
 function assertObjectMatch(actual, expected, msg) {
     function filter(a, b) {
@@ -792,4 +839,114 @@ function unimplemented(msg) {
 function unreachable() {
     throw new AssertionError("unreachable");
 }
-export { assert as assert, assertAlmostEquals as assertAlmostEquals, assertArrayIncludes as assertArrayIncludes, assertEquals as assertEquals, assertExists as assertExists, assertFalse as assertFalse, assertInstanceOf as assertInstanceOf, AssertionError as AssertionError, assertIsError as assertIsError, assertMatch as assertMatch, assertNotEquals as assertNotEquals, assertNotInstanceOf as assertNotInstanceOf, assertNotMatch as assertNotMatch, assertNotStrictEquals as assertNotStrictEquals, assertObjectMatch as assertObjectMatch, assertRejects as assertRejects, assertStrictEquals as assertStrictEquals, assertStringIncludes as assertStringIncludes, assertThrows as assertThrows, equal as equal, fail as fail, unimplemented as unimplemented, unreachable as unreachable };
+function assertAlmostEquals1(actual, expected, tolerance = 1e-7, msg) {
+    assertAlmostEquals(actual, expected, tolerance, msg);
+}
+function assertArrayIncludes1(actual, expected, msg) {
+    assertArrayIncludes(actual, expected, msg);
+}
+function assertEquals1(actual, expected, msg, options = {}) {
+    assertEquals(actual, expected, msg, options);
+}
+function assertExists1(actual, msg) {
+    assertExists(actual, msg);
+}
+function assertFalse1(expr, msg = "") {
+    assertFalse(expr, msg);
+}
+function assertGreaterOrEqual1(actual, expected, msg) {
+    assertGreaterOrEqual(actual, expected, msg);
+}
+function assertGreater1(actual, expected, msg) {
+    assertGreater(actual, expected, msg);
+}
+function assertInstanceOf1(actual, expectedType, msg = "") {
+    assertInstanceOf(actual, expectedType, msg);
+}
+function assertIsError1(error, ErrorClass, msgMatches, msg) {
+    assertIsError(error, ErrorClass, msgMatches, msg);
+}
+function assertLessOrEqual1(actual, expected, msg) {
+    assertLessOrEqual(actual, expected, msg);
+}
+function assertLess1(actual, expected, msg) {
+    assertLess(actual, expected, msg);
+}
+function assertMatch1(actual, expected, msg) {
+    assertMatch(actual, expected, msg);
+}
+function assertNotEquals1(actual, expected, msg) {
+    assertNotEquals(actual, expected, msg);
+}
+function assertNotInstanceOf1(actual, unexpectedType, msg) {
+    assertNotInstanceOf(actual, unexpectedType, msg);
+}
+function assertNotMatch1(actual, expected, msg) {
+    assertNotMatch(actual, expected, msg);
+}
+function assertNotStrictEquals1(actual, expected, msg) {
+    assertNotStrictEquals(actual, expected, msg);
+}
+function assertObjectMatch1(actual, expected, msg) {
+    assertObjectMatch(actual, expected, msg);
+}
+async function assertRejects1(fn, errorClassOrMsg, msgIncludesOrMsg, msg) {
+    return await assertRejects(fn, errorClassOrMsg, msgIncludesOrMsg, msg);
+}
+function assertStrictEquals1(actual, expected, msg) {
+    assertStrictEquals(actual, expected, msg);
+}
+function assertStringIncludes1(actual, expected, msg) {
+    assertStringIncludes(actual, expected, msg);
+}
+function assertThrows1(fn, errorClassOrMsg, msgIncludesOrMsg, msg) {
+    return assertThrows(fn, errorClassOrMsg, msgIncludesOrMsg, msg);
+}
+function assert1(expr, msg = "") {
+    assert(expr, msg);
+}
+class AssertionError1 extends Error {
+    constructor(message){
+        super(message);
+        this.name = "AssertionError";
+    }
+}
+function equal1(c, d) {
+    return equal(c, d);
+}
+function fail1(msg) {
+    fail(msg);
+}
+function unimplemented1(msg) {
+    unimplemented(msg);
+}
+function unreachable1() {
+    unreachable();
+}
+export { assertAlmostEquals1 as assertAlmostEquals };
+export { assertArrayIncludes1 as assertArrayIncludes };
+export { assertEquals1 as assertEquals };
+export { assertExists1 as assertExists };
+export { assertFalse1 as assertFalse };
+export { assertGreaterOrEqual1 as assertGreaterOrEqual };
+export { assertGreater1 as assertGreater };
+export { assertInstanceOf1 as assertInstanceOf };
+export { assertIsError1 as assertIsError };
+export { assertLessOrEqual1 as assertLessOrEqual };
+export { assertLess1 as assertLess };
+export { assertMatch1 as assertMatch };
+export { assertNotEquals1 as assertNotEquals };
+export { assertNotInstanceOf1 as assertNotInstanceOf };
+export { assertNotMatch1 as assertNotMatch };
+export { assertNotStrictEquals1 as assertNotStrictEquals };
+export { assertObjectMatch1 as assertObjectMatch };
+export { assertRejects1 as assertRejects };
+export { assertStrictEquals1 as assertStrictEquals };
+export { assertStringIncludes1 as assertStringIncludes };
+export { assertThrows1 as assertThrows };
+export { assert1 as assert };
+export { AssertionError1 as AssertionError };
+export { equal1 as equal };
+export { fail1 as fail };
+export { unimplemented1 as unimplemented };
+export { unreachable1 as unreachable };
