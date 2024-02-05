@@ -72,7 +72,7 @@ function fail() {
 
     let expected_stderr = format!(
         r#"
-  error: Uncaught Error: boom!
+  error: Uncaught (in promise) Error: boom!
   throw new Error("boom!");
         ^
     at fail ({mod_url}:5:9)

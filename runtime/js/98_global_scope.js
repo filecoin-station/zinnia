@@ -27,7 +27,7 @@ import * as eventSource from "ext:deno_fetch/27_eventsource.js";
 import * as fetch from "ext:zinnia_runtime/fetch.js";
 import * as messagePort from "ext:deno_web/13_message_port.js";
 import * as webidl from "ext:deno_webidl/00_webidl.js";
-import DOMException from "ext:deno_web/01_dom_exception.js";
+import { DOMException } from "ext:deno_web/01_dom_exception.js";
 import * as abortSignal from "ext:deno_web/03_abort_signal.js";
 import * as globalInterfaces from "ext:deno_web/04_global_interfaces.js";
 import { zinniaNs, log } from "ext:zinnia_runtime/90_zinnia_apis.js";

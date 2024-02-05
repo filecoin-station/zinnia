@@ -29,7 +29,6 @@ import {
   inspectArgs,
   quoteString,
   setNoColorFn,
-  wrapConsole,
 } from "ext:deno_console/01_console.js";
 import * as performance from "ext:deno_web/15_performance.js";
 import {
@@ -94,7 +93,7 @@ function bootstrapMainRuntime(runtimeOptions) {
   if (runtimeOptions.inspectFlag) {
     const consoleFromV8 = core.console;
     const consoleFromDeno = globalThis.console;
-    wrapConsole(consoleFromDeno, consoleFromV8);
+    core.wrapConsole(consoleFromDeno, consoleFromV8);
   }
 
   event.setEventTargetData(globalThis);
