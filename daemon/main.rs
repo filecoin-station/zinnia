@@ -16,7 +16,7 @@ use zinnia_runtime::{
     get_module_root, lassie, lassie_config, resolve_path, run_js_module, BootstrapOptions,
 };
 
-use crate::station_reporter::{log_info_activity, StationReporter};
+use crate::station_reporter::{log_started_activity, StationReporter};
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
@@ -56,7 +56,7 @@ async fn run(config: CliArgs) -> Result<RunOutput> {
             .context("cannot initialize the IPFS retrieval client Lassie")?,
     );
 
-    log_info_activity("Zinnia started");
+    log_started_activity();
 
     let file = &config.files[0];
 
