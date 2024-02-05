@@ -128,8 +128,8 @@ pub async fn run_js_module(
     // Load and run the module
     let main_module_id = runtime.load_main_module(module_specifier, None).await?;
     let res = runtime.mod_evaluate(main_module_id);
-    runtime.run_event_loop(false).await?;
-    res.await??;
+    runtime.run_event_loop(Default::default()).await?;
+    res.await?;
 
     // TODO: it would be nicer to have this exposed as another Deno op
     // and call it from the JavaScript side as part of the regular runtime shutdown

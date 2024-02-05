@@ -4,8 +4,8 @@ use deno_core::anyhow::anyhow;
 use deno_core::error::type_error;
 use deno_core::futures::FutureExt;
 use deno_core::{
-    resolve_import, ModuleLoader, ModuleSource, ModuleSourceFuture, ModuleSpecifier, ModuleType,
-    ResolutionKind,
+    resolve_import, ModuleLoader, ModuleSource, ModuleSourceCode, ModuleSpecifier, ModuleType,
+    RequestedModuleType, ResolutionKind,
 };
 
 use tokio::fs::File;
@@ -65,11 +65,14 @@ impl ModuleLoader for ZinniaModuleLoader {
         module_specifier: &ModuleSpecifier,
         maybe_referrer: Option<&ModuleSpecifier>,
         _is_dyn_import: bool,
-    ) -> std::pin::Pin<Box<ModuleSourceFuture>> {
+        // TODO(bajtos): support loading JSON files as ES modules. See
+        // https://github.com/denoland/deno/commit/bc8d00c880756a46b0ce4c8bf0c89407a2de669c
+        _requested_module_type: RequestedModuleType,
+    ) -> deno_core::ModuleLoadResponse {
         let module_specifier = module_specifier.clone();
         let module_root = self.module_root.clone();
         let maybe_referrer = maybe_referrer.cloned();
-        async move {
+        deno_core::ModuleLoadResponse::Async(async move {
             let spec_str = module_specifier.as_str();
 
             let code = {
@@ -85,18 +88,23 @@ impl ModuleLoader for ZinniaModuleLoader {
                                 .map(|p| p.starts_with(root))
                                 .unwrap_or(false),
                         }
-                    },
+                    }
                 };
                 if is_module_local {
                     read_file_to_string(module_specifier.to_file_path().unwrap()).await?
-                } else if spec_str == "https://deno.land/std@0.177.0/testing/asserts.ts" || spec_str == "https://deno.land/std@0.181.0/testing/asserts.ts" {
+                } else if spec_str == "https://deno.land/std@0.177.0/testing/asserts.ts"
+                    || spec_str == "https://deno.land/std@0.181.0/testing/asserts.ts"
+                {
                     return Err(anyhow!(
                         "Zinnia bundles Deno asserts as 'zinnia:assert`. Please update your imports accordingly.\nModule URL: {spec_str}\nImported from: {}",
                         maybe_referrer.map(|u| u.to_string()).unwrap_or("(none)".into())
                     ));
                 } else {
                     let mut msg = if module_specifier.scheme() == "file" && module_root.is_some() {
-                         format!("Cannot import files outside of module root directory {}. ",  module_root.unwrap().display())
+                        format!(
+                            "Cannot import files outside of module root directory {}. ",
+                            module_root.unwrap().display()
+                        )
                     } else {
                         "Zinnia supports importing from relative paths only. ".to_string()
                     };
@@ -109,9 +117,13 @@ impl ModuleLoader for ZinniaModuleLoader {
                 }
             };
 
-            let module = ModuleSource::new(ModuleType::JavaScript, code.into(), &module_specifier);
+            let module = ModuleSource::new(
+                ModuleType::JavaScript,
+                ModuleSourceCode::String(code.into()),
+                &module_specifier
+            );
             Ok(module)
-        }.boxed_local()
+        }.boxed_local())
     }
 }
 
@@ -134,7 +146,7 @@ async fn read_file_to_string(path: impl AsRef<Path>) -> Result<String, AnyError>
 #[cfg(test)]
 mod tests {
     use super::*;
-    use deno_core::anyhow::Context;
+    use deno_core::{anyhow::Context, ModuleLoadResponse};
     use pretty_assertions::assert_eq;
 
     #[tokio::test]
@@ -143,13 +155,17 @@ mod tests {
         imported_file.push("99_main.js");
 
         let loader = ZinniaModuleLoader::build(Some(get_js_dir())).unwrap();
-        let result = loader
-            .load(
-                &ModuleSpecifier::from_file_path(&imported_file).unwrap(),
-                None,
-                false,
-            )
-            .await
+        let result = loader.load(
+            &ModuleSpecifier::from_file_path(&imported_file).unwrap(),
+            None,
+            false,
+            RequestedModuleType::None,
+        );
+        let result = match result {
+            ModuleLoadResponse::Async(result) => result.await,
+            ModuleLoadResponse::Sync(result) => result,
+        };
+        let result = result
             .with_context(|| format!("cannot import {}", imported_file.display()))
             .unwrap();
 
@@ -168,13 +184,16 @@ mod tests {
         imported_file.push("99_main.js");
 
         let loader = ZinniaModuleLoader::build(Some(project_root)).unwrap();
-        let result = loader
-            .load(
-                &ModuleSpecifier::from_file_path(&imported_file).unwrap(),
-                None,
-                false,
-            )
-            .await;
+        let result = loader.load(
+            &ModuleSpecifier::from_file_path(&imported_file).unwrap(),
+            None,
+            false,
+            RequestedModuleType::None,
+        );
+        let result = match result {
+            ModuleLoadResponse::Async(result) => result.await,
+            ModuleLoadResponse::Sync(result) => result,
+        };
 
         match result {
             Ok(_) => {

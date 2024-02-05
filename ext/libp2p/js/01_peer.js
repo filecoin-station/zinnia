@@ -1,5 +1,6 @@
 const core = globalThis.Deno.core;
-const { ops, opAsync } = core;
+const { ops } = core;
+const { op_p2p_request_protocol } = core.ensureFastOps();
 
 async function requestProtocol(remoteAddress, protocolName, requestPayload) {
   if (typeof remoteAddress !== "string")
@@ -11,8 +12,7 @@ async function requestProtocol(remoteAddress, protocolName, requestPayload) {
     throw new TypeError(`requestPayload must be Uint8Array (found: ${actualType})`);
   }
 
-  const responsePayload = await opAsync(
-    "op_p2p_request_protocol",
+  const responsePayload = await op_p2p_request_protocol(
     remoteAddress,
     protocolName,
     requestPayload,
