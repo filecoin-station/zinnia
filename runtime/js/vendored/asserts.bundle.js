@@ -8,6 +8,7 @@ class AssertionError extends Error {
         this.name = "AssertionError";
     }
 }
+export { AssertionError as AssertionError };
 function assertAlmostEquals(actual, expected, tolerance = 1e-7, msg) {
     if (Object.is(actual, expected)) {
         return;
@@ -21,6 +22,7 @@ function assertAlmostEquals(actual, expected, tolerance = 1e-7, msg) {
     throw new AssertionError(`Expected actual: "${f(actual)}" to be close to "${f(expected)}": \
 delta "${f(delta)}" is greater than "${f(tolerance)}"${msgSuffix}`);
 }
+export { assertAlmostEquals as assertAlmostEquals };
 function isKeyedCollection(x) {
     return [
         Symbol.iterator,
@@ -108,6 +110,7 @@ function equal(c, d) {
         return false;
     }(c, d);
 }
+export { equal as equal };
 function format(v) {
     const { Deno } = globalThis;
     return typeof Deno?.inspect === "function" ? Deno.inspect(v, {
@@ -141,6 +144,7 @@ function assertArrayIncludes(actual, expected, msg) {
     msg = `Expected actual: "${format(actual)}" to include: "${format(expected)}"${msgSuffix}\nmissing: ${format(missing)}`;
     throw new AssertionError(msg);
 }
+export { assertArrayIncludes as assertArrayIncludes };
 const { Deno } = globalThis;
 const noColor = false;
 let enabled = !noColor;
@@ -527,6 +531,7 @@ function assertEquals(actual, expected, msg, options = {}) {
     }
     throw new AssertionError(message);
 }
+export { assertEquals as assertEquals };
 function assertExists(actual, msg) {
     if (actual === undefined || actual === null) {
         const msgSuffix = msg ? `: ${msg}` : ".";
@@ -534,23 +539,27 @@ function assertExists(actual, msg) {
         throw new AssertionError(msg);
     }
 }
+export { assertExists as assertExists };
 function assertFalse(expr, msg = "") {
     if (expr) {
         throw new AssertionError(msg);
     }
 }
+export { assertFalse as assertFalse };
 function assertGreaterOrEqual(actual, expected, msg) {
     if (actual >= expected) return;
     const actualString = format(actual);
     const expectedString = format(expected);
     throw new AssertionError(msg ?? `Expect ${actualString} >= ${expectedString}`);
 }
+export { assertGreaterOrEqual as assertGreaterOrEqual };
 function assertGreater(actual, expected, msg) {
     if (actual > expected) return;
     const actualString = format(actual);
     const expectedString = format(expected);
     throw new AssertionError(msg ?? `Expect ${actualString} > ${expectedString}`);
 }
+export { assertGreater as assertGreater };
 function assertInstanceOf(actual, expectedType, msg = "") {
     if (actual instanceof expectedType) return;
     const msgSuffix = msg ? `: ${msg}` : ".";
@@ -574,6 +583,7 @@ function assertInstanceOf(actual, expectedType, msg = "") {
     }
     throw new AssertionError(msg);
 }
+export { assertInstanceOf as assertInstanceOf };
 function assertIsError(error, ErrorClass, msgMatches, msg) {
     const msgSuffix = msg ? `: ${msg}` : ".";
     if (!(error instanceof Error)) {
@@ -595,18 +605,21 @@ function assertIsError(error, ErrorClass, msgMatches, msg) {
         throw new AssertionError(msg);
     }
 }
+export { assertIsError as assertIsError };
 function assertLessOrEqual(actual, expected, msg) {
     if (actual <= expected) return;
     const actualString = format(actual);
     const expectedString = format(expected);
     throw new AssertionError(msg ?? `Expect ${actualString} <= ${expectedString}`);
 }
+export { assertLessOrEqual as assertLessOrEqual };
 function assertLess(actual, expected, msg) {
     if (actual < expected) return;
     const actualString = format(actual);
     const expectedString = format(expected);
     throw new AssertionError(msg ?? `Expect ${actualString} < ${expectedString}`);
 }
+export { assertLess as assertLess };
 function assertMatch(actual, expected, msg) {
     if (!expected.test(actual)) {
         const msgSuffix = msg ? `: ${msg}` : ".";
@@ -614,6 +627,7 @@ function assertMatch(actual, expected, msg) {
         throw new AssertionError(msg);
     }
 }
+export { assertMatch as assertMatch };
 function assertNotEquals(actual, expected, msg) {
     if (!equal(actual, expected)) {
         return;
@@ -633,11 +647,13 @@ function assertNotEquals(actual, expected, msg) {
     const msgSuffix = msg ? `: ${msg}` : ".";
     throw new AssertionError(`Expected actual: ${actualString} not to be: ${expectedString}${msgSuffix}`);
 }
+export { assertNotEquals as assertNotEquals };
 function assertNotInstanceOf(actual, unexpectedType, msg) {
     const msgSuffix = msg ? `: ${msg}` : ".";
     msg = `Expected object to not be an instance of "${typeof unexpectedType}"${msgSuffix}`;
     assertFalse(actual instanceof unexpectedType, msg);
 }
+export { assertNotInstanceOf as assertNotInstanceOf };
 function assertNotMatch(actual, expected, msg) {
     if (expected.test(actual)) {
         const msgSuffix = msg ? `: ${msg}` : ".";
@@ -645,6 +661,7 @@ function assertNotMatch(actual, expected, msg) {
         throw new AssertionError(msg);
     }
 }
+export { assertNotMatch as assertNotMatch };
 function assertNotStrictEquals(actual, expected, msg) {
     if (!Object.is(actual, expected)) {
         return;
@@ -652,6 +669,7 @@ function assertNotStrictEquals(actual, expected, msg) {
     const msgSuffix = msg ? `: ${msg}` : ".";
     throw new AssertionError(`Expected "actual" to not be strictly equal to: ${format(actual)}${msgSuffix}\n`);
 }
+export { assertNotStrictEquals as assertNotStrictEquals };
 function assertObjectMatch(actual, expected, msg) {
     function filter(a, b) {
         const seen = new WeakMap();
@@ -718,6 +736,7 @@ function assertObjectMatch(actual, expected, msg) {
     }
     return assertEquals(filter(actual, expected), filter(expected, expected), msg);
 }
+export { assertObjectMatch as assertObjectMatch };
 async function assertRejects(fn, errorClassOrMsg, msgIncludesOrMsg, msg) {
     let ErrorClass = undefined;
     let msgIncludes = undefined;
@@ -757,6 +776,7 @@ async function assertRejects(fn, errorClassOrMsg, msgIncludesOrMsg, msg) {
     }
     return err;
 }
+export { assertRejects as assertRejects };
 function assertStrictEquals(actual, expected, msg) {
     if (Object.is(actual, expected)) {
         return;
@@ -782,6 +802,7 @@ function assertStrictEquals(actual, expected, msg) {
     }
     throw new AssertionError(message);
 }
+export { assertStrictEquals as assertStrictEquals };
 function assertStringIncludes(actual, expected, msg) {
     if (!actual.includes(expected)) {
         const msgSuffix = msg ? `: ${msg}` : ".";
@@ -789,6 +810,7 @@ function assertStringIncludes(actual, expected, msg) {
         throw new AssertionError(msg);
     }
 }
+export { assertStringIncludes as assertStringIncludes };
 function assertThrows(fn, errorClassOrMsg, msgIncludesOrMsg, msg) {
     let ErrorClass = undefined;
     let msgIncludes = undefined;
@@ -823,130 +845,24 @@ function assertThrows(fn, errorClassOrMsg, msgIncludesOrMsg, msg) {
     }
     return err;
 }
+export { assertThrows as assertThrows };
 function assert(expr, msg = "") {
     if (!expr) {
         throw new AssertionError(msg);
     }
 }
+export { assert as assert };
 function fail(msg) {
     const msgSuffix = msg ? `: ${msg}` : ".";
     assert(false, `Failed assertion${msgSuffix}`);
 }
+export { fail as fail };
 function unimplemented(msg) {
     const msgSuffix = msg ? `: ${msg}` : ".";
     throw new AssertionError(`Unimplemented${msgSuffix}`);
 }
+export { unimplemented as unimplemented };
 function unreachable() {
     throw new AssertionError("unreachable");
 }
-function assertAlmostEquals1(actual, expected, tolerance = 1e-7, msg) {
-    assertAlmostEquals(actual, expected, tolerance, msg);
-}
-function assertArrayIncludes1(actual, expected, msg) {
-    assertArrayIncludes(actual, expected, msg);
-}
-function assertEquals1(actual, expected, msg, options = {}) {
-    assertEquals(actual, expected, msg, options);
-}
-function assertExists1(actual, msg) {
-    assertExists(actual, msg);
-}
-function assertFalse1(expr, msg = "") {
-    assertFalse(expr, msg);
-}
-function assertGreaterOrEqual1(actual, expected, msg) {
-    assertGreaterOrEqual(actual, expected, msg);
-}
-function assertGreater1(actual, expected, msg) {
-    assertGreater(actual, expected, msg);
-}
-function assertInstanceOf1(actual, expectedType, msg = "") {
-    assertInstanceOf(actual, expectedType, msg);
-}
-function assertIsError1(error, ErrorClass, msgMatches, msg) {
-    assertIsError(error, ErrorClass, msgMatches, msg);
-}
-function assertLessOrEqual1(actual, expected, msg) {
-    assertLessOrEqual(actual, expected, msg);
-}
-function assertLess1(actual, expected, msg) {
-    assertLess(actual, expected, msg);
-}
-function assertMatch1(actual, expected, msg) {
-    assertMatch(actual, expected, msg);
-}
-function assertNotEquals1(actual, expected, msg) {
-    assertNotEquals(actual, expected, msg);
-}
-function assertNotInstanceOf1(actual, unexpectedType, msg) {
-    assertNotInstanceOf(actual, unexpectedType, msg);
-}
-function assertNotMatch1(actual, expected, msg) {
-    assertNotMatch(actual, expected, msg);
-}
-function assertNotStrictEquals1(actual, expected, msg) {
-    assertNotStrictEquals(actual, expected, msg);
-}
-function assertObjectMatch1(actual, expected, msg) {
-    assertObjectMatch(actual, expected, msg);
-}
-async function assertRejects1(fn, errorClassOrMsg, msgIncludesOrMsg, msg) {
-    return await assertRejects(fn, errorClassOrMsg, msgIncludesOrMsg, msg);
-}
-function assertStrictEquals1(actual, expected, msg) {
-    assertStrictEquals(actual, expected, msg);
-}
-function assertStringIncludes1(actual, expected, msg) {
-    assertStringIncludes(actual, expected, msg);
-}
-function assertThrows1(fn, errorClassOrMsg, msgIncludesOrMsg, msg) {
-    return assertThrows(fn, errorClassOrMsg, msgIncludesOrMsg, msg);
-}
-function assert1(expr, msg = "") {
-    assert(expr, msg);
-}
-class AssertionError1 extends Error {
-    constructor(message){
-        super(message);
-        this.name = "AssertionError";
-    }
-}
-function equal1(c, d) {
-    return equal(c, d);
-}
-function fail1(msg) {
-    fail(msg);
-}
-function unimplemented1(msg) {
-    unimplemented(msg);
-}
-function unreachable1() {
-    unreachable();
-}
-export { assertAlmostEquals1 as assertAlmostEquals };
-export { assertArrayIncludes1 as assertArrayIncludes };
-export { assertEquals1 as assertEquals };
-export { assertExists1 as assertExists };
-export { assertFalse1 as assertFalse };
-export { assertGreaterOrEqual1 as assertGreaterOrEqual };
-export { assertGreater1 as assertGreater };
-export { assertInstanceOf1 as assertInstanceOf };
-export { assertIsError1 as assertIsError };
-export { assertLessOrEqual1 as assertLessOrEqual };
-export { assertLess1 as assertLess };
-export { assertMatch1 as assertMatch };
-export { assertNotEquals1 as assertNotEquals };
-export { assertNotInstanceOf1 as assertNotInstanceOf };
-export { assertNotMatch1 as assertNotMatch };
-export { assertNotStrictEquals1 as assertNotStrictEquals };
-export { assertObjectMatch1 as assertObjectMatch };
-export { assertRejects1 as assertRejects };
-export { assertStrictEquals1 as assertStrictEquals };
-export { assertStringIncludes1 as assertStringIncludes };
-export { assertThrows1 as assertThrows };
-export { assert1 as assert };
-export { AssertionError1 as AssertionError };
-export { equal1 as equal };
-export { fail1 as fail };
-export { unimplemented1 as unimplemented };
-export { unreachable1 as unreachable };
+export { unreachable as unreachable };

@@ -11,7 +11,7 @@ import { fromFileUrl } from "https://deno.land/std@0.181.0/path/mod.ts";
 import { green } from "https://deno.land/std@0.183.0/fmt/colors.ts";
 
 let assertsPath = await vendor(
-  `https://deno.land/std@${STD_VERSION}/testing/asserts.ts`,
+  `https://deno.land/std@${STD_VERSION}/assert/mod.ts`,
   "asserts.bundle.js",
 );
 await patchAssertsBundle(assertsPath);
