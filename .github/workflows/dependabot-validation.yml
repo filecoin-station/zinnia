@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: marocchino/validate-dependabot@v2
+      - uses: marocchino/validate-dependabot@v3
         id: validate
         with:
           path: .github/dependabot.yaml
