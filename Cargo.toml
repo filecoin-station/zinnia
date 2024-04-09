@@ -23,7 +23,7 @@ log = "0.4.21"
 pretty_assertions = "1.4.0"
 env_logger = "0.10.2"
 serde = "1.0.197"
-serde_repr = "0.1.18"
+serde_repr = "0.1.19"
 tokio = { version = "1.37.0", features = ["fs", "rt", "macros"] }
 
 # workspace-local
