@@ -9,6 +9,10 @@ pub struct CliArgs {
     #[arg(long, short = 'w', env = "FIL_WALLET_ADDRESS", name = "FIL ADDRESS")]
     pub wallet_address: String,
 
+    /// Unique identifier of the Filecoin Station (required).
+    #[arg(long, short = 's', env = "STATION_ID", name = "STATION ID")]
+    pub station_id: String,
+
     /// Directory where to keep state files.
     #[arg(long, env, default_value_t = get_default_state_dir(env::var), name = "LOCAL STATE DIR PATH")]
     pub state_root: String,

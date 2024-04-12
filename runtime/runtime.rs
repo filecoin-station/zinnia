@@ -35,6 +35,9 @@ pub struct BootstrapOptions {
     /// Filecoin wallet address - typically the built-in wallet in Filecoin Station
     pub wallet_address: String,
 
+    /// Station ID - the unique identifier of the Filecoin Station
+    pub station_id: String,
+
     /// Report activities
     pub reporter: Rc<dyn Reporter>,
 
@@ -62,6 +65,7 @@ impl BootstrapOptions {
             module_root,
             // See https://lotus.filecoin.io/lotus/manage/manage-fil/#public-key-address
             wallet_address: String::from("t1abjxfbp274xpdqcpuaykwkfb43omjotacm2p3za"),
+            station_id: String::from("zinnia-dev"),
             reporter,
             lassie_daemon,
             zinnia_version: env!("CARGO_PKG_VERSION"),
@@ -73,6 +77,7 @@ impl BootstrapOptions {
           "noColor": self.no_color,
           "isTty": self.is_tty,
           "walletAddress": self.wallet_address,
+          "stationId": self.station_id,
           "lassieUrl": format!("http://127.0.0.1:{}/", self.lassie_daemon.port()),
           "lassieAuth": match self.lassie_daemon.access_token() {
             Some(token) => serde_json::Value::String(format!("Bearer {token}")),
