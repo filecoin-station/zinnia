@@ -10,7 +10,7 @@ pub struct CliArgs {
     pub wallet_address: String,
 
     /// Unique identifier of the Filecoin Station (required).
-    #[arg(long, short = 's', env = "STATION_ID", name = "STATION ID")]
+    #[arg(long, env = "STATION_ID", name = "STATION ID")]
     pub station_id: String,
 
     /// Directory where to keep state files.
