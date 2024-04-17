@@ -1,6 +1,6 @@
 [package]
 name = "zinniad"
-version = "0.17.0"
+version = "0.18.0"
 authors.workspace = true
 default-run = "zinniad"
 edition.workspace = true
