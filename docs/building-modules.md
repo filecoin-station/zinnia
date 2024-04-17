@@ -301,6 +301,10 @@ for await (const chunk of response) {
 
 ### Integration with Filecoin Station
 
+#### `Zinnia.stationId`
+
+The associated Station Core's unique identifier (public key)
+
 #### `Zinnia.walletAddress`
 
 The wallet address where to send rewards. When running inside the Station Desktop, this API will

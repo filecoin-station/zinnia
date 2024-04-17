@@ -7,3 +7,7 @@ test("Zinnia.walletAddress", () => {
   // and the value is the default testnet one.
   assertStrictEquals(Zinnia.walletAddress, "t1abjxfbp274xpdqcpuaykwkfb43omjotacm2p3za");
 });
+
+test("Zinnia.stationId", () => {
+  assertStrictEquals(Zinnia.stationId, "zinnia-dev");
+});
