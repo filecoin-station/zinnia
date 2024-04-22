@@ -105,6 +105,7 @@ function bootstrapMainRuntime(runtimeOptions) {
   ObjectDefineProperties(globalThis.Zinnia, {
     walletAddress: util.readOnly(runtimeOptions.walletAddress),
     stationId: util.readOnly(runtimeOptions.stationId),
+    deploymentType: util.readOnly(runtimeOptions.deploymentType),
   });
 
   // delete `Deno` global

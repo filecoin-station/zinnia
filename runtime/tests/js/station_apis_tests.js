@@ -9,5 +9,9 @@ test("Zinnia.walletAddress", () => {
 });
 
 test("Zinnia.stationId", () => {
-  assertStrictEquals(Zinnia.stationId, "zinnia-dev");
+  assertStrictEquals(Zinnia.stationId, "6400000000000000000000000000000000000000000000000000000000000000");
+});
+
+test("Zinnia.deploymentType", () => {
+  assertStrictEquals(Zinnia.deploymentType, "testdeployment");
 });

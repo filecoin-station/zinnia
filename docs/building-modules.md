@@ -313,6 +313,10 @@ return the address of Station's built-in wallet.
 The value is hard-coded to a testnet address `t1abjxfbp274xpdqcpuaykwkfb43omjotacm2p3za` when
 running the module via `zinnia` CLI.
 
+### `Zinnia.deploymentType`
+
+The type of Station Core deployment. This could be any of the following valid types: 'cli', 'docker', or 'station-desktop'
+
 #### `Zinnia.activity.info(message)`
 
 Add a new Activity Log item informing the Station user when things proceed as expected.

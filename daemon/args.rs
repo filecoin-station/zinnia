@@ -13,6 +13,10 @@ pub struct CliArgs {
     #[arg(long, env = "STATION_ID", name = "STATION ID")]
     pub station_id: String,
 
+    /// The type of Station Core deployment. Either 'cli', 'docker', or 'station-desktop' (required).
+    #[arg(long, short = 'd', env = "DEPLOYMENT_TYPE", name = "DEPLOYMENT TYPE")]
+    pub deployment_type: String,
+
     /// Directory where to keep state files.
     #[arg(long, env, default_value_t = get_default_state_dir(env::var), name = "LOCAL STATE DIR PATH")]
     pub state_root: String,

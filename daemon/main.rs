@@ -75,6 +75,7 @@ async fn run(config: CliArgs) -> Result<RunOutput> {
         agent_version: format!("zinniad/{} {module_name}", env!("CARGO_PKG_VERSION")),
         wallet_address: config.wallet_address,
         station_id: config.station_id,
+        deployment_type: config.deployment_type,
         reporter: Rc::new(StationReporter::new(
             state_file,
             Duration::from_millis(200),
@@ -179,7 +180,8 @@ mod tests {
             cache_root: temp.join("cache").to_string_lossy().into(),
             state_root: temp.join("state").to_string_lossy().into(),
             wallet_address: "f1test".to_string(),
-            station_id: "zinnia-dev".to_string(),
+            station_id: "6400000000000000000000000000000000000000000000000000000000000000".to_string(),
+            deployment_type: "testdeployment".to_string(),
             files: vec![mod_js.path().to_string_lossy().to_string()],
         };
         let RunOutput { lassie_daemon, .. } = run(args).await.expect("cannot run dummy.js");
