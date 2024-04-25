@@ -179,7 +179,7 @@ mod tests {
             cache_root: temp.join("cache").to_string_lossy().into(),
             state_root: temp.join("state").to_string_lossy().into(),
             wallet_address: "f1test".to_string(),
-            station_id: "a".repeat(64),
+            station_id: "a".repeat(88),
             files: vec![mod_js.path().to_string_lossy().to_string()],
         };
         let RunOutput { lassie_daemon, .. } = run(args).await.expect("cannot run dummy.js");

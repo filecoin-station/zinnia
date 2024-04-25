@@ -9,5 +9,5 @@ test("Zinnia.walletAddress", () => {
 });
 
 test("Zinnia.stationId", () => {
-  assertStrictEquals(Zinnia.stationId, "0".repeat(64));
+  assertStrictEquals(Zinnia.stationId, "0".repeat(88));
 });

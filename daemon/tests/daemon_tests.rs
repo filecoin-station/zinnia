@@ -26,7 +26,7 @@ pub fn it_removes_lassie_temp_on_start() {
     let mut cmd = Command::new(bin);
     cmd.env("NO_COLOR", "1")
         .env("FIL_WALLET_ADDRESS", "f1test")
-        .env("STATION_ID", "a".repeat(64))
+        .env("STATION_ID", "a".repeat(88))
         .env("CACHE_ROOT", cache_root.display().to_string())
         .env("STATE_ROOT", state_root.display().to_string())
         .args([&mod_js.as_os_str()])
