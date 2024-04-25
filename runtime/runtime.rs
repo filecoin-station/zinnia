@@ -65,7 +65,10 @@ impl BootstrapOptions {
             module_root,
             // See https://lotus.filecoin.io/lotus/manage/manage-fil/#public-key-address
             wallet_address: String::from("t1abjxfbp274xpdqcpuaykwkfb43omjotacm2p3za"),
-            station_id: String::from("zinnia-dev"),
+            // Station ID must look like a public key - 64 hexadecimal characters.
+            // Let's use all-zeroes value to make it easy to distinguish data reported
+            // from non-production systems (dev, CI).
+            station_id: "0".repeat(64),
             reporter,
             lassie_daemon,
             zinnia_version: env!("CARGO_PKG_VERSION"),
