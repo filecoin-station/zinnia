@@ -10,6 +10,7 @@ use std::time::Duration;
 
 use args::CliArgs;
 use clap::Parser;
+use regex::Regex;
 
 use zinnia_runtime::anyhow::{anyhow, Context, Error, Result};
 use zinnia_runtime::{
@@ -86,6 +87,10 @@ async fn run(config: CliArgs) -> Result<RunOutput> {
         is_tty: false,
         rng_seed: None,
     };
+
+    if !Regex::new(r"^[0-9a-fA-F]{88}$").unwrap().is_match(&runtime_config.station_id) {
+        return Err(anyhow!("Invalid station_id format"));
+    }
 
     // TODO: handle module exit and restart it
     // https://github.com/filecoin-station/zinnia/issues/146
