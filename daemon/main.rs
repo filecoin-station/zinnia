@@ -88,7 +88,10 @@ async fn run(config: CliArgs) -> Result<RunOutput> {
         rng_seed: None,
     };
 
-    if !Regex::new(r"^[0-9a-fA-F]{88}$").unwrap().is_match(&runtime_config.station_id) {
+    if !Regex::new(r"^[0-9a-fA-F]{88}$")
+        .unwrap()
+        .is_match(&runtime_config.station_id)
+    {
         return Err(anyhow!("Invalid station_id format"));
     }
 
