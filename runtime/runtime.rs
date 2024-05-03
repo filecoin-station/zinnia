@@ -17,7 +17,7 @@ use crate::ext::ZinniaPermissions;
 use zinnia_libp2p;
 
 pub type AnyError = deno_core::anyhow::Error;
-use deno_core::anyhow::Result;
+use deno_core::anyhow::{anyhow, Result};
 
 /// Common bootstrap options for MainWorker & WebWorker
 #[derive(Clone)]
@@ -103,7 +103,7 @@ pub async fn run_js_module(
         .unwrap()
         .is_match(&bootstrap_options.station_id)
     {
-        return Err(anyhow::anyhow!("Invalid station_id format"));
+        return Err(anyhow!("Invalid station_id format"));
     }
 
     let blob_store = Arc::new(BlobStore::default());
