@@ -103,7 +103,7 @@ pub async fn run_js_module(
         .unwrap()
         .is_match(&bootstrap_options.station_id)
     {
-        return Err(AnyError::from("Invalid station_id format"));
+        return Err(anyhow::anyhow!("Invalid station_id format"));
     }
 
     let blob_store = Arc::new(BlobStore::default());
