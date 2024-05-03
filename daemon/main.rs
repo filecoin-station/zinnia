@@ -10,7 +10,6 @@ use std::time::Duration;
 
 use args::CliArgs;
 use clap::Parser;
-use regex::Regex;
 
 use zinnia_runtime::anyhow::{anyhow, Context, Error, Result};
 use zinnia_runtime::{

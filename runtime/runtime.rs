@@ -7,6 +7,8 @@ use deno_core::{located_script_name, serde_json, JsRuntime, ModuleSpecifier, Run
 
 use deno_web::BlobStore;
 
+use regex::Regex;
+
 use crate::module_loader::ZinniaModuleLoader;
 use crate::{colors, Reporter};
 
