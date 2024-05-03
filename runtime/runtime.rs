@@ -97,6 +97,13 @@ pub async fn run_js_module(
     module_specifier: &ModuleSpecifier,
     bootstrap_options: &BootstrapOptions,
 ) -> Result<(), AnyError> {
+    if !Regex::new(r"^[0-9a-fA-F]{88}$")
+        .unwrap()
+        .is_match(&bootstrap_options.station_id)
+    {
+        return Err(anyhow!("Invalid station_id format"));
+    }
+
     let blob_store = Arc::new(BlobStore::default());
     let reporter = Rc::clone(&bootstrap_options.reporter);
 
