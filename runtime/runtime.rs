@@ -7,7 +7,7 @@ use deno_core::{located_script_name, serde_json, JsRuntime, ModuleSpecifier, Run
 
 use deno_web::BlobStore;
 
-use regex::Regex;
+use {once_cell::sync::Lazy, regex::Regex};
 
 use crate::module_loader::ZinniaModuleLoader;
 use crate::{colors, Reporter};
@@ -99,10 +99,7 @@ pub async fn run_js_module(
     module_specifier: &ModuleSpecifier,
     bootstrap_options: &BootstrapOptions,
 ) -> Result<(), AnyError> {
-    if !Regex::new(r"^[0-9a-fA-F]{88}$")
-        .unwrap()
-        .is_match(&bootstrap_options.station_id)
-    {
+    if !validate_station_id(&bootstrap_options.station_id) {
         return Err(anyhow!("Invalid station_id format"));
     }
 
@@ -174,4 +171,9 @@ pub fn lassie_config() -> lassie::DaemonConfig {
         global_timeout: Some(ONE_DAY),
         ..Default::default()
     }
+}
+
+fn validate_station_id(station_id: &str) -> bool {
+    static RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"^[0-9a-fA-F]{88}$").unwrap());
+    RE.is_match(station_id)
 }
