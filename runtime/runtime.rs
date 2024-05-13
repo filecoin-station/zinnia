@@ -7,6 +7,8 @@ use deno_core::{located_script_name, serde_json, JsRuntime, ModuleSpecifier, Run
 
 use deno_web::BlobStore;
 
+use {once_cell::sync::Lazy, regex::Regex};
+
 use crate::module_loader::ZinniaModuleLoader;
 use crate::{colors, Reporter};
 
@@ -15,7 +17,7 @@ use crate::ext::ZinniaPermissions;
 use zinnia_libp2p;
 
 pub type AnyError = deno_core::anyhow::Error;
-use deno_core::anyhow::Result;
+use deno_core::anyhow::{anyhow, Result};
 
 /// Common bootstrap options for MainWorker & WebWorker
 #[derive(Clone)]
@@ -96,6 +98,10 @@ pub async fn run_js_module(
     module_specifier: &ModuleSpecifier,
     bootstrap_options: &BootstrapOptions,
 ) -> Result<(), AnyError> {
+    if !validate_station_id(&bootstrap_options.station_id) {
+        return Err(anyhow!("Invalid station_id format"));
+    }
+
     let blob_store = Arc::new(BlobStore::default());
     let reporter = Rc::clone(&bootstrap_options.reporter);
 
@@ -164,4 +170,9 @@ pub fn lassie_config() -> lassie::DaemonConfig {
         global_timeout: Some(ONE_DAY),
         ..Default::default()
     }
+}
+
+fn validate_station_id(station_id: &str) -> bool {
+    static RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"^[0-9a-fA-F]{88}$").unwrap());
+    RE.is_match(station_id)
 }
