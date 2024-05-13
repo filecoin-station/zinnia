@@ -38,7 +38,7 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@1482605bfc5719782e1267fd0c0cc350fe7646b8 # v1
         with:
-          toolchain: stable
+          toolchain: 1.77
           target: ${{ matrix.target }}
 
       - uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
@@ -76,7 +76,7 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@1482605bfc5719782e1267fd0c0cc350fe7646b8 # v1
         with:
-          toolchain: stable
+          toolchain: 1.77
           target: ${{ matrix.target }}
 
       - uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
@@ -117,7 +117,7 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@1482605bfc5719782e1267fd0c0cc350fe7646b8 # v1
         with:
-          toolchain: stable
+          toolchain: 1.77
 
       - uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
         with:
@@ -135,7 +135,7 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@1482605bfc5719782e1267fd0c0cc350fe7646b8 # v1
         with:
-          toolchain: stable
+          toolchain: 1.77
           components: clippy
 
       - uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
@@ -159,7 +159,7 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@1482605bfc5719782e1267fd0c0cc350fe7646b8 # v1
         with:
-          toolchain: stable
+          toolchain: 1.77
           components: rustfmt
 
       - name: Check formatting

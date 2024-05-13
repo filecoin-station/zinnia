@@ -65,8 +65,7 @@ impl BootstrapOptions {
             agent_version,
             rng_seed: None,
             module_root,
-            // See https://lotus.filecoin.io/lotus/manage/manage-fil/#public-key-address
-            wallet_address: String::from("t1abjxfbp274xpdqcpuaykwkfb43omjotacm2p3za"),
+            wallet_address: String::from("0x000000000000000000000000000000000000dEaD"),
             // Station ID must look like a public key - 88 hexadecimal characters.
             // Let's use all-zeroes value to make it easy to distinguish data reported
             // from non-production systems (dev, CI).

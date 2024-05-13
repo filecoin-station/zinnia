@@ -310,10 +310,10 @@ The value is hard-coded to 88 `0` characters when running the module via `zinnia
 #### `Zinnia.walletAddress`
 
 The wallet address where to send rewards. When running inside the Station Desktop, this API will
-return the address of Station's built-in wallet.
+return the address of the Station's built-in wallet.
 
-The value is hard-coded to a testnet address `t1abjxfbp274xpdqcpuaykwkfb43omjotacm2p3za` when
-running the module via `zinnia` CLI.
+The value is hard-coded to the Ethereum (FEVM) address `0x000000000000000000000000000000000000dEaD`
+when running the module via `zinnia` CLI.
 
 #### `Zinnia.activity.info(message)`
 
