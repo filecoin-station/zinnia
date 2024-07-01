@@ -5,13 +5,13 @@
 // Run this script using the following command:
 //   deno run --allow-run --allow-read --allow-write runtime/vendor.js
 
-const STD_VERSION = "0.214.0";
+const STD_VERSION = "0.226.0";
 
 import { fromFileUrl } from "https://deno.land/std@0.181.0/path/mod.ts";
 import { green } from "https://deno.land/std@0.183.0/fmt/colors.ts";
 
 let assertsPath = await vendor(
-  `https://deno.land/std@${STD_VERSION}/assert/mod.ts`,
+  `jsr:@std/assert@0.226.0`,
   "asserts.bundle.js",
 );
 await patchAssertsBundle(assertsPath);
@@ -43,7 +43,7 @@ async function patchAssertsBundle(assertsPath) {
 async function patchDocs() {
   let buildingModules = fromFileUrl(import.meta.resolve("../docs/building-modules.md"));
   return patchFile(buildingModules, (content) =>
-    content.replace(/deno\.land\/std@\d+\.\d+\.\d+/g, `deno.land/std@${STD_VERSION}`),
+    content.replace(/jsr\.io\/@std\/assert@\d+\.\d+\.\d+/g, `jsr.io/@std/assert@${STD_VERSION}`),
   );
 }
 

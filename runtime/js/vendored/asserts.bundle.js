@@ -64,10 +64,14 @@ function equal(c, d) {
                 if (!(a instanceof WeakSet && b instanceof WeakSet)) return false;
                 throw new TypeError("cannot compare WeakSet instances");
             }
+            if (a instanceof WeakRef || b instanceof WeakRef) {
+                if (!(a instanceof WeakRef && b instanceof WeakRef)) return false;
+                return compare(a.deref(), b.deref());
+            }
             if (seen.get(a) === b) {
                 return true;
             }
-            if (Object.keys(a || {}).length !== Object.keys(b || {}).length) {
+            if (Object.keys(a).length !== Object.keys(b).length) {
                 return false;
             }
             seen.set(a, b);
@@ -100,10 +104,6 @@ function equal(c, d) {
                 if (key in a && !(key in b) || key in b && !(key in a)) {
                     return false;
                 }
-            }
-            if (a instanceof WeakRef || b instanceof WeakRef) {
-                if (!(a instanceof WeakRef && b instanceof WeakRef)) return false;
-                return compare(a.deref(), b.deref());
             }
             return true;
         }
@@ -147,7 +147,7 @@ function assertArrayIncludes(actual, expected, msg) {
 export { assertArrayIncludes as assertArrayIncludes };
 const { Deno } = globalThis;
 const noColor = false;
-let enabled = !noColor;
+const enabled = !noColor;
 function code(open, close) {
     return {
         open: `\x1b[${open.join(";")}m`,
@@ -203,20 +203,54 @@ const ANSI_PATTERN = new RegExp([
 function stripAnsiCode(string) {
     return string.replace(ANSI_PATTERN, "");
 }
-const DiffType = {
-    removed: "removed",
-    common: "common",
-    added: "added"
-};
+function createColor(diffType, background = false) {
+    switch(diffType){
+        case "added":
+            return (s)=>background ? bgGreen(white(s)) : green(bold(s));
+        case "removed":
+            return (s)=>background ? bgRed(white(s)) : red(bold(s));
+        default:
+            return white;
+    }
+}
+function createSign(diffType) {
+    switch(diffType){
+        case "added":
+            return "+   ";
+        case "removed":
+            return "-   ";
+        default:
+            return "    ";
+    }
+}
+function buildMessage(diffResult, options = {}) {
+    const { stringDiff = false } = options;
+    const messages = [
+        "",
+        "",
+        `    ${gray(bold("[Diff]"))} ${red(bold("Actual"))} / ${green(bold("Expected"))}`,
+        "",
+        ""
+    ];
+    const diffMessages = diffResult.map((result)=>{
+        const color = createColor(result.type);
+        const line = result.details?.map((detail)=>detail.type !== "common" ? createColor(detail.type, true)(detail.value) : detail.value).join("") ?? result.value;
+        return color(`${createSign(result.type)}${line}`);
+    });
+    messages.push(...stringDiff ? [
+        diffMessages.join("")
+    ] : diffMessages, "");
+    return messages;
+}
 const REMOVED = 1;
 const COMMON = 2;
 const ADDED = 3;
-function createCommon(A, B, reverse) {
+function createCommon(A, B) {
     const common = [];
     if (A.length === 0 || B.length === 0) return [];
     for(let i = 0; i < Math.min(A.length, B.length); i += 1){
-        const a = reverse ? A[A.length - i - 1] : A[i];
-        const b = reverse ? B[B.length - i - 1] : B[i];
+        const a = A[i];
+        const b = B[i];
         if (a !== undefined && a === b) {
             common.push(a);
         } else {
@@ -225,17 +259,81 @@ function createCommon(A, B, reverse) {
     }
     return common;
 }
-function ensureDefined(item) {
-    if (item === undefined) {
-        throw Error("Unexpected missing FarthestPoint");
+function assertFp(value) {
+    if (value == null || typeof value !== "object" || typeof value?.y !== "number" || typeof value?.id !== "number") {
+        throw new Error("Unexpected missing FarthestPoint");
     }
-    return item;
+}
+function backTrace(A, B, current, swapped, routes, diffTypesPtrOffset) {
+    const M = A.length;
+    const N = B.length;
+    const result = [];
+    let a = M - 1;
+    let b = N - 1;
+    let j = routes[current.id];
+    let type = routes[current.id + diffTypesPtrOffset];
+    while(true){
+        if (!j && !type) break;
+        const prev = j;
+        if (type === 1) {
+            result.unshift({
+                type: swapped ? "removed" : "added",
+                value: B[b]
+            });
+            b -= 1;
+        } else if (type === 3) {
+            result.unshift({
+                type: swapped ? "added" : "removed",
+                value: A[a]
+            });
+            a -= 1;
+        } else {
+            result.unshift({
+                type: "common",
+                value: A[a]
+            });
+            a -= 1;
+            b -= 1;
+        }
+        j = routes[prev];
+        type = routes[prev + diffTypesPtrOffset];
+    }
+    return result;
+}
+function createFp(k, M, routes, diffTypesPtrOffset, ptr, slide, down) {
+    if (slide && slide.y === -1 && down && down.y === -1) {
+        return {
+            y: 0,
+            id: 0
+        };
+    }
+    const isAdding = down?.y === -1 || k === M || (slide?.y || 0) > (down?.y || 0) + 1;
+    if (slide && isAdding) {
+        const prev = slide.id;
+        ptr++;
+        routes[ptr] = prev;
+        routes[ptr + diffTypesPtrOffset] = ADDED;
+        return {
+            y: slide.y,
+            id: ptr
+        };
+    }
+    if (down && !isAdding) {
+        const prev = down.id;
+        ptr++;
+        routes[ptr] = prev;
+        routes[ptr + diffTypesPtrOffset] = REMOVED;
+        return {
+            y: down.y + 1,
+            id: ptr
+        };
+    }
+    throw new Error("Unexpected missing FarthestPoint");
 }
 function diff(A, B) {
     const prefixCommon = createCommon(A, B);
-    const suffixCommon = createCommon(A.slice(prefixCommon.length), B.slice(prefixCommon.length), true).reverse();
-    A = suffixCommon.length ? A.slice(prefixCommon.length, -suffixCommon.length) : A.slice(prefixCommon.length);
-    B = suffixCommon.length ? B.slice(prefixCommon.length, -suffixCommon.length) : B.slice(prefixCommon.length);
+    A = A.slice(prefixCommon.length);
+    B = B.slice(prefixCommon.length);
     const swapped = B.length > A.length;
     [A, B] = swapped ? [
         B,
@@ -246,110 +344,36 @@ function diff(A, B) {
     ];
     const M = A.length;
     const N = B.length;
-    if (!M && !N && !suffixCommon.length && !prefixCommon.length) return [];
+    if (!M && !N && !prefixCommon.length) return [];
     if (!N) {
         return [
-            ...prefixCommon.map((c)=>({
-                    type: DiffType.common,
-                    value: c
+            ...prefixCommon.map((value)=>({
+                    type: "common",
+                    value
                 })),
-            ...A.map((a)=>({
-                    type: swapped ? DiffType.added : DiffType.removed,
-                    value: a
-                })),
-            ...suffixCommon.map((c)=>({
-                    type: DiffType.common,
-                    value: c
+            ...A.map((value)=>({
+                    type: swapped ? "added" : "removed",
+                    value
                 }))
         ];
     }
     const offset = N;
     const delta = M - N;
-    const size = M + N + 1;
+    const length = M + N + 1;
     const fp = Array.from({
-        length: size
+        length
     }, ()=>({
             y: -1,
             id: -1
         }));
-    const routes = new Uint32Array((M * N + size + 1) * 2);
+    const routes = new Uint32Array((M * N + length + 1) * 2);
     const diffTypesPtrOffset = routes.length / 2;
     let ptr = 0;
-    let p = -1;
-    function backTrace(A, B, current, swapped) {
+    function snake(k, A, B, slide, down) {
         const M = A.length;
         const N = B.length;
-        const result = [];
-        let a = M - 1;
-        let b = N - 1;
-        let j = routes[current.id];
-        let type = routes[current.id + diffTypesPtrOffset];
-        while(true){
-            if (!j && !type) break;
-            const prev = j;
-            if (type === 1) {
-                result.unshift({
-                    type: swapped ? DiffType.removed : DiffType.added,
-                    value: B[b]
-                });
-                b -= 1;
-            } else if (type === 3) {
-                result.unshift({
-                    type: swapped ? DiffType.added : DiffType.removed,
-                    value: A[a]
-                });
-                a -= 1;
-            } else {
-                result.unshift({
-                    type: DiffType.common,
-                    value: A[a]
-                });
-                a -= 1;
-                b -= 1;
-            }
-            j = routes[prev];
-            type = routes[prev + diffTypesPtrOffset];
-        }
-        return result;
-    }
-    function createFP(slide, down, k, M) {
-        if (slide && slide.y === -1 && down && down.y === -1) {
-            return {
-                y: 0,
-                id: 0
-            };
-        }
-        const isAdding = down?.y === -1 || k === M || (slide?.y || 0) > (down?.y || 0) + 1;
-        if (slide && isAdding) {
-            const prev = slide.id;
-            ptr++;
-            routes[ptr] = prev;
-            routes[ptr + diffTypesPtrOffset] = ADDED;
-            return {
-                y: slide.y,
-                id: ptr
-            };
-        } else if (down && !isAdding) {
-            const prev = down.id;
-            ptr++;
-            routes[ptr] = prev;
-            routes[ptr + diffTypesPtrOffset] = REMOVED;
-            return {
-                y: down.y + 1,
-                id: ptr
-            };
-        } else {
-            throw new Error("Unexpected missing FarthestPoint");
-        }
-    }
-    function snake(k, slide, down, _offset, A, B) {
-        const M = A.length;
-        const N = B.length;
-        if (k < -N || M < k) return {
-            y: -1,
-            id: -1
-        };
-        const fp = createFP(slide, down, k, M);
+        const fp = createFp(k, M, routes, diffTypesPtrOffset, ptr, slide, down);
+        ptr = fp.id;
         while(fp.y + k < M && fp.y < N && A[fp.y + k] === B[fp.y]){
             const prev = fp.id;
             ptr++;
@@ -360,83 +384,72 @@ function diff(A, B) {
         }
         return fp;
     }
-    let currentFP = ensureDefined(fp[delta + offset]);
-    while(currentFP && currentFP.y < N){
+    let currentFp = fp[delta + offset];
+    assertFp(currentFp);
+    let p = -1;
+    while(currentFp.y < N){
         p = p + 1;
         for(let k = -p; k < delta; ++k){
-            fp[k + offset] = snake(k, fp[k - 1 + offset], fp[k + 1 + offset], offset, A, B);
+            const index = k + offset;
+            fp[index] = snake(k, A, B, fp[index - 1], fp[index + 1]);
         }
         for(let k = delta + p; k > delta; --k){
-            fp[k + offset] = snake(k, fp[k - 1 + offset], fp[k + 1 + offset], offset, A, B);
+            const index = k + offset;
+            fp[index] = snake(k, A, B, fp[index - 1], fp[index + 1]);
         }
-        fp[delta + offset] = snake(delta, fp[delta - 1 + offset], fp[delta + 1 + offset], offset, A, B);
-        currentFP = ensureDefined(fp[delta + offset]);
+        const index = delta + offset;
+        fp[delta + offset] = snake(delta, A, B, fp[index - 1], fp[index + 1]);
+        currentFp = fp[delta + offset];
+        assertFp(currentFp);
     }
     return [
-        ...prefixCommon.map((c)=>({
-                type: DiffType.common,
-                value: c
+        ...prefixCommon.map((value)=>({
+                type: "common",
+                value
             })),
-        ...backTrace(A, B, currentFP, swapped),
-        ...suffixCommon.map((c)=>({
-                type: DiffType.common,
-                value: c
-            }))
+        ...backTrace(A, B, currentFp, swapped, routes, diffTypesPtrOffset)
     ];
 }
-function diffstr(A, B) {
-    function unescape(string) {
-        return string.replaceAll("\b", "\\b").replaceAll("\f", "\\f").replaceAll("\t", "\\t").replaceAll("\v", "\\v").replaceAll(/\r\n|\r|\n/g, (str)=>str === "\r" ? "\\r" : str === "\n" ? "\\n\n" : "\\r\\n\r\n");
+function unescape(string) {
+    return string.replaceAll("\b", "\\b").replaceAll("\f", "\\f").replaceAll("\t", "\\t").replaceAll("\v", "\\v").replaceAll(/\r\n|\r|\n/g, (str)=>str === "\r" ? "\\r" : str === "\n" ? "\\n\n" : "\\r\\n\r\n");
+}
+const WHITESPACE_SYMBOLS = /([^\S\r\n]+|[()[\]{}'"\r\n]|\b)/;
+function tokenize(string, wordDiff = false) {
+    if (wordDiff) {
+        return string.split(WHITESPACE_SYMBOLS).filter((token)=>token);
     }
-    function tokenize(string, { wordDiff = false } = {}) {
-        if (wordDiff) {
-            const tokens = string.split(/([^\S\r\n]+|[()[\]{}'"\r\n]|\b)/);
-            const words = /^[a-zA-Z\u{C0}-\u{FF}\u{D8}-\u{F6}\u{F8}-\u{2C6}\u{2C8}-\u{2D7}\u{2DE}-\u{2FF}\u{1E00}-\u{1EFF}]+$/u;
-            for(let i = 0; i < tokens.length - 1; i++){
-                const token = tokens[i];
-                const tokenPlusTwo = tokens[i + 2];
-                if (!tokens[i + 1] && token && tokenPlusTwo && words.test(token) && words.test(tokenPlusTwo)) {
-                    tokens[i] += tokenPlusTwo;
-                    tokens.splice(i + 1, 2);
-                    i--;
-                }
-            }
-            return tokens.filter((token)=>token);
+    const tokens = [];
+    const lines = string.split(/(\n|\r\n)/).filter((line)=>line);
+    for (const [i, line] of lines.entries()){
+        if (i % 2) {
+            tokens[tokens.length - 1] += line;
         } else {
-            const tokens = [];
-            const lines = string.split(/(\n|\r\n)/);
-            if (!lines[lines.length - 1]) {
-                lines.pop();
-            }
-            for (const [i, line] of lines.entries()){
-                if (i % 2) {
-                    tokens[tokens.length - 1] += line;
-                } else {
-                    tokens.push(line);
-                }
-            }
-            return tokens;
+            tokens.push(line);
         }
     }
-    function createDetails(line, tokens) {
-        return tokens.filter(({ type })=>type === line.type || type === DiffType.common).map((result, i, t)=>{
-            const token = t[i - 1];
-            if (result.type === DiffType.common && token && token.type === t[i + 1]?.type && /\s+/.test(result.value)) {
-                return {
-                    ...result,
-                    type: token.type
-                };
-            }
-            return result;
-        });
-    }
+    return tokens;
+}
+function createDetails(line, tokens) {
+    return tokens.filter(({ type })=>type === line.type || type === "common").map((result, i, t)=>{
+        const token = t[i - 1];
+        if (result.type === "common" && token && token.type === t[i + 1]?.type && /\s+/.test(result.value)) {
+            return {
+                ...result,
+                type: token.type
+            };
+        }
+        return result;
+    });
+}
+function diffStr(A, B) {
     const diffResult = diff(tokenize(`${unescape(A)}\n`), tokenize(`${unescape(B)}\n`));
-    const added = [], removed = [];
+    const added = [];
+    const removed = [];
     for (const result of diffResult){
-        if (result.type === DiffType.added) {
+        if (result.type === "added") {
             added.push(result);
         }
-        if (result.type === DiffType.removed) {
+        if (result.type === "removed") {
             removed.push(result);
         }
     }
@@ -444,20 +457,17 @@ function diffstr(A, B) {
     const aLines = hasMoreRemovedLines ? added : removed;
     const bLines = hasMoreRemovedLines ? removed : added;
     for (const a of aLines){
-        let tokens = [], b;
+        let tokens = [];
+        let b;
         while(bLines.length){
             b = bLines.shift();
             const tokenized = [
-                tokenize(a.value, {
-                    wordDiff: true
-                }),
-                tokenize(b?.value ?? "", {
-                    wordDiff: true
-                })
+                tokenize(a.value, true),
+                tokenize(b.value, true)
             ];
             if (hasMoreRemovedLines) tokenized.reverse();
             tokens = diff(tokenized[0], tokenized[1]);
-            if (tokens.some(({ type, value })=>type === DiffType.common && value.trim().length)) {
+            if (tokens.some(({ type, value })=>type === "common" && value.trim().length)) {
                 break;
             }
         }
@@ -468,67 +478,20 @@ function diffstr(A, B) {
     }
     return diffResult;
 }
-function createColor(diffType, { background = false } = {}) {
-    background = false;
-    switch(diffType){
-        case DiffType.added:
-            return (s)=>background ? bgGreen(white(s)) : green(bold(s));
-        case DiffType.removed:
-            return (s)=>background ? bgRed(white(s)) : red(bold(s));
-        default:
-            return white;
-    }
-}
-function createSign(diffType) {
-    switch(diffType){
-        case DiffType.added:
-            return "+   ";
-        case DiffType.removed:
-            return "-   ";
-        default:
-            return "    ";
-    }
-}
-function buildMessage(diffResult, { stringDiff = false } = {}) {
-    const messages = [], diffMessages = [];
-    messages.push("");
-    messages.push("");
-    messages.push(`    ${gray(bold("[Diff]"))} ${red(bold("Actual"))} / ${green(bold("Expected"))}`);
-    messages.push("");
-    messages.push("");
-    diffResult.forEach((result)=>{
-        const c = createColor(result.type);
-        const line = result.details?.map((detail)=>detail.type !== DiffType.common ? createColor(detail.type, {
-                background: true
-            })(detail.value) : detail.value).join("") ?? result.value;
-        diffMessages.push(c(`${createSign(result.type)}${line}`));
-    });
-    messages.push(...stringDiff ? [
-        diffMessages.join("")
-    ] : diffMessages);
-    messages.push("");
-    return messages;
-}
-const CAN_NOT_DISPLAY = "[Cannot display]";
-function assertEquals(actual, expected, msg, options = {}) {
+function assertEquals(actual, expected, msg) {
     if (equal(actual, expected)) {
         return;
     }
-    const { formatter = format } = options;
     const msgSuffix = msg ? `: ${msg}` : ".";
     let message = `Values are not equal${msgSuffix}`;
-    const actualString = formatter(actual);
-    const expectedString = formatter(expected);
-    try {
-        const stringDiff = typeof actual === "string" && typeof expected === "string";
-        const diffResult = stringDiff ? diffstr(actual, expected) : diff(actualString.split("\n"), expectedString.split("\n"));
-        const diffMsg = buildMessage(diffResult, {
-            stringDiff
-        }).join("\n");
-        message = `${message}\n${diffMsg}`;
-    } catch  {
-        message = `${message}\n${red(CAN_NOT_DISPLAY)} + \n\n`;
-    }
+    const actualString = format(actual);
+    const expectedString = format(expected);
+    const stringDiff = typeof actual === "string" && typeof expected === "string";
+    const diffResult = stringDiff ? diffStr(actual, expected) : diff(actualString.split("\n"), expectedString.split("\n"));
+    const diffMsg = buildMessage(diffResult, {
+        stringDiff
+    }).join("\n");
+    message = `${message}\n${diffMsg}`;
     throw new AssertionError(message);
 }
 export { assertEquals as assertEquals };
@@ -590,7 +553,7 @@ function assertIsError(error, ErrorClass, msgMatches, msg) {
         throw new AssertionError(`Expected "error" to be an Error object${msgSuffix}}`);
     }
     if (ErrorClass && !(error instanceof ErrorClass)) {
-        msg = `Expected error to be instance of "${ErrorClass.name}", but was "${typeof error === "object" ? error?.constructor?.name : "[not an object]"}"${msgSuffix}`;
+        msg = `Expected error to be instance of "${ErrorClass.name}", but was "${error?.constructor?.name}"${msgSuffix}`;
         throw new AssertionError(msg);
     }
     let msgCheck;
@@ -601,7 +564,7 @@ function assertIsError(error, ErrorClass, msgMatches, msg) {
         msgCheck = msgMatches.test(stripAnsiCode(error.message));
     }
     if (msgMatches && !msgCheck) {
-        msg = `Expected error message to include ${msgMatches instanceof RegExp ? msgMatches.toString() : JSON.stringify(msgMatches)}, but got ${error instanceof Error ? JSON.stringify(error.message) : '"[not an Error]"'}${msgSuffix}`;
+        msg = `Expected error message to include ${msgMatches instanceof RegExp ? msgMatches.toString() : JSON.stringify(msgMatches)}, but got ${JSON.stringify(error?.message)}${msgSuffix}`;
         throw new AssertionError(msg);
     }
 }
@@ -632,18 +595,8 @@ function assertNotEquals(actual, expected, msg) {
     if (!equal(actual, expected)) {
         return;
     }
-    let actualString;
-    let expectedString;
-    try {
-        actualString = String(actual);
-    } catch  {
-        actualString = CAN_NOT_DISPLAY;
-    }
-    try {
-        expectedString = String(expected);
-    } catch  {
-        expectedString = CAN_NOT_DISPLAY;
-    }
+    const actualString = String(actual);
+    const expectedString = String(expected);
     const msgSuffix = msg ? `: ${msg}` : ".";
     throw new AssertionError(`Expected actual: ${actualString} not to be: ${expectedString}${msgSuffix}`);
 }
@@ -683,7 +636,7 @@ function assertObjectMatch(actual, expected, msg) {
             } catch (err) {
                 if (err instanceof TypeError) {
                     throw new TypeError(`Cannot assertObjectMatch ${a === null ? null : `type ${typeof a}`}`);
-                } else throw err;
+                }
             }
             const filtered = {};
             const entries = [
@@ -757,13 +710,15 @@ async function assertRejects(fn, errorClassOrMsg, msgIncludesOrMsg, msg) {
         if (possiblePromise && typeof possiblePromise === "object" && typeof possiblePromise.then === "function") {
             isPromiseReturned = true;
             await possiblePromise;
+        } else {
+            throw Error();
         }
     } catch (error) {
         if (!isPromiseReturned) {
             throw new AssertionError(`Function throws when expected to reject${msgSuffix}`);
         }
         if (ErrorClass) {
-            if (error instanceof Error === false) {
+            if (!(error instanceof Error)) {
                 throw new AssertionError(`A non-Error object was rejected${msgSuffix}`);
             }
             assertIsError(error, ErrorClass, msgIncludes, msg);
@@ -789,16 +744,12 @@ function assertStrictEquals(actual, expected, msg) {
         const withOffset = actualString.split("\n").map((l)=>`    ${l}`).join("\n");
         message = `Values have the same structure but are not reference-equal${msgSuffix}\n\n${red(withOffset)}\n`;
     } else {
-        try {
-            const stringDiff = typeof actual === "string" && typeof expected === "string";
-            const diffResult = stringDiff ? diffstr(actual, expected) : diff(actualString.split("\n"), expectedString.split("\n"));
-            const diffMsg = buildMessage(diffResult, {
-                stringDiff
-            }).join("\n");
-            message = `Values are not strictly equal${msgSuffix}\n${diffMsg}`;
-        } catch  {
-            message = `\n${red(CAN_NOT_DISPLAY)} + \n\n`;
-        }
+        const stringDiff = typeof actual === "string" && typeof expected === "string";
+        const diffResult = stringDiff ? diffStr(actual, expected) : diff(actualString.split("\n"), expectedString.split("\n"));
+        const diffMsg = buildMessage(diffResult, {
+            stringDiff
+        }).join("\n");
+        message = `Values are not strictly equal${msgSuffix}\n${diffMsg}`;
     }
     throw new AssertionError(message);
 }
@@ -816,7 +767,7 @@ function assertThrows(fn, errorClassOrMsg, msgIncludesOrMsg, msg) {
     let msgIncludes = undefined;
     let err;
     if (typeof errorClassOrMsg !== "string") {
-        if (errorClassOrMsg === undefined || errorClassOrMsg.prototype instanceof Error || errorClassOrMsg.prototype === Error.prototype) {
+        if (errorClassOrMsg === undefined || errorClassOrMsg?.prototype instanceof Error || errorClassOrMsg?.prototype === Error.prototype) {
             ErrorClass = errorClassOrMsg;
             msgIncludes = msgIncludesOrMsg;
         } else {
@@ -862,7 +813,7 @@ function unimplemented(msg) {
     throw new AssertionError(`Unimplemented${msgSuffix}`);
 }
 export { unimplemented as unimplemented };
-function unreachable() {
-    throw new AssertionError("unreachable");
+function unreachable(reason) {
+    throw new AssertionError(reason ?? "unreachable");
 }
 export { unreachable as unreachable };
