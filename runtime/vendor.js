@@ -10,10 +10,7 @@ const STD_VERSION = "0.226.0";
 import { fromFileUrl } from "https://deno.land/std@0.181.0/path/mod.ts";
 import { green } from "https://deno.land/std@0.183.0/fmt/colors.ts";
 
-let assertsPath = await vendor(
-  `jsr:@std/assert@0.226.0`,
-  "asserts.bundle.js",
-);
+let assertsPath = await vendor(`jsr:@std/assert@0.226.0`, "asserts.bundle.js");
 await patchAssertsBundle(assertsPath);
 await patchDocs();
 
