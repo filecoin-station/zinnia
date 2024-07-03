@@ -108,9 +108,10 @@ impl ModuleLoader for ZinniaModuleLoader {
                     } else {
                         "Zinnia supports importing from relative paths only. ".to_string()
                     };
-                    msg.push_str(&format!("\nModule URL: {spec_str}"));
+                    msg.push_str("\nModule URL: ");
+                    msg.push_str(spec_str);
                     if let Some(referrer) = &maybe_referrer {
-                        msg.push_str("\nImported from ");
+                        msg.push_str("\nImported from: ");
                         msg.push_str(referrer.as_str());
                     }
                     return Err(anyhow!(msg));
