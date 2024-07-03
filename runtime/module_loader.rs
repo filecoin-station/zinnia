@@ -96,13 +96,22 @@ impl ModuleLoader for ZinniaModuleLoader {
                     ));
                 } else {
                     let mut msg = if module_specifier.scheme() == "file" && module_root.is_some() {
-                         format!("Cannot import files outside of module root directory {}. ",  module_root.unwrap().display())
+                        let module_desc = match module_specifier.to_file_path() {
+                            Ok(m) => format!("Module file path: {}", m.display()),
+                            Err(_) => "(Cannot convert the module specifier to a file path)".to_string(),
+                        };
+                        format!(
+                            "Cannot import files outside of module root directory {}\n{}",
+                            module_root.unwrap().display(),
+                            module_desc
+                        )
                     } else {
                         "Zinnia supports importing from relative paths only. ".to_string()
                     };
-                    msg.push_str(module_specifier.as_str());
+                    msg.push_str("\nModule URL: ");
+                    msg.push_str(spec_str);
                     if let Some(referrer) = &maybe_referrer {
-                        msg.push_str(" imported from ");
+                        msg.push_str("\nImported from: ");
                         msg.push_str(referrer.as_str());
                     }
                     return Err(anyhow!(msg));
