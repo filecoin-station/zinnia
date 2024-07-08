@@ -72,52 +72,52 @@ impl ModuleLoader for ZinniaModuleLoader {
         async move {
             let spec_str = module_specifier.as_str();
 
-            let code = {
-                let is_module_local = match module_specifier.to_file_path() {
-                    Err(()) => false,
-                    Ok(module_path) => {
-                        match &module_root {
-                            None => true,
-                            Some(root) => module_path
-                                // Resolve any symlinks inside the path to prevent modules from escaping our sandbox
-                                .canonicalize()
-                                // Check that the module path is inside the module root directory
-                                .map(|p| p.starts_with(root))
-                                .unwrap_or(false),
-                        }
-                    },
-                };
-                if is_module_local {
-                    read_file_to_string(module_specifier.to_file_path().unwrap()).await?
-                } else if spec_str == "https://deno.land/std@0.177.0/testing/asserts.ts" || spec_str == "https://deno.land/std@0.181.0/testing/asserts.ts" {
+            let details = || {
+                let mut msg = format!("\nModule URL: {spec_str}");
+                if let Some(referrer) = &maybe_referrer {
+                    msg.push_str("\nImported from: ");
+                    msg.push_str(referrer.as_str());
+                }
+                msg
+            };
+
+            if spec_str == "https://deno.land/std@0.177.0/testing/asserts.ts" || spec_str == "https://deno.land/std@0.181.0/testing/asserts.ts" {
+                return Err(anyhow!("Zinnia bundles Deno asserts as 'zinnia:assert`. Please update your imports accordingly.{}", details()));
+            }
+
+            if module_specifier.scheme() != "file" {
+                return Err(anyhow!(
+                    "Unsupported scheme: {}. Zinnia can import local modules only.{}",
+                     module_specifier.scheme(),
+                     details()
+                ))
+            }
+
+            let module_path = module_specifier.to_file_path().map_err(|_|
+               anyhow!("Module specifier cannot be converted to a filepath.{}", details())
+            )?;
+
+            // Check that the module path is inside the module root directory
+            if let Some(canonical_root) = &module_root {
+                // Resolve any symlinks inside the path to prevent modules from escaping our sandbox
+                let canonical_module = module_path.canonicalize().map_err(|err|
+                   anyhow!("Cannot canonicalize module path: {err}.{}", details())
+                )?;
+
+                if !canonical_module.starts_with(canonical_root) {
                     return Err(anyhow!(
-                        "Zinnia bundles Deno asserts as 'zinnia:assert`. Please update your imports accordingly.\nModule URL: {spec_str}\nImported from: {}",
-                        maybe_referrer.map(|u| u.to_string()).unwrap_or("(none)".into())
+                        "Cannot import files outside of the module root directory.\n\
+                         Root directory (canonical): {}\n\
+                         Module file path (canonical): {}\
+                         {}",
+                        canonical_root.display(),
+                        canonical_module.display(),
+                        details()
                     ));
-                } else {
-                    let mut msg = if module_specifier.scheme() == "file" && module_root.is_some() {
-                        let module_desc = match module_specifier.to_file_path() {
-                            Ok(m) => format!("Module file path: {}", m.display()),
-                            Err(_) => "(Cannot convert the module specifier to a file path)".to_string(),
-                        };
-                        format!(
-                            "Cannot import files outside of module root directory {}\n{}",
-                            module_root.unwrap().display(),
-                            module_desc
-                        )
-                    } else {
-                        "Zinnia supports importing from relative paths only. ".to_string()
-                    };
-                    msg.push_str("\nModule URL: ");
-                    msg.push_str(spec_str);
-                    if let Some(referrer) = &maybe_referrer {
-                        msg.push_str("\nImported from: ");
-                        msg.push_str(referrer.as_str());
-                    }
-                    return Err(anyhow!(msg));
                 }
             };
 
+            let code = read_file_to_string(module_path).await?;
             let module = ModuleSource::new(ModuleType::JavaScript, code.into(), &module_specifier);
             Ok(module)
         }.boxed_local()
@@ -196,7 +196,7 @@ mod tests {
             Err(err) => {
                 let msg = format!("{err}");
                 assert!(
-                    msg.contains("Cannot import files outside of module root directory"),
+                    msg.contains("Cannot import files outside of the module root directory"),
                     "Expected import to fail with the sandboxing error, it failed with a different error instead:\n{}",
                     msg,
                 );

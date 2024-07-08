@@ -18,5 +18,5 @@ test("can import files outside the main module directory", async () => {
 
 test("cannot import files over http", async () => {
   let err = await assertRejects(() => import("https://deno.land/std@0.181.0/version.ts"));
-  assertMatch(err.message, /Zinnia supports importing from relative paths only/);
+  assertMatch(err.message, /Zinnia can import local modules only/);
 });
