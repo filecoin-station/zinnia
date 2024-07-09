@@ -112,7 +112,7 @@ function equal(c, d) {
 }
 export { equal as equal };
 function format(v) {
-    const { Deno } = globalThis;
+    const { Zinnia: Deno } = globalThis;
     return typeof Deno?.inspect === "function" ? Deno.inspect(v, {
         depth: Infinity,
         sorted: true,
@@ -145,7 +145,7 @@ function assertArrayIncludes(actual, expected, msg) {
     throw new AssertionError(msg);
 }
 export { assertArrayIncludes as assertArrayIncludes };
-const { Deno } = globalThis;
+const { Zinnia: Deno } = globalThis;
 const noColor = false;
 const enabled = !noColor;
 function code(open, close) {

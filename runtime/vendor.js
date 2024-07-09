@@ -29,11 +29,17 @@ async function vendor(url, outfile) {
 }
 
 async function patchAssertsBundle(assertsPath) {
-  return patchFile(assertsPath, (content) =>
-    content.replace(
-      'const noColor = typeof Deno?.noColor === "boolean" ? Deno.noColor : false;',
-      "const noColor = false;",
-    ),
+  await patchFile(assertsPath, (content) =>
+    content
+      .replace(
+        'const noColor = typeof Deno?.noColor === "boolean" ? Deno.noColor : false;',
+        "const noColor = false;",
+      )
+      .replaceAll(
+        "const { Deno } = globalThis;",
+        // Deno.inspect is exposed via Zinnia.inspect
+        "const { Zinnia: Deno } = globalThis;",
+      ),
   );
 }
 
