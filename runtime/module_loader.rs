@@ -100,9 +100,11 @@ impl ModuleLoader for ZinniaModuleLoader {
             // Check that the module path is inside the module root directory
             if let Some(canonical_root) = &module_root {
                 // Resolve any symlinks inside the path to prevent modules from escaping our sandbox
-                let canonical_module = module_path.canonicalize().map_err(|err|
-                   anyhow!("Cannot canonicalize module path: {err}.{}", details())
-                )?;
+                let canonical_module = module_path.canonicalize().map_err(|err| anyhow!(
+                    "Cannot canonicalize module path: {err}.\nModule file path: {}{}",
+                    module_path.display(),
+                    details()
+                ))?;
 
                 if !canonical_module.starts_with(canonical_root) {
                     return Err(anyhow!(
