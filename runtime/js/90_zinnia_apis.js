@@ -5,6 +5,7 @@ const { ops } = globalThis.Deno.core;
 
 import { readOnly } from "ext:zinnia_runtime/06_util.js";
 import * as libp2p from "ext:zinnia_libp2p/01_peer.js";
+import { inspect } from "ext:deno_console/01_console.js";
 
 const versions = {
   zinnia: "",
@@ -31,6 +32,7 @@ ObjectDefineProperties(zinniaNs, {
   activity: readOnly(activityApi),
   jobCompleted: readOnly(reportJobCompleted),
   versions: readOnly(versions),
+  inspect: readOnly(inspect),
 });
 
 function reportInfoActivity(msg) {

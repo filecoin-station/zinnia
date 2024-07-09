@@ -389,6 +389,12 @@ const response = await fetch(requestUrl, {
 
 ### Miscelaneous APIs
 
+#### `Zinnia.inspect`
+
+Converts the input into a string that has the same format as printed by `console.log()`.
+
+See [Deno.inspect() docs](https://docs.deno.com/api/deno/~/Deno.inspect) for more details.
+
 #### `Zinnia.versions.zinna`
 
 The version of Zinnia runtime, e.g. `"0.11.0"`.
