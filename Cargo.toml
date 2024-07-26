@@ -15,7 +15,7 @@ authors = ["Protocol Labs"]
 repository = "https://github.com/filecoin-station/zinnia"
 
 [workspace.dependencies]
-assert_cmd = "2.0.14"
+assert_cmd = "2.0.15"
 assert_fs = "1.1.2"
 console_static_text = "=0.8.1"
 deno_core = "0.232.0"
