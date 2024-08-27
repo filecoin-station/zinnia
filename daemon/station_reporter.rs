@@ -60,6 +60,24 @@ impl StationReporter {
 
         print_event(&event);
     }
+
+    fn update_jobs_completed(&self, total: u64) {
+        // IMPORTANT: We must update the persisted state first and report the job counter to Station
+        // only after the persisted state was successfully updated. Otherwise, when the computer is
+        // out of disk space, Station will remember the higher job count we reported before
+        // crashing due to the `unwrap()` call below, but we will report a lower value after Station
+        // restarts us and we load the old counter from the state file.
+        let state = State {
+            total_jobs_completed: total,
+        };
+        state
+            .store(&self.state_file)
+            // NOTE(bajtos) We are intentionally calling unwrap() to crash the process in case
+            // we cannot store the state into the file.
+            .unwrap();
+
+        self.print_jobs_completed(total)
+    }
 }
 
 fn print_event(data: &serde_json::Value) {
@@ -136,19 +154,9 @@ impl Reporter for StationReporter {
     }
 
     fn job_completed(&self) {
-        let total_jobs_completed = self
-            .tracker
+        self.tracker
             .borrow_mut()
-            .job_completed(|n| self.print_jobs_completed(n));
-
-        let state = State {
-            total_jobs_completed,
-        };
-        state
-            .store(&self.state_file)
-            // NOTE(bajtos) We are intentionally calling unwrap() to crash the process in case
-            // we cannot store the state into the file.
-            .unwrap();
+            .job_completed(|n| self.update_jobs_completed(n));
     }
 }
 
