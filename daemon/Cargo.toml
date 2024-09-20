@@ -14,7 +14,7 @@ path = "main.rs"
 doc = false
 
 [dependencies]
-atomicwrites = "0.4.3"
+atomicwrites = "0.4.4"
 clap = { version = "4.5.17", features = ["derive", "env"] }
 env_logger.workspace = true
 log.workspace = true
