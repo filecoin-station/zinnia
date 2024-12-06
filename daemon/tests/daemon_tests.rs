@@ -36,6 +36,8 @@ pub fn it_removes_lassie_temp_on_start() {
         cmd.stderr(Stdio::null());
     }
 
+    println!("Starting zinniad in background");
+
     // Start zinniad in background
     let mut child = cmd
         .spawn()
@@ -45,16 +47,20 @@ pub fn it_removes_lassie_temp_on_start() {
         .map(|it| it.expect("cannot read from child's stdout"))
         .inspect(|ln| println!("[zinniad] {}", ln));
 
-    // Wait until our module starts and calls `fetch('ipfs://...')`
+    println!("Waiting for our module to start and call `fetch('ipfs://...')`");
     stdout_lines
         .by_ref()
         .take_while(|ln| !ln.contains("fetch:start"))
         .for_each(drop);
 
-    // Wait until Lassie creates its temp file
+    let lassie_cache_dir = cache_root.join("lassie");
+    println!(
+        "Waiting until Lassie creates its temp file in {}",
+        lassie_cache_dir.display()
+    );
     loop {
         std::thread::sleep(Duration::from_millis(100));
-        let file_count = read_dir(cache_root.join("lassie"))
+        let file_count = read_dir(&lassie_cache_dir)
             .expect("cannot list files in Lassie's temp dir")
             .count();
 
@@ -63,7 +69,7 @@ pub fn it_removes_lassie_temp_on_start() {
         }
     }
 
-    // Stop the process
+    println!("Killing the zinniad process");
     // Note: on Unix, this sends SIGKILL signal which allows the process to shutdown gracefully
     // If we ever implement graceful shutdown for Lassie, then we may need to rework this line.
     child.kill().expect("cannot stop zinniad");
@@ -84,7 +90,7 @@ pub fn it_removes_lassie_temp_on_start() {
         "Lassie should have left some temp files"
     );
 
-    // Run zinniad again
+    println!("Running zinniad again");
     let mut child = cmd
         .spawn()
         .unwrap_or_else(|_| panic!("cannot spawn {:?}", cmd.get_program()));
@@ -93,13 +99,13 @@ pub fn it_removes_lassie_temp_on_start() {
         .map(|it| it.expect("cannot read from child's stdout"))
         .inspect(|ln| println!("[zinniad] {}", ln));
 
-    // Wait until our module starts and calls `fetch('ipfs://...')`
+    println!("Waiting for our module to start and call `fetch('ipfs://...')`");
     stdout_lines
         .by_ref()
         .take_while(|ln| !ln.contains("fetch:start"))
         .for_each(drop);
 
-    // Stop the process
+    println!("Killing the zinniad process");
     // Note: on Unix, this sends SIGKILL signal which allows the process to shutdown gracefully
     // If we ever implement graceful shutdown for Lassie, then we may need to rework this line.
     child.kill().expect("cannot stop zinniad");
