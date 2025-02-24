@@ -64,6 +64,7 @@ pub enum RequestResponseMessage {
 
 /// The events emitted by a [`RequestResponse`] protocol.
 #[derive(Debug)]
+#[allow(dead_code)]
 pub enum RequestResponseEvent {
     /// An incoming message (request or response).
     Message {
