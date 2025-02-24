@@ -18,7 +18,7 @@ log.workspace = true
 smallvec = "1.14.0"
 tokio = { workspace = true, features = ["rt", "macros", "sync", "time"] }
 tokio-util = "0.7.13"
-either = "1.13.0"
+either = "1.14.0"
 
 [dependencies.libp2p]
 version = "0.51.4"
